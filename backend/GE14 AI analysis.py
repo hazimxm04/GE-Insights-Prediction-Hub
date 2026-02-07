@@ -1,0 +1,51 @@
+import pandas as pd
+import numpy as np
+import joblib
+import gedataset_pipeline as gep
+from sklearn.preprocessing import StandardScaler, OneHotEncoder
+from sklearn.compose import ColumnTransformer
+from sklearn.model_selection import train_test_split
+from sklearn.linear_model import LogisticRegression
+from sklearn.pipeline import Pipeline
+from sklearn.metrics import accuracy_score
+
+
+# --- REPLACE ONLY THE MAIN FUNCTION ---
+def main():
+    # 1. Load Data
+    df_raw = pd.read_csv("Parliment_GE14.csv")
+    df_clean = gep.clean_dataset(df_raw)
+
+    # 4. Target and Agnostic Features
+    y = df_clean['Result'].astype(int)
+    
+    # Drop everything that identifies the party or candidate specifically
+    columns_to_drop = [
+        'Seat ID', 'Seat Name', 'Candidate Name', 'Votes for Candidate',
+        'Result', 'Status','Candidate Party', 'Gender', 'Jobs'
+    ]
+    X = df_clean[gep.num_cols + gep.cat_cols]
+
+    # 5. Pipeline & Training
+    X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.3, random_state=42, stratify=y)
+
+    preprocessor = ColumnTransformer([
+        ('num', StandardScaler(), gep.num_cols),
+        ('cat', OneHotEncoder(handle_unknown='ignore', sparse_output=False), gep.cat_cols)
+    ])
+
+    model = Pipeline([
+        ('preprocessor', preprocessor),
+        ('classifier', LogisticRegression(max_iter=1000, C=0.1))
+    ])
+
+    print("Training Agnostic Model [GE14]")
+    model.fit(X_train, y_train)
+    
+    joblib.dump(model, 'ge14_model.joblib')
+
+    acc = accuracy_score(y_test, model.predict(X_test))
+    print(f"Model saved. Accuracy: {accuracy_score(y_test, model.predict(X_test)):.2%}")
+
+if __name__ == "__main__":
+    main()
