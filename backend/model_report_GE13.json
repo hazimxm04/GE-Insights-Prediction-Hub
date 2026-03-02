@@ -1,0 +1,29 @@
+{
+  "year": "GE13",
+  "timestamp": "2026-02-26T22:59:03.851115",
+  "test_size": 116,
+  "train_size": 463,
+  "accuracy": 0.9655,
+  "precision": 1.0,
+  "recall": 0.8974,
+  "f1_score": 0.9459,
+  "confusion_matrix": [
+    [
+      77,
+      0
+    ],
+    [
+      4,
+      35
+    ]
+  ],
+  "cv_mean_accuracy": 0.9724,
+  "cv_std_accuracy": 0.0148,
+  "cv_scores": [
+    0.9483,
+    0.9655,
+    0.9741,
+    0.9914,
+    0.9826
+  ]
+}

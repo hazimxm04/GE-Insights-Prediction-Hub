@@ -1,0 +1,20 @@
+MODEL EVALUATION REPORT — GE14
+Generated: 2026-02-26T22:59:06.323940
+====================================================
+
+Train rows     : 549
+Test rows      : 138
+
+Accuracy       : 89.13%
+Precision      : 87.50%
+Recall         : 77.78%
+F1 Score       : 82.35%
+
+CV Mean Acc    : 92.72%
+CV Std         : ±0.94%
+CV Scores      : [np.float64(0.942), np.float64(0.9348), np.float64(0.9197), np.float64(0.9197), np.float64(0.9197)]
+
+Confusion Matrix (rows=actual, cols=predicted):
+             Pred Loss  Pred Win
+Actual Loss       88         5
+Actual Win        10        35

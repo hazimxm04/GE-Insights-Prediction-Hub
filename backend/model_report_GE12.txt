@@ -1,0 +1,20 @@
+MODEL EVALUATION REPORT — GE12
+Generated: 2026-02-26T22:59:01.353650
+====================================================
+
+Train rows     : 384
+Test rows      : 96
+
+Accuracy       : 93.75%
+Precision      : 86.05%
+Recall         : 100.00%
+F1 Score       : 92.50%
+
+CV Mean Acc    : 94.17%
+CV Std         : ±2.68%
+CV Scores      : [np.float64(0.9583), np.float64(0.9479), np.float64(0.9792), np.float64(0.9062), np.float64(0.9167)]
+
+Confusion Matrix (rows=actual, cols=predicted):
+             Pred Loss  Pred Win
+Actual Loss       53         6
+Actual Win         0        37

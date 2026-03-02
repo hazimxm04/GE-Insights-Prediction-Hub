@@ -6,7 +6,7 @@ import joblib
 import pandas as pd
 import numpy as np
 import os
-import google.generativeai as genai
+import anthropic
 
 import supabase
 from database import get_database, supabase
@@ -108,71 +108,33 @@ def state_prediction(data: StateInput):
         if df.empty:
             return {"summary": {"wins": 0, "total_seats": 0}, "message": "No data found."}
 
-        # ── 4. SIMULATION ────────────────────────────────────────────────────
-        # Strategy: work seat-by-seat so we can properly model swing on the
-        # selected coalition vs. opponents staying at historical levels.
-        #
-        # For each seat:
-        #   - selected coalition candidate gets swing + base_voter_rate applied
-        #   - opponent votes stay historical (only scaled by turnout)
-        #   - relative_vote_margin = (coalition_sim - opponent_sim) / sim_total
-        #   - this means sliders genuinely change whether the coalition wins
+        # 4. Math Logic (Now 100% safe from the "arg must be a list" error)
+        # Force these specific columns to be numeric
+        def get_1d_col(col_name):
+            if col_name not in df.columns:
+                return pd.Series(0, index=df.index)
+            val = df[col_name]
+            # Force 1D
+            if isinstance(val, pd.DataFrame):
+                val = val.iloc[:, 0]
+            return pd.to_numeric(val, errors='coerce').fillna(0)
+        # 4. PERFORM CALCULATIONS ON GUARANTEED 1D OBJECTS
+        votes = get_1d_col('votes_for_candidate')
+        total = get_1d_col('total_votes')
 
-        coalition_col = "standardized_coalition" if "standardized_coalition" in df.columns else "coalition"
+        df['hist_share'] = (votes / total.replace(0, 1)) * 100
+        # base_voter_rate scales the historical share (50 = no change, 60 = boost, 40 = reduce)
+        effective_share = df['hist_share'] * (data.base_voter_rate / 50.0) if data.base_voter_rate != 50 else df['hist_share']
+        # Apply swing on top, then clamp to valid range [0, 100] so model gets clean inputs
+        swung_share = (effective_share + float(data.swing)).clip(0, 100)
+        df['sim_turnout'] = total * (data.turnout_rate / 100)
+        # sim_votes feeds into clean_dataset() which recomputes relative_vote_margin
+        # THAT is how swing reaches the model — it never sees 'swing' directly
+        df['sim_votes'] = df['sim_turnout'] * (swung_share / 100)
 
-        def to_numeric_1d(series):
-            if isinstance(series, pd.DataFrame):
-                series = series.iloc[:, 0]
-            return pd.to_numeric(series, errors="coerce").fillna(0)
-
-        df["votes_for_candidate"] = to_numeric_1d(df["votes_for_candidate"])
-        df["total_votes"]         = to_numeric_1d(df["total_votes"])
-
-        sim_rows = []
-        for seat_id, seat_df in df.groupby("seat_id"):
-            seat_df = seat_df.copy()
-            total_votes = float(seat_df["total_votes"].iloc[0])
-            sim_total   = total_votes * (data.turnout_rate / 100)
-
-            for idx, row in seat_df.iterrows():
-                hist_votes = float(row["votes_for_candidate"])
-                hist_share = (hist_votes / total_votes * 100) if total_votes > 0 else 0
-
-                is_target = (
-                    search_coalition == "all" or
-                    str(row.get(coalition_col, "")).lower() == search_coalition
-                )
-
-                if is_target:
-                    # Apply base_voter_rate scaling + swing to this coalition
-                    effective_share = hist_share * (data.base_voter_rate / 50.0) if data.base_voter_rate != 50 else hist_share
-                    swung_share     = float(np.clip(effective_share + data.swing, 0, 100))
-                    sim_votes       = sim_total * (swung_share / 100)
-                else:
-                    # Opponents scale with turnout only — their share stays historical
-                    sim_votes = sim_total * (hist_share / 100)
-
-                seat_df.at[idx, "votes_for_candidate"] = sim_votes
-                seat_df.at[idx, "total_votes"]         = sim_total
-
-            sim_rows.append(seat_df)
-
-        df_sim = pd.concat(sim_rows, ignore_index=True)
-
-        # 5. Recompute features from simulated votes
-        df_sim["turnout_rate"] = float(data.turnout_rate)
-        processed_df = gep.clean_dataset(df_sim)
-        processed_df["turnout_rate"] = float(data.turnout_rate)
-
-        # Filter to target coalition AFTER simulation so relative_vote_margin
-        # was computed with full seat context (coalition vs opponents)
-        if search_coalition != "all":
-            processed_df = processed_df[
-                processed_df[coalition_col].str.lower() == search_coalition
-            ].copy()
-
-        if processed_df.empty:
-            return {"summary": {"wins": 0, "total_seats": 0}, "message": "No data after simulation."}
+        # 5. Prediction Compilation
+        df_pipe = df.rename(columns={'sim_votes': 'votes_for_candidate', 'sim_turnout': 'total_votes'}).copy()
+        processed_df = gep.clean_dataset(df_pipe)
         
         current_model = get_model(target_year)
         features = processed_df[current_model.feature_names_in_]
@@ -184,16 +146,13 @@ def state_prediction(data: StateInput):
         # 6. Final State Summary
         total_wins = int(processed_df['verdict_num'].sum())
         
-        avg_probability = float(processed_df['win_probability'].mean() * 100)
-
         return {
             "summary": {
                 "view": data.state_filter,
                 "coalition": data.coalition,
                 "total_seats": len(processed_df),
                 "wins": total_wins,
-                "losses": len(processed_df) - total_wins,
-                "avg_probability": round(avg_probability, 1)
+                "losses": len(processed_df) - total_wins
             },
             "seats": processed_df[['seat_id', 'seat_name', 'verdict_num', 'win_probability']].to_dict(orient="records")
         }
@@ -459,12 +418,10 @@ class ExplainInput(BaseModel):
 @app.post("/api/explain")
 def explain_prediction(data: ExplainInput):
     try:
-        api_key = os.environ.get("GEMINI_API_KEY")
+        api_key = os.environ.get("ANTHROPIC_API_KEY")
         if not api_key:
-            return {"status": "error", "explanation": "GEMINI_API_KEY not set.", "details": "Add it to your .env file"}
-
-        genai.configure(api_key=api_key)
-        model = genai.GenerativeModel("gemini-1.5-flash-8b")
+            return {"status": "error", "explanation": "ANTHROPIC_API_KEY not set.", "details": "Add it to your environment"}
+        client = anthropic.Anthropic(api_key=api_key)
 
         if data.mode == "predict":
             prompt = f"""You are an expert Malaysian political analyst. A machine learning model just made this election prediction:
@@ -477,7 +434,7 @@ def explain_prediction(data: ExplainInput):
 - Swing rate applied: {data.swing:+.1f}%
 - Turnout rate: {data.turnout:.0f}%
 
-Write a concise 3-sentence plain-English analysis of this prediction result.
+Write a concise 3-sentence plain-English analysis of this prediction result. 
 Sentence 1: summarise the outcome and what it means.
 Sentence 2: comment on what the probability level suggests about competitiveness.
 Sentence 3: note how the swing/turnout settings may have influenced this result.
@@ -499,11 +456,15 @@ Sentence 2: interpret what the seat swing and flipped count reveals about voter 
 Sentence 3: give one possible real-world political factor that could explain this shift.
 Be specific, analytical, and direct. Do not use bullet points."""
 
-        response = model.generate_content(prompt)
+        message = client.messages.create(
+            model="claude-haiku-4-5-20251001",
+            max_tokens=200,
+            messages=[{"role": "user", "content": prompt}]
+        )
 
         return {
             "status": "success",
-            "explanation": response.text
+            "explanation": message.content[0].text
         }
 
     except Exception as e:

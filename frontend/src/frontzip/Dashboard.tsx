@@ -151,9 +151,15 @@ export default function Dashboard() {
       const data = await res.json();
       if (data.status === 'success') {
         setExplanation(data.explanation);
+      } else {
+        setExplanation(`Analysis unavailable: ${data.details || data.explanation}`);
       }
-      // Silently fail if LLM unavailable — card just won't show
     } catch (e: unknown) {
+      if (e instanceof Error && e.name === 'AbortError') {
+        setExplanation('Analysis timed out — check that ANTHROPIC_API_KEY is set in your backend.');
+      } else {
+        setExplanation('Analysis unavailable — backend may not be running.');
+      }
       console.error('Explanation fetch failed:', e);
     } finally {
       setIsExplaining(false);
@@ -237,7 +243,7 @@ export default function Dashboard() {
 
       const displayProbability = isSingleSeat
         ? Math.round(data.seats[0].win_probability * 100)
-        : Math.round(data.summary.avg_probability ?? (total_seats > 0 ? (wins / total_seats) * 100 : 0));
+        : (total_seats > 0 ? Math.round((wins / total_seats) * 100) : 0);
 
       const displayResult = isSingleSeat
         ? (data.seats[0].verdict_num === 1 ? 'WIN' : 'LOSS')
@@ -326,12 +332,12 @@ export default function Dashboard() {
         )}
 
         {/* LLM Explanation Card */}
-        {(explanation) && (
+        {(explanation || isExplaining) && (
           <div className="border-4 border-black p-6 bg-white shadow-[8px_8px_0px_0px_rgba(0,0,0,1)]">
             <div className="flex items-center gap-3 mb-3">
               <h2 className="text-sm font-black uppercase">AI Analysis</h2>
-              <span className="text-[9px] font-black uppercase bg-blue-600 text-white px-2 py-0.5 tracking-widest">
-                Gemini
+              <span className="text-[9px] font-black uppercase bg-black text-white px-2 py-0.5 tracking-widest">
+                Claude
               </span>
             </div>
             <div className="border-b-4 border-yellow-400 mb-4 w-40" />

@@ -7,7 +7,7 @@ interface DashboardLayoutProps {
 const Header = () => (
   <header className="w-full p-4 border-b-2 border-gray-800 bg-gray-100 text-center">
     <h1 className="text-3xl font-bold mb-4 tracking-tighter text-gray-900">
-      Election Predictive System
+      GE14 Predictive System
     </h1>
   </header>
 );
