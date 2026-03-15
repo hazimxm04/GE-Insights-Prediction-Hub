@@ -212,6 +212,21 @@ GE-Insights-Prediction-Hub/
 ---
 ## Screenshots
 Below are some of the pictures of the dahsboard of this project.
+### Dashboard - Predict Mode
+<img width="1641" height="954" alt="Image" src="https://github.com/user-attachments/assets/e457be5c-435a-483e-ad24-a24c056ccf3a" />
+
+---
+
+### Model Performance - Predict Mode
+<img width="1389" height="882" alt="Image" src="https://github.com/user-attachments/assets/af9d725b-1a33-4949-9e8b-965f8478e75c" />
+---
+
+### Dashboard - Comparison Mode
+<img width="1417" height="883" alt="Image" src="https://github.com/user-attachments/assets/c3a15307-7dde-4027-be8e-32dd11432824" />
+---
+
+### Seat & Result Comparison Analysis
+<img width="1439" height="894" alt="Image" src="https://github.com/user-attachments/assets/2b2c684b-49b9-4a14-b4fb-6abb1ff5ba1f" />
 
 
 
