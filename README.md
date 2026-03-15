@@ -210,9 +210,16 @@ GE-Insights-Prediction-Hub/
 ```
 
 ---
+## Screenshots
+Below are some of the pictures of the dahsboard of this project.
+
+
+
 
 ## Author
 
 Thank you for reading till the end of this. I hope you will enjoy this reading as much as I enjoy developing this project in my previous Winter break :D
 
 ---
+
+
