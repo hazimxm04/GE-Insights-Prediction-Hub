@@ -1,0 +1,76 @@
+{
+  "state": "melaka",
+  "seats": 28,
+  "features": [
+    "majority_change",
+    "turnout_change",
+    "incumbent_held",
+    "log_voters",
+    "majority_perc_change",
+    "n_candidates_b"
+  ],
+  "target": "target_non_bn_won",
+  "class_balance": {
+    "BN": 21,
+    "non_BN": 7
+  },
+  "models": {
+    "logistic_regression": {
+      "accuracy": 0.8929,
+      "precision": 0.75,
+      "recall": 0.8571,
+      "f1": 0.8,
+      "auc": 0.9456,
+      "brier": 0.0956
+    },
+    "random_forest": {
+      "accuracy": 0.9286,
+      "precision": 0.8571,
+      "recall": 0.8571,
+      "f1": 0.8571,
+      "auc": 0.9796,
+      "brier": 0.0551
+    },
+    "xgboost": {
+      "accuracy": 1.0,
+      "precision": 1.0,
+      "recall": 1.0,
+      "f1": 1.0,
+      "auc": 1.0,
+      "brier": 0.0
+    },
+    "rf_calibrated": {
+      "accuracy": 0.9286,
+      "precision": 0.7778,
+      "recall": 1.0,
+      "f1": 0.875,
+      "auc": 0.9592,
+      "brier": 0.0524
+    },
+    "ensemble": {
+      "accuracy": 1.0,
+      "auc": 1.0,
+      "brier": 0.0144
+    }
+  },
+  "feature_importance": {
+    "log_voters": 0.3084,
+    "majority_change": 0.286,
+    "turnout_change": 0.2142,
+    "majority_perc_change": 0.1607,
+    "incumbent_held": 0.0167,
+    "n_candidates_b": 0.0141
+  },
+  "ablation": {
+    "majority_change": 0.0357,
+    "turnout_change": 0.0,
+    "incumbent_held": 0.0,
+    "log_voters": 0.0,
+    "majority_perc_change": 0.0357,
+    "n_candidates_b": 0.0
+  },
+  "ood": {
+    "n_flagged": 3,
+    "pct_flagged": 10.7
+  }
+}

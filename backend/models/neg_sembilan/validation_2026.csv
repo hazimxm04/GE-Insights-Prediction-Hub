@@ -1,0 +1,37 @@
+seat,winner_coalition_b,winner_coalition_prev,predicted_non_bn,actual_non_bn,probability,correct,is_ood,ood_score
+N.01 Chennah,BN,Harapan,0,0,0.247,True,True,-130.613
+N.02 Pertang,BN,BN,0,0,0.361,True,True,-151.388
+N.03 Sungai Lui,BN,BN,0,0,0.255,True,True,-281.018
+N.04 Klawang,PN,Harapan,1,1,0.542,True,True,-100.565
+N.05 Serting,PN,PN,0,1,0.341,False,True,-419.817
+N.06 Palong,BN,BN,0,0,0.242,True,True,-468.245
+N.07 Jeram Padang,BN,BN,0,0,0.258,True,True,-230.901
+N.08 Bahau,Harapan,Harapan,0,1,0.163,False,True,-125.806
+N.09 Lenggeng,BN,BN,0,0,0.341,True,True,-330.552
+N.10 Nilai,Harapan,Harapan,1,1,0.744,True,True,-229.716
+N.11 Lobak,Harapan,Harapan,0,1,0.127,False,True,-80.322
+N.12 Temiang,Harapan,Harapan,0,1,0.272,False,True,-80.004
+N.13 Sikamat,PN,Harapan,1,1,0.754,True,True,-129.596
+N.14 Ampangan,PN,Harapan,0,1,0.294,False,True,-138.137
+N.15 Juasseh,BN,BN,0,0,0.254,True,True,-205.988
+N.16 Seri Menanti,BN,BN,0,0,0.227,True,True,-188.959
+N.17 Senaling,BN,BN,0,0,0.227,True,True,-153.288
+N.18 Pilah,BN,Harapan,0,0,0.185,True,True,-121.369
+N.19 Johol,BN,BN,0,0,0.133,True,True,-148.406
+N.20 Labu,BN,PN,0,0,0.385,True,True,-162.294
+N.21 Bukit Kepayang,Harapan,Harapan,1,1,0.559,True,True,-163.194
+N.22 Rahang,Harapan,Harapan,0,1,0.264,False,True,-100.727
+N.23 Mambau,Harapan,Harapan,1,1,0.765,True,True,-95.134
+N.24 Seremban Jaya,Harapan,Harapan,1,1,0.633,True,True,-162.98
+N.25 Paroi,PN,PN,0,1,0.329,False,True,-553.384
+N.26 Chembong,BN,BN,0,0,0.199,True,True,-364.567
+N.27 Rantau,BN,BN,1,0,0.72,False,True,-168.235
+N.28 Kota,BN,BN,0,0,0.258,True,True,-267.085
+N.29 Chuah,Harapan,Harapan,0,1,0.101,False,True,-104.63
+N.30 Lukut,Harapan,Harapan,1,1,0.644,True,True,-108.285
+N.31 Bagan Pinang,PN,PN,0,1,0.28,False,True,-142.821
+N.32 Linggi,BN,BN,0,0,0.381,True,True,-182.759
+N.33 Sri Tanjung,Harapan,Harapan,0,1,0.264,False,True,-142.507
+N.34 Gemas,PN,PN,0,1,0.341,False,True,-270.966
+N.35 Gemencheh,BN,BN,0,0,0.147,True,True,-231.876
+N.36 Repah,BN,Harapan,1,0,0.692,False,True,-93.609

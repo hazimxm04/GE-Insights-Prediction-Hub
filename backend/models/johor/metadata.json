@@ -1,0 +1,76 @@
+{
+  "state": "johor",
+  "seats": 56,
+  "features": [
+    "majority_change",
+    "turnout_change",
+    "incumbent_held",
+    "log_voters",
+    "majority_perc_change",
+    "n_candidates_b"
+  ],
+  "target": "target_non_bn_won",
+  "class_balance": {
+    "BN": 40,
+    "non_BN": 16
+  },
+  "models": {
+    "logistic_regression": {
+      "accuracy": 0.8571,
+      "precision": 0.7,
+      "recall": 0.875,
+      "f1": 0.7778,
+      "auc": 0.9437,
+      "brier": 0.0913
+    },
+    "random_forest": {
+      "accuracy": 0.9286,
+      "precision": 0.875,
+      "recall": 0.875,
+      "f1": 0.875,
+      "auc": 0.9922,
+      "brier": 0.0449
+    },
+    "xgboost": {
+      "accuracy": 1.0,
+      "precision": 1.0,
+      "recall": 1.0,
+      "f1": 1.0,
+      "auc": 1.0,
+      "brier": 0.0004
+    },
+    "rf_calibrated": {
+      "accuracy": 0.9286,
+      "precision": 1.0,
+      "recall": 0.75,
+      "f1": 0.8571,
+      "auc": 0.9812,
+      "brier": 0.0561
+    },
+    "ensemble": {
+      "accuracy": 1.0,
+      "auc": 1.0,
+      "brier": 0.0131
+    }
+  },
+  "feature_importance": {
+    "majority_change": 0.3892,
+    "majority_perc_change": 0.2816,
+    "turnout_change": 0.1867,
+    "log_voters": 0.0766,
+    "n_candidates_b": 0.0378,
+    "incumbent_held": 0.0281
+  },
+  "ablation": {
+    "majority_change": 0.1607,
+    "turnout_change": 0.0,
+    "incumbent_held": 0.0,
+    "log_voters": 0.0,
+    "majority_perc_change": 0.0179,
+    "n_candidates_b": -0.0179
+  },
+  "ood": {
+    "n_flagged": 6,
+    "pct_flagged": 10.7
+  }
+}

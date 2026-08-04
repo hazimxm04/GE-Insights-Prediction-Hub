@@ -6,7 +6,7 @@ from sklearn.pipeline import Pipeline
 from sklearn.compose import ColumnTransformer
 from sklearn.preprocessing import OneHotEncoder
 from sklearn.metrics import accuracy_score, classification_report
-from database import supabase
+from backend.archive.database import supabase
 
 # 1. GLOBAL CONFIG: Change once to update everywhere
 FEATURES_SINGLE = ['turnout_rate', 'relative_vote_margin', 'log_total_voters', 'state', 'region', 'standardized_coalition']
@@ -41,7 +41,7 @@ def get_database(year=None):
 
 def get_year_analysis(df, year):
     """Trains a model for a single year with full feature set."""
-    from gedataset_pipeline import clean_dataset
+    from backend.archive.gedataset_pipeline import clean_dataset
 
     # Run clean_dataset so standardized_coalition, state, region,
     # relative_vote_margin, log_total_voters are all present
