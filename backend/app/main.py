@@ -65,9 +65,13 @@ async def health():
 
 if __name__ == "__main__":
     import uvicorn
+    import os
+
+    port = int(os.getenv("PORT", 8000))
+
     uvicorn.run(
         "backend.app.main:app",
         host="0.0.0.0",
-        port=8000,
-        reload=settings.DEBUG
+        port=port,
+        reload=False
     )
