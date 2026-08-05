@@ -3,6 +3,8 @@
 State election predictor with OOD fallback.
 Usage: from backend.core.models.state_predictor import StatePredictor
 """
+import warnings
+warnings.filterwarnings("ignore", category=UserWarning)
 
 import sys
 import pickle
