@@ -1,0 +1,29 @@
+seat_name,prediction,probability,rf_prob,xgb_prob,ensemble_prob,calibrated_prob,base_rate,is_ood,ood_score,confidence,fallback_used,model_used,warning,malay_pct,chinese_pct,incumbent
+N.01 Kuala Linggi,BN,0.0,0.004,0.0012,0.0026,0.0,0.0,False,15.3571,LOW,False,calibrated_rf,,0.714,0.212,BN
+N.02 Tanjung Bidara,BN,0.0,0.0138,0.0012,0.0075,0.0,0.0,False,15.6401,LOW,False,calibrated_rf,,0.925,0.045,BN
+N.03 Ayer Limau,BN,0.0,0.0,0.0012,0.0006,0.0,0.0,False,15.4577,LOW,False,calibrated_rf,,0.905,0.04,BN
+N.04 Lendu,BN,0.0,0.0,0.0012,0.0006,0.0,0.0,False,14.9154,LOW,False,calibrated_rf,,0.766,0.167,BN
+N.05 Taboh Naning,BN,0.0,0.0,0.0012,0.0006,0.0,0.0,False,15.301,LOW,False,calibrated_rf,,0.785,0.121,BN
+N.06 Rembia,BN,0.0,0.0,0.0012,0.0006,0.0,0.2581,False,11.3271,LOW,False,calibrated_rf,,0.666,0.179,BN
+N.07 Gadek,BN,0.0,0.0487,0.0012,0.0249,0.0,0.2581,False,12.8706,LOW,False,calibrated_rf,,0.608,0.208,BN
+N.08 Machap Jaya,BN,0.2435,0.4373,0.0012,0.2193,0.2435,0.3333,False,14.4695,LOW,False,calibrated_rf,,0.456,0.374,BN
+N.09 Durian Tunggal,BN,0.0,0.0055,0.0012,0.0033,0.0,0.252,False,16.0833,LOW,False,calibrated_rf,,0.668,0.232,BN
+N.10 Asahan,BN,0.0,0.0272,0.0012,0.0142,0.0,0.0,False,17.1584,LOW,False,calibrated_rf,,0.641,0.219,BN
+N.11 Sungai Udang,non-BN,0.5161,0.0728,0.0012,0.037,0.0,0.5161,True,24.6984,LOW,True,ensemble+base_rate(α=1.00),Seat outside training distribution (OOD score 24.70). Blended model (0%) with historical base rate 52% (100%).,0.774,0.09,PN
+N.12 Pantai Kundor,BN,0.0,0.0,0.0012,0.0006,0.0,0.0,False,8.4745,LOW,False,calibrated_rf,,0.787,0.163,BN
+N.13 Paya Rumput,BN,0.2581,0.4533,0.0012,0.2272,0.5,0.2581,True,19.3725,LOW,True,ensemble+base_rate(α=1.00),Seat outside training distribution (OOD score 19.37). Blended model (0%) with historical base rate 26% (100%).,0.61,0.3,BN
+N.14 Kelebang,BN,0.0,0.0399,0.0012,0.0205,0.0,0.2581,False,13.7568,LOW,False,calibrated_rf,,0.669,0.286,BN
+N.15 Pengkalan Batu,BN,0.0391,0.0831,0.0012,0.0421,0.0391,0.3333,False,15.7927,LOW,False,calibrated_rf,,0.641,0.284,BN
+N.16 Ayer Keroh,non-BN,1.0,0.9078,0.9947,0.9513,1.0,0.9677,False,17.7543,LOW,False,calibrated_rf,,0.424,0.476,Harapan
+N.17 Bukit Katil,non-BN,0.5198,0.5531,0.9947,0.7739,0.5198,1.0,False,8.7553,LOW,False,calibrated_rf,,0.635,0.299,Harapan
+N.18 Ayer Molek,BN,0.0,0.0,0.0012,0.0006,0.0,0.0,False,10.2962,LOW,False,calibrated_rf,,0.874,0.072,BN
+N.19 Kesidang,non-BN,1.0,0.9259,0.9947,0.9603,1.0,0.9677,False,18.9164,LOW,False,calibrated_rf,,0.37,0.563,Harapan
+N.20 Kota Laksamana,non-BN,1.0,0.9196,0.9947,0.9571,1.0,1.0,False,18.9247,LOW,False,calibrated_rf,,0.188,0.766,Harapan
+N.21 Duyong,BN,0.1667,0.2314,0.0012,0.1163,0.1667,0.3871,False,13.459,LOW,False,calibrated_rf,,0.618,0.32,BN
+N.22 Bandar Hilir,non-BN,1.0,0.8777,0.9947,0.9362,1.0,1.0,True,19.9992,LOW,True,ensemble+base_rate(α=1.00),Seat outside training distribution (OOD score 20.00). Blended model (0%) with historical base rate 100% (100%).,0.129,0.733,Harapan
+N.23 Telok Mas,BN,0.0,0.0286,0.0012,0.0149,0.0,0.2581,False,14.3748,LOW,False,calibrated_rf,,0.717,0.245,BN
+N.24 Bemban,BN,0.0,0.0564,0.0012,0.0288,0.0,0.7742,False,10.1143,LOW,False,calibrated_rf,,0.606,0.211,PN
+N.25 Rim,BN,0.0,0.0209,0.0012,0.0111,0.0,0.0,False,9.9948,LOW,False,calibrated_rf,,0.662,0.189,BN
+N.26 Serkam,BN,0.0,0.0138,0.0012,0.0075,0.0,0.0,False,14.409,LOW,False,calibrated_rf,,0.901,0.056,BN
+N.27 Merlimau,BN,0.0,0.0,0.0012,0.0006,0.0,0.0,False,11.7524,LOW,False,calibrated_rf,,0.7,0.173,BN
+N.28 Sungai Rambai,BN,0.0,0.0,0.0012,0.0006,0.0,0.0,False,12.1654,LOW,False,calibrated_rf,,0.842,0.132,BN

@@ -32,13 +32,26 @@ from backend.core.pipelines.state_pipeline import StateElectionPipeline
 
 STATES   = ['johor', 'neg_sembilan', 'melaka']
 FEATURES = [
-    'majority_change',
-    'turnout_change',
-    'incumbent_held',
-    'log_voters',
-    'majority_perc_change',
-    'n_candidates_b',
+    # Structural (6)
+    'majority_change', 'turnout_change', 'incumbent_held',
+    'log_voters', 'majority_perc_change', 'n_candidates_b',
+    # Sentiment (4)
+    'bn_sentiment', 'harapan_sentiment',
+    'pn_sentiment', 'racial_tension_index',
+    # Economic (1)
+    'economic_pressure',
+    # Ethnicity + age (8)
+    'malay_pct', 'chinese_pct', 'indian_pct',
+    'young_malay_pct', 'young_chinese_pct',
+    'older_malay_pct', 'youth_pct', 'median_age',
+     # Sentiment x Ethnicity interactions (5)
+    'bn_sent_x_malay', 'harapan_sent_x_chinese',
+    'pn_sent_x_young_malay', 'tension_x_mixed',
+    'economic_x_youth',
+    # National narrative x Demographics (1) ← NEW
+    'narrative_pressure',
 ]
+
 TARGET   = 'target_non_bn_won'
 MODELS_DIR = ROOT / "backend" / "models"
 
@@ -97,7 +110,7 @@ def train_state(state: str):
 
     # 1. Load features from pipeline
     pipeline = StateElectionPipeline(state)
-    X, y, df = pipeline.get_train_test()
+    X, y, df = pipeline.get_train_test_with_features()
 
     if X.empty:
         print(f"  ❌ No data for {state}")

@@ -11,6 +11,7 @@ import numpy as np
 import pandas as pd
 from pathlib import Path
 
+
 ROOT = Path(__file__).resolve().parents[2]
 sys.path.insert(0, str(ROOT))
 
@@ -52,7 +53,41 @@ def validate_state(state: str):
         print(f"  ⚠️  No validation data for {state}")
         return None
 
-    X_val = df_val[FEATURES].fillna(0)
+    sentiment = pipeline.load_sentiment_features()
+    df_val['bn_sentiment']         = sentiment['bn_sentiment']
+    df_val['harapan_sentiment']    = sentiment['harapan_sentiment']
+    df_val['pn_sentiment']         = sentiment['pn_sentiment']
+    df_val['racial_tension_index'] = sentiment['racial_tension_index']
+
+    # Add economic pressure feature
+    economic_pressure = pipeline.load_economic_features()
+    df_val['economic_pressure'] = economic_pressure
+
+    from backend.scripts.add_ethnicity_features import merge_ethnicity_into_features
+    val_year = pipeline.config['val_year']
+    df_val = merge_ethnicity_into_features(
+        df_features=df_val,
+        state=state,
+        year_b=val_year,
+        sentiment=sentiment,
+        economic_pressure=economic_pressure
+    )
+
+    FEATURE_COLS = [
+        'majority_change', 'turnout_change', 'incumbent_held',
+        'log_voters', 'majority_perc_change', 'n_candidates_b',
+        'bn_sentiment', 'harapan_sentiment', 'pn_sentiment',
+        'racial_tension_index', 'economic_pressure',
+        'malay_pct', 'chinese_pct', 'indian_pct',
+        'young_malay_pct', 'young_chinese_pct',
+        'older_malay_pct', 'youth_pct', 'median_age',
+        'bn_sent_x_malay', 'harapan_sent_x_chinese',
+        'pn_sent_x_young_malay', 'tension_x_mixed',
+        'economic_x_youth',
+        'narrative_pressure',
+    ]
+    
+    X_val = df_val[FEATURE_COLS].fillna(0)
     y_val = df_val['target_non_bn_won']
 
     print(f"\n  Validation seats: {len(X_val)}")

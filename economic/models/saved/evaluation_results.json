@@ -1,0 +1,22 @@
+{
+  "klci": {
+    "target": "klci",
+    "rmse": 11.5095,
+    "mae": 8.5603,
+    "mape": 0.5316,
+    "dir_acc": 52.69,
+    "naive_rmse": 11.1895,
+    "beats_naive": false,
+    "n_test": 392
+  },
+  "usd_myr": {
+    "target": "usd_myr",
+    "rmse": 0.0278,
+    "mae": 0.0218,
+    "mape": 0.5224,
+    "dir_acc": 51.15,
+    "naive_rmse": 0.0164,
+    "beats_naive": false,
+    "n_test": 392
+  }
+}

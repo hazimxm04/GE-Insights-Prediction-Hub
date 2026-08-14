@@ -19,13 +19,17 @@ from backend.core.pipelines.state_pipeline import StateElectionPipeline
 
 MODELS_DIR = ROOT / "backend" / "models"
 
-FEATURES = [
-    'majority_change',
-    'turnout_change',
-    'incumbent_held',
-    'log_voters',
-    'majority_perc_change',
-    'n_candidates_b',
+FEATURE_NAMES = [
+    'majority_change', 'turnout_change', 'incumbent_held',
+    'log_voters', 'majority_perc_change', 'n_candidates_b',
+    'bn_sentiment', 'harapan_sentiment', 'pn_sentiment',
+    'racial_tension_index', 'economic_pressure',
+    'malay_pct', 'chinese_pct', 'indian_pct',
+    'young_malay_pct', 'young_chinese_pct',
+    'older_malay_pct', 'youth_pct', 'median_age',
+    'bn_sent_x_malay', 'harapan_sent_x_chinese',
+    'pn_sent_x_young_malay', 'tension_x_mixed',
+    'economic_x_youth', 'narrative_pressure',
 ]
 
 VALID_STATES = ['johor', 'neg_sembilan', 'melaka']
@@ -155,7 +159,9 @@ class StatePredictor:
             warning          → human-readable explanation
         """
         # Build feature vector
-        X = np.array([[features.get(f, 0.0) for f in FEATURES]])
+        import pandas as pd
+        X = pd.DataFrame([[features.get(f, 0.0) for f in FEATURE_NAMES]], 
+                        columns=FEATURE_NAMES)
 
         # Layer 1: Model predictions
         rf_prob       = float(self.rf.predict_proba(X)[0][1])
@@ -234,11 +240,11 @@ class StatePredictor:
         if df.empty:
             return pd.DataFrame()
 
-        X  = df[FEATURES].fillna(0)
+        X  = df[FEATURE_NAMES].fillna(0)
         results = []
 
         for i, row in df.iterrows():
-            features = {f: X.loc[i, f] for f in FEATURES}
+            features = {f: X.loc[i, f] for f in FEATURE_NAMES}
             result   = self.predict_seat(row['seat'], features)
             result['actual_winner'] = row.get('winner_coalition_b', 'Unknown')
             result['actual_non_bn'] = int(row.get('target_non_bn_won', -1))

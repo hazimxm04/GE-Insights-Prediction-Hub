@@ -1,8 +1,9 @@
 import pandas as pd
 import numpy as np
 from pathlib import Path
+from backend.scripts.add_ethnicity_features import merge_ethnicity_into_features
 
-BASE = Path(r"C:\Users\hazim\Downloads\GE Insights Predictor")
+BASE = Path(__file__).resolve().parents[3]
 RAW  = BASE / "data/raw"
 
 # ── Coalition mapping ─────────────────────────────────────────────
@@ -44,7 +45,7 @@ STATE_CONFIG = {
         'stats_file':   'melaka_stats.parquet',
         'train_year':   2018,
         'test_year':    2021,   # Latest Melaka data
-        'val_year':     None,   # No 2026 yet
+        'val_year':     2026,   # No 2026 yet
     },
 }
 
@@ -200,8 +201,10 @@ class StateElectionPipeline:
         # ── Target variable ───────────────────────────────────────
         # 1 = opposition won (PH or PN), 0 = BN won
         # We predict: did NON-BN win?
-        merged['target_non_bn_won'] = (merged['winner_coalition_b'] != 'BN').astype(int)
-
+        OPPOSITION = {'Harapan'}
+        merged['target_non_bn_won'] = (
+            merged['winner_coalition_b'].isin(OPPOSITION)
+        ).astype(int)
         # Also useful: did Harapan specifically win?
         merged['target_harapan_won'] = (merged['winner_coalition_b'] == 'Harapan').astype(int)
 
@@ -261,29 +264,203 @@ class StateElectionPipeline:
             print(f"⚠️  No validation year for {self.state}")
             return pd.DataFrame()
 
-        print(f"\n[{self.state.upper()}] Validation features {test_year} → {val_year}")
-        return self.engineer_features(test_year, val_year)
+        df = self.engineer_features(test_year, val_year)
+        if df.empty:
+            return pd.DataFrame()
+
+        sentiment = self.load_sentiment_features()
+        df['bn_sentiment']         = sentiment['bn_sentiment']
+        df['harapan_sentiment']    = sentiment['harapan_sentiment']
+        df['pn_sentiment']         = sentiment['pn_sentiment']
+        df['racial_tension_index'] = sentiment['racial_tension_index']
+
+        economic_pressure = self.load_economic_features()
+        df['economic_pressure'] = economic_pressure
+
+        df = merge_ethnicity_into_features(
+            df_features=df,
+            state=self.state,
+            year_b=val_year,
+            sentiment=sentiment,
+            economic_pressure=economic_pressure
+        )
+
+        return df
+    def load_sentiment_features(self) -> dict:
+        """Load Phase 2 sentiment scores for this state."""
+        sentiment_path = Path("data/processed/state_sentiment_scores.csv")
+
+        default = {
+            'bn_sentiment':         0.0,
+            'harapan_sentiment':    0.0,
+            'pn_sentiment':         0.0,
+            'racial_tension_index': 0.0,
+        }
+
+        if not sentiment_path.exists():
+            print(f"  No sentiment data, using zeros")
+            return default
+
+        df = pd.read_csv(sentiment_path)
+        row = df[df['state'] == self.state]
+
+        if row.empty:
+            print(f"  No sentiment for {self.state}, using zeros")
+            return default
+
+        return {
+            'bn_sentiment':         float(row['bn_sentiment'].values[0]),
+            'harapan_sentiment':    float(row['harapan_sentiment'].values[0]),
+            'pn_sentiment':         float(row['pn_sentiment'].values[0]),
+            'racial_tension_index': float(row['racial_tension_index'].values[0]),
+        }
+
+    def load_economic_features(self) -> float:
+        """Load Phase 4 economic pressure score for this state."""
+        economic_path = Path("data/processed/election_economic_pressure.csv")
+
+        if not economic_path.exists():
+            print(f"  No economic pressure data, using 0.0")
+            return 0.0
+
+        df = pd.read_csv(economic_path)
+
+        state_key_map = {
+            'johor':        'johor_2026',
+            'neg_sembilan': 'neg_sembilan_2026',
+            'melaka':       'melaka_2026',
+        }
+
+        key = state_key_map.get(self.state)
+        if key is None:
+            return 0.0
+
+        row = df[df['state'] == key]
+        if row.empty:
+            print(f"  No economic pressure for {self.state}")
+            return 0.0
+
+        score = float(row['economic_pressure_score'].values[0])
+        print(f"  Economic pressure ({self.state}): {score:+.4f}")
+        return score
+
+    def get_train_test_with_features(self):
+        """6 structural + 4 sentiment + 1 economic = 11 features"""
+        train_year = self.config['train_year']
+        test_year  = self.config['test_year']
+
+        print(f"\n[{self.state.upper()}] Engineering features "
+              f"{train_year} -> {test_year} (11 features)")
+
+        df = self.engineer_features(train_year, test_year)
+
+        if df.empty:
+            return pd.DataFrame(), pd.DataFrame(), pd.DataFrame()
+
+        sentiment = self.load_sentiment_features()
+        df['bn_sentiment']         = sentiment['bn_sentiment']
+        df['harapan_sentiment']    = sentiment['harapan_sentiment']
+        df['pn_sentiment']         = sentiment['pn_sentiment']
+        df['racial_tension_index'] = sentiment['racial_tension_index']
+
+        df['economic_pressure'] = self.load_economic_features()
+
+        FEATURE_COLS = [
+            'majority_change', 'turnout_change', 'incumbent_held',
+            'log_voters', 'majority_perc_change', 'n_candidates_b',
+            'bn_sentiment', 'harapan_sentiment', 'pn_sentiment',
+            'racial_tension_index', 'economic_pressure',
+        ]
+
+        X = df[FEATURE_COLS].fillna(0)
+        y = df['target_non_bn_won']
+
+        print(f"  Features: {len(FEATURE_COLS)} total")
+        print(f"  X shape: {X.shape}")
+
+        return X, y, df
+    def load_ethnicity_features(self, year: int) -> pd.DataFrame:
+    
+        import sys
+        sys.path.insert(0, str(Path(__file__).resolve().parents[3]))
+        from backend.scripts.add_ethnicity_features import load_ethnicity_for_state
+        return load_ethnicity_for_state(self.state, year)
 
 
-# ── Quick test ────────────────────────────────────────────────────
+    def get_train_test_with_features(self):
+        """
+        Full feature set:
+        6 structural + 4 sentiment + 1 economic
+        + 8 ethnicity + 5 interactions = 24 features
+        """
+        from backend.scripts.add_ethnicity_features import merge_ethnicity_into_features
+
+        train_year = self.config['train_year']
+        test_year  = self.config['test_year']
+
+        print(f"\n[{self.state.upper()}] Engineering features "
+            f"{train_year} -> {test_year} (full feature set)")
+
+        df = self.engineer_features(train_year, test_year)
+        if df.empty:
+            return pd.DataFrame(), pd.DataFrame(), pd.DataFrame()
+
+        # Phase 2: sentiment
+        sentiment = self.load_sentiment_features()
+        df['bn_sentiment']         = sentiment['bn_sentiment']
+        df['harapan_sentiment']    = sentiment['harapan_sentiment']
+        df['pn_sentiment']         = sentiment['pn_sentiment']
+        df['racial_tension_index'] = sentiment['racial_tension_index']
+
+        # Phase 4: economic
+        economic_pressure = self.load_economic_features()
+        df['economic_pressure'] = economic_pressure
+
+        # Phase 5: ethnicity + age + interactions
+        df = merge_ethnicity_into_features(
+            df_features=df,
+            state=self.state,
+            year_b=test_year,
+            sentiment=sentiment,
+            economic_pressure=economic_pressure
+        )
+
+        FEATURE_COLS = [
+            # Structural (6)
+            'majority_change', 'turnout_change', 'incumbent_held',
+            'log_voters', 'majority_perc_change', 'n_candidates_b',
+            # Sentiment (4)
+            'bn_sentiment', 'harapan_sentiment',
+            'pn_sentiment', 'racial_tension_index',
+            # Economic (1)
+            'economic_pressure',
+            # Ethnicity + age (8) ← SEAT-LEVEL, tree CAN split
+            'malay_pct', 'chinese_pct', 'indian_pct',
+            'young_malay_pct', 'young_chinese_pct',
+            'older_malay_pct', 'youth_pct', 'median_age',
+            # Interactions (5) ← sentiment × ethnicity
+            'bn_sent_x_malay', 'harapan_sent_x_chinese',
+            'pn_sent_x_young_malay', 'tension_x_mixed',
+            'economic_x_youth',
+            'narrative_pressure', 
+        ]
+
+        X = df[FEATURE_COLS].fillna(0)
+        y = df['target_non_bn_won']
+
+        print(f"  Features: {len(FEATURE_COLS)} total")
+        print(f"  X shape: {X.shape}")
+
+        return X, y, df
+
 
 if __name__ == "__main__":
 
     for state in ['johor', 'neg_sembilan', 'melaka']:
         print(f"\n{'='*55}")
-        print(f"  TESTING: {state.upper()}")
-        print(f"{'='*55}")
-
         pipeline = StateElectionPipeline(state)
         X, y, df = pipeline.get_train_test()
-
         if not X.empty:
-            print(f"\n  Features:")
-            print(X.describe().round(3).to_string())
-            print(f"\n  Target (non-BN won):")
-            print(f"  0 (BN won):     {(y==0).sum()} seats")
-            print(f"  1 (non-BN won): {(y==1).sum()} seats")
+            print(f"  X shape: {X.shape}")
 
-        val = pipeline.get_validation()
-        if not val.empty:
-            print(f"\n  Validation ({pipeline.config['val_year']}): {len(val)} seats")
+

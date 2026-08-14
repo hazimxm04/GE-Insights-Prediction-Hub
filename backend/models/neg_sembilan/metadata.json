@@ -7,29 +7,48 @@
     "incumbent_held",
     "log_voters",
     "majority_perc_change",
-    "n_candidates_b"
+    "n_candidates_b",
+    "bn_sentiment",
+    "harapan_sentiment",
+    "pn_sentiment",
+    "racial_tension_index",
+    "economic_pressure",
+    "malay_pct",
+    "chinese_pct",
+    "indian_pct",
+    "young_malay_pct",
+    "young_chinese_pct",
+    "older_malay_pct",
+    "youth_pct",
+    "median_age",
+    "bn_sent_x_malay",
+    "harapan_sent_x_chinese",
+    "pn_sent_x_young_malay",
+    "tension_x_mixed",
+    "economic_x_youth",
+    "narrative_pressure"
   ],
   "target": "target_non_bn_won",
   "class_balance": {
-    "BN": 14,
-    "non_BN": 22
+    "BN": 19,
+    "non_BN": 17
   },
   "models": {
     "logistic_regression": {
-      "accuracy": 0.7778,
-      "precision": 0.8889,
-      "recall": 0.7273,
-      "f1": 0.8,
-      "auc": 0.8994,
-      "brier": 0.1426
+      "accuracy": 1.0,
+      "precision": 1.0,
+      "recall": 1.0,
+      "f1": 1.0,
+      "auc": 1.0,
+      "brier": 0.0146
     },
     "random_forest": {
-      "accuracy": 0.9444,
-      "precision": 0.9167,
-      "recall": 1.0,
-      "f1": 0.9565,
-      "auc": 0.987,
-      "brier": 0.1014
+      "accuracy": 0.9722,
+      "precision": 1.0,
+      "recall": 0.9412,
+      "f1": 0.9697,
+      "auc": 0.9969,
+      "brier": 0.0319
     },
     "xgboost": {
       "accuracy": 1.0,
@@ -37,37 +56,75 @@
       "recall": 1.0,
       "f1": 1.0,
       "auc": 1.0,
-      "brier": 0.0019
+      "brier": 0.0
     },
     "rf_calibrated": {
-      "accuracy": 0.8889,
-      "precision": 0.9091,
-      "recall": 0.9091,
-      "f1": 0.9091,
-      "auc": 0.9562,
-      "brier": 0.1047
+      "accuracy": 0.9722,
+      "precision": 1.0,
+      "recall": 0.9412,
+      "f1": 0.9697,
+      "auc": 0.9907,
+      "brier": 0.0382
     },
     "ensemble": {
       "accuracy": 1.0,
       "auc": 1.0,
-      "brier": 0.0319
+      "brier": 0.0083
     }
   },
   "feature_importance": {
-    "turnout_change": 0.323,
-    "log_voters": 0.254,
-    "majority_perc_change": 0.1711,
-    "majority_change": 0.1538,
-    "n_candidates_b": 0.0782,
-    "incumbent_held": 0.0198
+    "young_chinese_pct": 0.2135,
+    "chinese_pct": 0.1711,
+    "harapan_sent_x_chinese": 0.1413,
+    "narrative_pressure": 0.1063,
+    "bn_sent_x_malay": 0.0873,
+    "malay_pct": 0.0752,
+    "tension_x_mixed": 0.0422,
+    "turnout_change": 0.0367,
+    "young_malay_pct": 0.0343,
+    "pn_sent_x_young_malay": 0.0249,
+    "majority_perc_change": 0.0144,
+    "older_malay_pct": 0.014,
+    "n_candidates_b": 0.0119,
+    "indian_pct": 0.0079,
+    "majority_change": 0.0077,
+    "median_age": 0.0032,
+    "incumbent_held": 0.0028,
+    "youth_pct": 0.0022,
+    "log_voters": 0.0019,
+    "economic_x_youth": 0.0013,
+    "bn_sentiment": 0.0,
+    "pn_sentiment": 0.0,
+    "harapan_sentiment": 0.0,
+    "economic_pressure": 0.0,
+    "racial_tension_index": 0.0
   },
   "ablation": {
     "majority_change": 0.0,
-    "turnout_change": 0.2222,
-    "incumbent_held": 0.0278,
-    "log_voters": 0.2222,
-    "majority_perc_change": 0.0278,
-    "n_candidates_b": 0.0556
+    "turnout_change": 0.0,
+    "incumbent_held": 0.0,
+    "log_voters": 0.0,
+    "majority_perc_change": 0.0,
+    "n_candidates_b": 0.0,
+    "bn_sentiment": 0.0,
+    "harapan_sentiment": 0.0,
+    "pn_sentiment": 0.0,
+    "racial_tension_index": 0.0,
+    "economic_pressure": 0.0,
+    "malay_pct": 0.0278,
+    "chinese_pct": 0.0,
+    "indian_pct": 0.0,
+    "young_malay_pct": 0.0,
+    "young_chinese_pct": 0.0278,
+    "older_malay_pct": 0.0,
+    "youth_pct": 0.0,
+    "median_age": 0.0,
+    "bn_sent_x_malay": 0.0278,
+    "harapan_sent_x_chinese": 0.0278,
+    "pn_sent_x_young_malay": 0.0,
+    "tension_x_mixed": 0.0,
+    "economic_x_youth": 0.0,
+    "narrative_pressure": 0.0
   },
   "ood": {
     "n_flagged": 4,
