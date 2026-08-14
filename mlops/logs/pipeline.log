@@ -1,0 +1,200 @@
+2026-08-14 20:24:03,393 [ge_insights.scheduler] INFO: TEST MODE: Running all DAGs once
+2026-08-14 20:24:03,394 [ge_insights.scheduler] INFO: 
+========================================
+2026-08-14 20:24:03,394 [ge_insights.scheduler] INFO: Running DAG 1: Daily sentiment
+2026-08-14 20:24:03,395 [ge_insights.scheduler] INFO: ========================================
+2026-08-14 20:24:03,395 [mlops.dags.dag_sentiment] INFO: ==================================================
+2026-08-14 20:24:03,396 [mlops.dags.dag_sentiment] INFO: DAG START: dag_01_daily_sentiment at 2026-08-14 20:24:03.395045
+2026-08-14 20:24:03,396 [mlops.dags.dag_sentiment] INFO: ==================================================
+2026-08-14 20:24:03,397 [mlops.dags.dag_sentiment] INFO: 
+[TASK] scrape_news
+2026-08-14 20:24:03,398 [mlops.dags.dag_sentiment] INFO: Starting news scrape...
+2026-08-14 20:24:06,727 [mlops.dags.dag_sentiment] ERROR: Scrape failed: cannot import name 'scrape_all_sources' from 'sentiment.scrapers.news_scraper' (C:\Users\hazim\Downloads\projects\GE Insights Predictor\sentiment\scrapers\news_scraper.py)
+2026-08-14 20:24:06,727 [mlops.dags.dag_sentiment] ERROR: [TASK FAILED] scrape_news: cannot import name 'scrape_all_sources' from 'sentiment.scrapers.news_scraper' (C:\Users\hazim\Downloads\projects\GE Insights Predictor\sentiment\scrapers\news_scraper.py)
+2026-08-14 20:24:06,728 [mlops.dags.dag_sentiment] ERROR: DAG STOPPED — downstream tasks skipped
+2026-08-14 20:24:06,728 [mlops.dags.dag_sentiment] INFO: 
+DAG COMPLETE: dag_01_daily_sentiment in 3s
+2026-08-14 20:24:06,728 [ge_insights.scheduler] INFO: 
+========================================
+2026-08-14 20:24:06,728 [ge_insights.scheduler] INFO: Running DAG 2: Weekly economic
+2026-08-14 20:24:06,730 [ge_insights.scheduler] INFO: ========================================
+2026-08-14 20:24:06,730 [mlops.dags.dag_economic] INFO: ==================================================
+2026-08-14 20:24:06,730 [mlops.dags.dag_economic] INFO: DAG START: dag_02_weekly_economic at 2026-08-14 20:24:06.730131
+2026-08-14 20:24:06,731 [mlops.dags.dag_economic] INFO: ==================================================
+2026-08-14 20:24:06,731 [mlops.dags.dag_economic] INFO: 
+[TASK] fetch_economic_data
+2026-08-14 20:24:06,731 [mlops.dags.dag_economic] INFO: Fetching economic data...
+2026-08-14 20:24:08,900 [mlops.dags.dag_economic] INFO:   klci: 4071 rows
+2026-08-14 20:24:09,042 [mlops.dags.dag_economic] INFO:   usd_myr: 4329 rows
+2026-08-14 20:24:09,043 [mlops.dags.dag_economic] INFO: [TASK OK] fetch_economic_data: {'status': 'success'}
+2026-08-14 20:24:09,044 [mlops.dags.dag_economic] INFO: 
+[TASK] run_lstm_forecast
+2026-08-14 20:24:09,044 [mlops.dags.dag_economic] INFO: Running LSTM forecast...
+2026-08-14 20:24:21,834 [mlops.dags.dag_economic] INFO:   klci: latest pred = 0.7668
+2026-08-14 20:24:21,916 [mlops.dags.dag_economic] INFO:   usd_myr: latest pred = 0.6516
+2026-08-14 20:24:21,918 [mlops.dags.dag_economic] INFO: [TASK OK] run_lstm_forecast: {'status': 'success', 'results': {'klci': {'latest_pred': 0.7668477892875671, 'n_samples': 100}, 'usd_myr': {'latest_pred': 0.6515755653381348, 'n_samples': 100}}}
+2026-08-14 20:24:21,919 [mlops.dags.dag_economic] INFO: 
+[TASK] update_pressure_scores
+2026-08-14 20:24:21,919 [mlops.dags.dag_economic] INFO: Updating economic pressure scores...
+2026-08-14 20:24:32,522 [mlops.dags.dag_economic] INFO: Pressure scores updated successfully
+2026-08-14 20:24:32,522 [mlops.dags.dag_economic] INFO: [TASK OK] update_pressure_scores: {'status': 'success'}
+2026-08-14 20:24:32,523 [mlops.dags.dag_economic] INFO: 
+DAG COMPLETE: dag_02_weekly_economic in 25s
+2026-08-14 20:24:32,523 [ge_insights.scheduler] INFO: 
+========================================
+2026-08-14 20:24:32,523 [ge_insights.scheduler] INFO: Running DAG 3: Drift detection
+2026-08-14 20:24:32,524 [ge_insights.scheduler] INFO: ========================================
+2026-08-14 20:24:32,524 [mlops.dags.dag_drift] INFO: ==================================================
+2026-08-14 20:24:32,524 [mlops.dags.dag_drift] INFO: DAG START: dag_03_drift_detection at 2026-08-14 20:24:32.524178
+2026-08-14 20:24:32,525 [mlops.dags.dag_drift] INFO: ==================================================
+2026-08-14 20:24:32,525 [mlops.dags.dag_drift] INFO: Loading predictions...
+2026-08-14 20:24:32,539 [mlops.dags.dag_drift] INFO:   johor: 56 seats loaded
+2026-08-14 20:24:32,553 [mlops.dags.dag_drift] INFO:   neg_sembilan: 36 seats loaded
+2026-08-14 20:24:32,554 [mlops.dags.dag_drift] INFO: Computing accuracy...
+2026-08-14 20:24:32,579 [mlops.dags.dag_drift] INFO: Detecting drift (threshold: 85%)...
+2026-08-14 20:24:32,582 [mlops.dags.dag_drift] INFO: No drift detected — retraining not needed
+2026-08-14 20:24:32,583 [mlops.dags.dag_drift] INFO: 
+DAG COMPLETE: dag_03_drift_detection in 0s
+2026-08-14 20:24:32,583 [mlops.dags.dag_drift] INFO:   Drift detected: False
+2026-08-14 20:24:32,584 [mlops.dags.dag_drift] INFO:   Retrained: False
+2026-08-14 20:24:32,584 [ge_insights.scheduler] INFO: 
+All DAGs completed. Check mlops/logs/pipeline.log
+2026-08-14 20:28:09,385 [ge_insights.scheduler] INFO: TEST MODE: Running all DAGs once
+2026-08-14 20:28:09,386 [ge_insights.scheduler] INFO: 
+========================================
+2026-08-14 20:28:09,386 [ge_insights.scheduler] INFO: Running DAG 1: Daily sentiment
+2026-08-14 20:28:09,387 [ge_insights.scheduler] INFO: ========================================
+2026-08-14 20:28:09,387 [mlops.dags.dag_sentiment] INFO: ==================================================
+2026-08-14 20:28:09,388 [mlops.dags.dag_sentiment] INFO: DAG START: dag_01_daily_sentiment at 2026-08-14 20:28:09.387361
+2026-08-14 20:28:09,388 [mlops.dags.dag_sentiment] INFO: ==================================================
+2026-08-14 20:28:09,388 [mlops.dags.dag_sentiment] INFO: 
+[TASK] scrape_news
+2026-08-14 20:28:09,388 [mlops.dags.dag_sentiment] INFO: Starting news scrape...
+2026-08-14 20:28:24,596 [mlops.dags.dag_sentiment] INFO: [TASK OK] scrape_news: {'status': 'success', 'articles': 66, 'path': 'C:\\Users\\hazim\\Downloads\\projects\\GE Insights Predictor\\data\\raw\\news\\news_20260814.csv'}
+2026-08-14 20:28:24,596 [mlops.dags.dag_sentiment] INFO: 
+[TASK] score_sentiment
+2026-08-14 20:28:24,597 [mlops.dags.dag_sentiment] INFO: Starting sentiment scoring...
+2026-08-14 20:28:24,677 [mlops.dags.dag_sentiment] INFO: Scoring 66 articles from C:\Users\hazim\Downloads\projects\GE Insights Predictor\data\raw\news\news_20260814.csv
+2026-08-14 20:28:24,751 [mlops.dags.dag_sentiment] ERROR: Scoring failed: cannot import name 'Sentinel' from 'typing_extensions' (C:\Users\hazim\AppData\Roaming\Python\Python311\site-packages\typing_extensions.py)
+2026-08-14 20:28:24,753 [mlops.dags.dag_sentiment] ERROR: [TASK FAILED] score_sentiment: cannot import name 'Sentinel' from 'typing_extensions' (C:\Users\hazim\AppData\Roaming\Python\Python311\site-packages\typing_extensions.py)
+2026-08-14 20:28:24,753 [mlops.dags.dag_sentiment] ERROR: DAG STOPPED — downstream tasks skipped
+2026-08-14 20:28:24,753 [mlops.dags.dag_sentiment] INFO: 
+DAG COMPLETE: dag_01_daily_sentiment in 15s
+2026-08-14 20:28:24,755 [ge_insights.scheduler] INFO: 
+========================================
+2026-08-14 20:28:24,755 [ge_insights.scheduler] INFO: Running DAG 2: Weekly economic
+2026-08-14 20:28:24,755 [ge_insights.scheduler] INFO: ========================================
+2026-08-14 20:28:24,756 [mlops.dags.dag_economic] INFO: ==================================================
+2026-08-14 20:28:24,756 [mlops.dags.dag_economic] INFO: DAG START: dag_02_weekly_economic at 2026-08-14 20:28:24.756025
+2026-08-14 20:28:24,756 [mlops.dags.dag_economic] INFO: ==================================================
+2026-08-14 20:28:24,756 [mlops.dags.dag_economic] INFO: 
+[TASK] fetch_economic_data
+2026-08-14 20:28:24,756 [mlops.dags.dag_economic] INFO: Fetching economic data...
+2026-08-14 20:28:26,427 [mlops.dags.dag_economic] INFO:   klci: 4071 rows
+2026-08-14 20:28:26,571 [mlops.dags.dag_economic] INFO:   usd_myr: 4329 rows
+2026-08-14 20:28:26,572 [mlops.dags.dag_economic] INFO: [TASK OK] fetch_economic_data: {'status': 'success'}
+2026-08-14 20:28:26,572 [mlops.dags.dag_economic] INFO: 
+[TASK] run_lstm_forecast
+2026-08-14 20:28:26,573 [mlops.dags.dag_economic] INFO: Running LSTM forecast...
+2026-08-14 20:28:37,546 [mlops.dags.dag_economic] INFO:   klci: latest pred = 0.7668
+2026-08-14 20:28:37,893 [mlops.dags.dag_economic] INFO:   usd_myr: latest pred = 0.6516
+2026-08-14 20:28:37,895 [mlops.dags.dag_economic] INFO: [TASK OK] run_lstm_forecast: {'status': 'success', 'results': {'klci': {'latest_pred': 0.7668477892875671, 'n_samples': 100}, 'usd_myr': {'latest_pred': 0.6515755653381348, 'n_samples': 100}}}
+2026-08-14 20:28:37,897 [mlops.dags.dag_economic] INFO: 
+[TASK] update_pressure_scores
+2026-08-14 20:28:37,898 [mlops.dags.dag_economic] INFO: Updating economic pressure scores...
+2026-08-14 20:28:49,491 [mlops.dags.dag_economic] INFO: Pressure scores updated successfully
+2026-08-14 20:28:49,491 [mlops.dags.dag_economic] INFO: [TASK OK] update_pressure_scores: {'status': 'success'}
+2026-08-14 20:28:49,492 [mlops.dags.dag_economic] INFO: 
+DAG COMPLETE: dag_02_weekly_economic in 24s
+2026-08-14 20:28:49,492 [ge_insights.scheduler] INFO: 
+========================================
+2026-08-14 20:28:49,492 [ge_insights.scheduler] INFO: Running DAG 3: Drift detection
+2026-08-14 20:28:49,493 [ge_insights.scheduler] INFO: ========================================
+2026-08-14 20:28:49,493 [mlops.dags.dag_drift] INFO: ==================================================
+2026-08-14 20:28:49,493 [mlops.dags.dag_drift] INFO: DAG START: dag_03_drift_detection at 2026-08-14 20:28:49.493420
+2026-08-14 20:28:49,493 [mlops.dags.dag_drift] INFO: ==================================================
+2026-08-14 20:28:49,493 [mlops.dags.dag_drift] INFO: Loading predictions...
+2026-08-14 20:28:49,501 [mlops.dags.dag_drift] INFO:   johor: 56 seats loaded
+2026-08-14 20:28:49,513 [mlops.dags.dag_drift] INFO:   neg_sembilan: 36 seats loaded
+2026-08-14 20:28:49,513 [mlops.dags.dag_drift] INFO: Computing accuracy...
+2026-08-14 20:28:49,520 [mlops.dags.dag_drift] INFO: Detecting drift (threshold: 85%)...
+2026-08-14 20:28:49,522 [mlops.dags.dag_drift] INFO: No drift detected — retraining not needed
+2026-08-14 20:28:49,522 [mlops.dags.dag_drift] INFO: 
+DAG COMPLETE: dag_03_drift_detection in 0s
+2026-08-14 20:28:49,523 [mlops.dags.dag_drift] INFO:   Drift detected: False
+2026-08-14 20:28:49,523 [mlops.dags.dag_drift] INFO:   Retrained: False
+2026-08-14 20:28:49,523 [ge_insights.scheduler] INFO: 
+All DAGs completed. Check mlops/logs/pipeline.log
+2026-08-14 20:31:31,185 [ge_insights.scheduler] INFO: TEST MODE: Running all DAGs once
+2026-08-14 20:31:31,185 [ge_insights.scheduler] INFO: 
+========================================
+2026-08-14 20:31:31,186 [ge_insights.scheduler] INFO: Running DAG 1: Daily sentiment
+2026-08-14 20:31:31,186 [ge_insights.scheduler] INFO: ========================================
+2026-08-14 20:31:31,186 [mlops.dags.dag_sentiment] INFO: ==================================================
+2026-08-14 20:31:31,187 [mlops.dags.dag_sentiment] INFO: DAG START: dag_01_daily_sentiment at 2026-08-14 20:31:31.186365
+2026-08-14 20:31:31,187 [mlops.dags.dag_sentiment] INFO: ==================================================
+2026-08-14 20:31:31,187 [mlops.dags.dag_sentiment] INFO: 
+[TASK] scrape_news
+2026-08-14 20:31:31,188 [mlops.dags.dag_sentiment] INFO: Starting news scrape...
+2026-08-14 20:31:46,793 [mlops.dags.dag_sentiment] INFO: Scraped 66 articles -> C:\Users\hazim\Downloads\projects\GE Insights Predictor\data\raw\news\news_20260814.csv
+2026-08-14 20:31:46,794 [mlops.dags.dag_sentiment] INFO: [TASK OK] scrape_news: {'status': 'success', 'articles': 66, 'path': 'C:\\Users\\hazim\\Downloads\\projects\\GE Insights Predictor\\data\\raw\\news\\news_20260814.csv'}
+2026-08-14 20:31:46,794 [mlops.dags.dag_sentiment] INFO: 
+[TASK] score_sentiment
+2026-08-14 20:31:46,795 [mlops.dags.dag_sentiment] INFO: Starting sentiment scoring...
+2026-08-14 20:31:46,800 [mlops.dags.dag_sentiment] INFO: Scoring articles from C:\Users\hazim\Downloads\projects\GE Insights Predictor\data\raw\news\news_20260814.csv
+2026-08-14 20:31:48,851 [mlops.dags.dag_sentiment] ERROR: Scorer error: Traceback (most recent call last):
+  File "C:\Users\hazim\Downloads\projects\GE Insights Predictor\sentiment\scoring\sentiment_scorer.py", line 43, in <module>
+    from groq import Groq
+  File "C:\Use
+2026-08-14 20:31:48,851 [mlops.dags.dag_sentiment] ERROR: [TASK FAILED] score_sentiment: Traceback (most recent call last):
+  File "C:\Users\hazim\Downloads\projects\GE Insights Predictor\sentiment\scoring\sentiment_scorer.py", line 43, in <module>
+    from groq import Groq
+  File "C:\Use
+2026-08-14 20:31:48,851 [mlops.dags.dag_sentiment] ERROR: DAG STOPPED — downstream tasks skipped
+2026-08-14 20:31:48,851 [mlops.dags.dag_sentiment] INFO: 
+DAG COMPLETE: dag_01_daily_sentiment in 17s
+2026-08-14 20:31:48,852 [ge_insights.scheduler] INFO: 
+========================================
+2026-08-14 20:31:48,852 [ge_insights.scheduler] INFO: Running DAG 2: Weekly economic
+2026-08-14 20:31:48,852 [ge_insights.scheduler] INFO: ========================================
+2026-08-14 20:31:48,852 [mlops.dags.dag_economic] INFO: ==================================================
+2026-08-14 20:31:48,853 [mlops.dags.dag_economic] INFO: DAG START: dag_02_weekly_economic at 2026-08-14 20:31:48.852157
+2026-08-14 20:31:48,853 [mlops.dags.dag_economic] INFO: ==================================================
+2026-08-14 20:31:48,853 [mlops.dags.dag_economic] INFO: 
+[TASK] fetch_economic_data
+2026-08-14 20:31:48,853 [mlops.dags.dag_economic] INFO: Fetching economic data...
+2026-08-14 20:31:50,322 [mlops.dags.dag_economic] INFO:   klci: 4071 rows
+2026-08-14 20:31:50,471 [mlops.dags.dag_economic] INFO:   usd_myr: 4329 rows
+2026-08-14 20:31:50,472 [mlops.dags.dag_economic] INFO: [TASK OK] fetch_economic_data: {'status': 'success'}
+2026-08-14 20:31:50,472 [mlops.dags.dag_economic] INFO: 
+[TASK] run_lstm_forecast
+2026-08-14 20:31:50,473 [mlops.dags.dag_economic] INFO: Running LSTM forecast...
+2026-08-14 20:31:58,499 [mlops.dags.dag_economic] INFO:   klci: latest pred = 0.7668
+2026-08-14 20:31:58,634 [mlops.dags.dag_economic] INFO:   usd_myr: latest pred = 0.6516
+2026-08-14 20:31:58,635 [mlops.dags.dag_economic] INFO: [TASK OK] run_lstm_forecast: {'status': 'success', 'results': {'klci': {'latest_pred': 0.7668477892875671, 'n_samples': 100}, 'usd_myr': {'latest_pred': 0.6515755653381348, 'n_samples': 100}}}
+2026-08-14 20:31:58,635 [mlops.dags.dag_economic] INFO: 
+[TASK] update_pressure_scores
+2026-08-14 20:31:58,636 [mlops.dags.dag_economic] INFO: Updating economic pressure scores...
+2026-08-14 20:32:06,949 [mlops.dags.dag_economic] INFO: Pressure scores updated successfully
+2026-08-14 20:32:06,949 [mlops.dags.dag_economic] INFO: [TASK OK] update_pressure_scores: {'status': 'success'}
+2026-08-14 20:32:06,949 [mlops.dags.dag_economic] INFO: 
+DAG COMPLETE: dag_02_weekly_economic in 18s
+2026-08-14 20:32:06,950 [ge_insights.scheduler] INFO: 
+========================================
+2026-08-14 20:32:06,950 [ge_insights.scheduler] INFO: Running DAG 3: Drift detection
+2026-08-14 20:32:06,950 [ge_insights.scheduler] INFO: ========================================
+2026-08-14 20:32:06,952 [mlops.dags.dag_drift] INFO: ==================================================
+2026-08-14 20:32:06,952 [mlops.dags.dag_drift] INFO: DAG START: dag_03_drift_detection at 2026-08-14 20:32:06.950999
+2026-08-14 20:32:06,952 [mlops.dags.dag_drift] INFO: ==================================================
+2026-08-14 20:32:06,952 [mlops.dags.dag_drift] INFO: Loading predictions...
+2026-08-14 20:32:06,961 [mlops.dags.dag_drift] INFO:   johor: 56 seats loaded
+2026-08-14 20:32:06,966 [mlops.dags.dag_drift] INFO:   neg_sembilan: 36 seats loaded
+2026-08-14 20:32:06,967 [mlops.dags.dag_drift] INFO: Computing accuracy...
+2026-08-14 20:32:06,975 [mlops.dags.dag_drift] INFO: Detecting drift (threshold: 85%)...
+2026-08-14 20:32:06,976 [mlops.dags.dag_drift] INFO: No drift detected — retraining not needed
+2026-08-14 20:32:06,977 [mlops.dags.dag_drift] INFO: 
+DAG COMPLETE: dag_03_drift_detection in 0s
+2026-08-14 20:32:06,978 [mlops.dags.dag_drift] INFO:   Drift detected: False
+2026-08-14 20:32:06,978 [mlops.dags.dag_drift] INFO:   Retrained: False
+2026-08-14 20:32:06,978 [ge_insights.scheduler] INFO: 
+All DAGs completed. Check mlops/logs/pipeline.log
