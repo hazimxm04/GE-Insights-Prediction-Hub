@@ -221,47 +221,49 @@ class StatePredictor:
             'warning':         warning,
         }
 
-    def predict_all(self, year_from: int = None, year_to: int = None) -> pd.DataFrame:
-        """
-        Predict all DUN seats for this state.
-        Uses the validation transition (test_year → val_year).
-        """
+    def predict_all(self, year_from: int = None, year_to: int = None):
+        from backend.core.pipelines.state_pipeline import StateElectionPipeline
+        from backend.scripts.add_ethnicity_features import merge_ethnicity_into_features
+
         pipeline = StateElectionPipeline(self.state)
 
-        # Default to validation transition
         year_from = year_from or pipeline.config['test_year']
         year_to   = year_to   or pipeline.config['val_year']
 
         if year_to is None:
-            print(f"⚠️  No validation year for {self.state}")
             return pd.DataFrame()
 
         df = pipeline.engineer_features(year_from, year_to)
-        if df.empty:
-            return pd.DataFrame()
 
-        X  = df[FEATURE_NAMES].fillna(0)
+        # Add sentiment features
+        sentiment = pipeline.load_sentiment_features()
+        df['bn_sentiment']         = sentiment['bn_sentiment']
+        df['harapan_sentiment']    = sentiment['harapan_sentiment']
+        df['pn_sentiment']         = sentiment['pn_sentiment']
+        df['racial_tension_index'] = sentiment['racial_tension_index']
+
+        # Add economic feature
+        economic_pressure = pipeline.load_economic_features()
+        df['economic_pressure'] = economic_pressure
+
+        # Add ethnicity + interactions
+        df = merge_ethnicity_into_features(
+            df_features=df,
+            state=self.state,
+            year_b=year_to,
+            sentiment=sentiment,
+            economic_pressure=economic_pressure
+        )
+
+        X = df[FEATURE_NAMES].fillna(0)
+
         results = []
-
         for i, row in df.iterrows():
-            features = {f: X.loc[i, f] for f in FEATURE_NAMES}
+            features = {f: float(X.loc[i, f]) for f in FEATURE_NAMES}
             result   = self.predict_seat(row['seat'], features)
-            result['actual_winner'] = row.get('winner_coalition_b', 'Unknown')
-            result['actual_non_bn'] = int(row.get('target_non_bn_won', -1))
             results.append(result)
 
-        df_results = pd.DataFrame(results)
-
-        # Accuracy
-        valid = df_results['actual_non_bn'] != -1
-        if valid.any():
-            pred_binary = (df_results.loc[valid, 'probability'] >= 0.5).astype(int)
-            acc = (pred_binary == df_results.loc[valid, 'actual_non_bn']).mean()
-            print(f"\n  {self.state.upper()} accuracy: {acc:.2%}")
-            print(f"  OOD seats: {df_results['is_ood'].sum()}/{len(df_results)}")
-            print(f"  Fallback used: {df_results['fallback_used'].sum()} seats")
-
-        return df_results
+        return pd.DataFrame(results)
 
 
 # ── Quick test ────────────────────────────────────────────────────
