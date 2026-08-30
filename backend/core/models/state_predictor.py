@@ -74,6 +74,43 @@ class StatePredictor:
 
         print(f"✅ StatePredictor loaded: {state} ({len(self.base_rates)} seats)")
 
+
+
+    def get_seat_context(self, seat_name: str) -> dict:
+        """
+        Fetch real sentiment/ethnicity/economic data for a seat.
+        Used to auto-fill features not provided by the caller
+        (e.g. when predict_seat() is called directly with only
+        structural features from a custom scenario tool).
+        """
+        from backend.core.pipelines.state_pipeline import StateElectionPipeline
+        from backend.scripts.add_ethnicity_features import merge_ethnicity_into_features
+
+        pipeline = StateElectionPipeline(self.state)
+        sentiment = pipeline.load_sentiment_features()
+        economic_pressure = pipeline.load_economic_features()
+
+        # Build a minimal df with just this seat to run through
+        # the same ethnicity merge logic predict_all() uses
+        df = pd.DataFrame([{'seat': seat_name}])
+        df['bn_sentiment']         = sentiment['bn_sentiment']
+        df['harapan_sentiment']    = sentiment['harapan_sentiment']
+        df['pn_sentiment']         = sentiment['pn_sentiment']
+        df['racial_tension_index'] = sentiment['racial_tension_index']
+        df['economic_pressure']    = economic_pressure
+
+        year_to = pipeline.config.get('val_year') or pipeline.config['test_year']
+        df = merge_ethnicity_into_features(
+            df_features=df, state=self.state, year_b=year_to,
+            sentiment=sentiment, economic_pressure=economic_pressure
+        )
+
+        context_features = [f for f in FEATURE_NAMES if f not in [
+            'majority_change', 'turnout_change', 'incumbent_held',
+            'log_voters', 'majority_perc_change', 'n_candidates_b'
+        ]]
+        return {f: float(df.iloc[0].get(f, 0.0)) for f in context_features}
+
     # ── Historical base rate ──────────────────────────────────────
 
     def _compute_base_rates(self) -> dict:
@@ -160,7 +197,9 @@ class StatePredictor:
         """
         # Build feature vector
         import pandas as pd
-        X = pd.DataFrame([[features.get(f, 0.0) for f in FEATURE_NAMES]], 
+        context = self.get_seat_context(seat_name)
+        full_features = {**context, **features}  # user overrides win
+        X = pd.DataFrame([[full_features.get(f, 0.0) for f in FEATURE_NAMES]],
                         columns=FEATURE_NAMES)
 
         # Layer 1: Model predictions

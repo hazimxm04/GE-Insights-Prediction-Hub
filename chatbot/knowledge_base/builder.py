@@ -308,6 +308,56 @@ Accuracy will be validated when results are announced.
     print(f"  Built {len(docs)} Melaka forecast docs")
     return docs
 
+def build_selangor_prediction_docs() -> list:
+    path = PROCESSED_DIR / "selangor_2026_bluwave.csv"
+    if not path.exists():
+        return []
+
+    df = pd.read_csv(path)
+    docs = []
+
+    for _, row in df.iterrows():
+        seat        = row.get('seat_name', '')
+        prob        = row.get('harapan_holds_probability', 0)
+        vulnerability = row.get('vulnerability', '')
+        is_ood      = row.get('is_ood', False)
+        malay_pct   = row.get('malay_pct', 0)
+        chin_pct    = row.get('chinese_pct', 0)
+        winner_2023 = row.get('winner_2023', '')
+        ph_2008     = row.get('ph_won_2008', 0)
+        ph_2013     = row.get('ph_won_2013', 0)
+        ph_2018     = row.get('ph_won_2018', 0)
+
+        prediction = 'Harapan' if prob >= 0.5 else 'BN/PN'
+
+        text = f"""
+Selangor blue wave vulnerability analysis:
+Seat: {seat}
+2023 winner: {winner_2023}
+Vulnerability category: {vulnerability}
+Harapan holds probability: {prob:.2f} (prediction: {prediction})
+Historical PH loyalty: won 2008={bool(ph_2008)}, 2013={bool(ph_2013)}, 2018={bool(ph_2018)}
+Malay voter composition: {malay_pct:.1%}
+Chinese voter composition: {chin_pct:.1%}
+OOD flagged: {'Yes' if is_ood else 'No'}
+Note: This is a blue wave scenario analysis, not tied to a specific
+election date. Combines historical PH loyalty with Johor-model transfer
+and current sentiment pressure.
+        """.strip()
+
+        docs.append({
+            'text': text,
+            'metadata': {
+                'type': 'selangor_forecast',
+                'seat': str(seat),
+                'state': 'selangor',
+                'prediction': prediction,
+                'vulnerability': str(vulnerability),
+            }
+        })
+
+    print(f"  Built {len(docs)} Selangor forecast docs")
+    return docs
 
 # ── Build ChromaDB ──────────────────────────────────────────────────
 
@@ -341,6 +391,7 @@ def build_knowledge_base():
     all_docs.extend(build_sentiment_docs())
     all_docs.extend(build_state_summary_docs())
     all_docs.extend(build_melaka_prediction_docs())
+    all_docs.extend(build_selangor_prediction_docs())
 
     # Add before collection.add()
     wrong_summary = """

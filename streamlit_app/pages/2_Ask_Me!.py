@@ -11,7 +11,7 @@ from pathlib import Path
 sys.path.insert(0, str(Path(__file__).resolve().parents[1]))
 from utils.api import ask_chatbot
 
-st.set_page_config(page_title="Chatbot", page_icon="🤖", layout="wide")
+st.set_page_config(page_title="GE-Insights Chatbot ⚡", page_icon="🤖", layout="wide")
 
 st.title("🤖 GE-Insights Chatbot")
 st.markdown("Ask anything about election predictions, accuracy, or sentiment analysis.")
