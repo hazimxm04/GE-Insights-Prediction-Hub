@@ -380,6 +380,14 @@ with st.expander("🔍 Filter map by state"):
 
 gdf_filtered = gdf[gdf['state'].isin(view_states)] if view_states else gdf
 
+gdf_filtered = gdf[gdf['state'].isin(view_states)] if view_states else gdf
+
+st.write(f"DEBUG: gdf has {len(gdf)} total rows, gdf_filtered has {len(gdf_filtered)} rows")
+st.write(f"DEBUG: view_states = {view_states}")
+st.write(f"DEBUG: unique states in gdf = {gdf['state'].unique().tolist() if len(gdf) > 0 else 'EMPTY'}")
+
+geojson_dict = json.loads(gdf_filtered.to_json())
+
 geojson_dict = json.loads(gdf_filtered.to_json())
 
 fig = px.choropleth_map(
