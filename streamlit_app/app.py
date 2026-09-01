@@ -178,19 +178,31 @@ if sentiment_path.exists():
     </div>
     """, unsafe_allow_html=True)
 
-    st.markdown("""
+    # Bar 1: simple update indicator
+    st.markdown(f"""
     <div style="background:#151821; border:1px solid rgba(255,255,255,0.06);
-                border-radius:8px; padding:12px 20px; margin-bottom:16px;
-                display:flex; align-items:center; gap:12px; font-size:12px;
-                color:#6B7280;">
-        <span style="font-weight:600; color:#9CA3AF;">Sources:</span>
-        <span>Free Malaysia Today</span>
-        <span style="color:rgba(255,255,255,0.15);">·</span>
-        <span>Malay Mail</span>
-        <span style="color:rgba(255,255,255,0.15);">·</span>
-        <span style="color:#6B7280;">Scored via Groq/Llama, 9-dimension sentiment analysis</span>
+                border-radius:8px; padding:10px 20px; margin-bottom:8px;
+                display:flex; align-items:center; gap:16px; font-size:13px;
+                color:#9CA3AF;">
+        <span>Updated <b style="color:#D1D5DB;">{updated_str}</b></span>
     </div>
     """, unsafe_allow_html=True)
+
+    # Bar 2: clickable expander with article count + full source detail
+    with st.expander(f"📰 {total_articles} articles scored"):
+        st.markdown("""
+        **News sources:**
+        - Free Malaysia Today (FMT)
+        - Malay Mail
+
+        **Sentiment scoring method:**
+        Each article is scored across 9 dimensions (BN, Harapan, and PN
+        sentiment, plus racial tension index) using **Groq's Llama** model,
+        then aggregated to state-level sentiment scores used in the
+        prediction formula.
+
+        **Coverage:** Last 24–48 hours of articles per scraping cycle.
+        """)
 
 
 if not geojson_path.exists():
