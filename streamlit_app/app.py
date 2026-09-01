@@ -165,26 +165,13 @@ if sentiment_path.exists():
     last_modified = datetime.fromtimestamp(os.path.getmtime(sentiment_path))
     updated_str = last_modified.strftime("%d %b %Y")
 
-    st.markdown(f"""
-    <div style="background:#151821; border:1px solid rgba(255,255,255,0.06);
-                border-radius:8px; padding:10px 20px; margin-bottom:16px;
-                display:flex; align-items:center; gap:24px; font-size:13px;
-                color:#9CA3AF; flex-wrap:wrap;">
-        <span>Updated <b style="color:#D1D5DB;">{updated_str}</b></span>
-        <span style="color:rgba(255,255,255,0.15);">·</span>
-        <span><b style="color:#D1D5DB;">{n_states}</b> states covered</span>
-        <span style="color:rgba(255,255,255,0.15);">·</span>
-        <span><b style="color:#D1D5DB;">{total_articles}</b> articles scored</span>
-    </div>
-    """, unsafe_allow_html=True)
-
     # Bar 1: simple update indicator
     st.markdown(f"""
     <div style="background:#151821; border:1px solid rgba(255,255,255,0.06);
                 border-radius:8px; padding:10px 20px; margin-bottom:8px;
                 display:flex; align-items:center; gap:16px; font-size:13px;
                 color:#9CA3AF;">
-        <span>Updated <b style="color:#D1D5DB;">{updated_str}</b></span>
+        <span>Last Update: <b style="color:#D1D5DB;">{updated_str}</b></span>
     </div>
     """, unsafe_allow_html=True)
 
