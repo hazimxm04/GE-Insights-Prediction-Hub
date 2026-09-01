@@ -47,6 +47,32 @@ st.markdown("""
     text-transform: uppercase;
     letter-spacing: 0.5px;
 }
+
+/* Pill-style radio toggle (matches home page) */
+div[data-testid="stRadio"] > div {
+    flex-direction: row;
+    gap: 10px;
+    background: #1A1D24;
+    padding: 6px;
+    border-radius: 12px;
+    border: 1px solid rgba(255,255,255,0.08);
+    width: fit-content;
+}
+div[data-testid="stRadio"] label {
+    background: transparent;
+    padding: 8px 20px;
+    border-radius: 8px;
+    font-weight: 600;
+    font-size: 14px;
+    transition: background 0.15s ease, color 0.15s ease;
+    cursor: pointer;
+}
+div[data-testid="stRadio"] label:hover {
+    background: rgba(220, 38, 38, 0.1);
+}
+div[data-testid="stRadio"] label[data-baseweb="radio"] > div:first-child {
+    display: none;
+}
 </style>
 """, unsafe_allow_html=True)
 
