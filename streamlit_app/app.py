@@ -380,9 +380,20 @@ with st.expander("🔍 Filter map by state"):
 
 gdf_filtered = gdf[gdf['state'].isin(view_states)] if view_states else gdf
 
+import plotly
+st.write(f"Plotly version on Cloud: {plotly.__version__}")
+
+import plotly.express as px
+st.write(f"Has choropleth_map: {hasattr(px, 'choropleth_map')}")
+
 geojson_dict = json.loads(gdf_filtered.to_json())
 
 geojson_dict = json.loads(gdf_filtered.to_json())
+
+import plotly
+st.write(f"Plotly version on Cloud: {plotly.__version__}")
+st.write(f"Has choropleth_map: {hasattr(px, 'choropleth_map')}")
+st.write(f"gdf_filtered rows: {len(gdf_filtered)}, has geometry: {'geometry' in gdf_filtered.columns}")
 
 fig = px.choropleth_map(
     gdf_filtered, geojson=geojson_dict, locations='id',
@@ -625,5 +636,4 @@ st.markdown("""
 **Chatbot** to ask questions · **Custom Predictor** for scenario simulation
 
 [GitHub](https://github.com/hazimxm04/GE-Insights-Prediction-Hub) |
-[Live API](https://elegant-cooperation-production-67c5.up.railway.app/docs)
 """)
