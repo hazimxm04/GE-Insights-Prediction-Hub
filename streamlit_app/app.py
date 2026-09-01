@@ -178,6 +178,20 @@ if sentiment_path.exists():
     </div>
     """, unsafe_allow_html=True)
 
+    st.markdown("""
+    <div style="background:#151821; border:1px solid rgba(255,255,255,0.06);
+                border-radius:8px; padding:12px 20px; margin-bottom:16px;
+                display:flex; align-items:center; gap:12px; font-size:12px;
+                color:#6B7280;">
+        <span style="font-weight:600; color:#9CA3AF;">Sources:</span>
+        <span>Free Malaysia Today</span>
+        <span style="color:rgba(255,255,255,0.15);">·</span>
+        <span>Malay Mail</span>
+        <span style="color:rgba(255,255,255,0.15);">·</span>
+        <span style="color:#6B7280;">Scored via Groq/Llama, 9-dimension sentiment analysis</span>
+    </div>
+    """, unsafe_allow_html=True)
+
 
 if not geojson_path.exists():
     st.error("Run build_map_data.py first to generate the map.")
@@ -382,10 +396,12 @@ gdf_filtered = gdf[gdf['state'].isin(view_states)] if view_states else gdf
 
 geojson_dict = json.loads(gdf_filtered.to_json())
 
+
 fig = px.choropleth_map(
     gdf_filtered, geojson=geojson_dict, locations='id',
     featureidkey='properties.id', color='color_label',
-    color_discrete_map=COLOR_MAP, map_style="carto-positron",
+    color_discrete_map=COLOR_MAP,
+    map_style="white-bg",  # ← CHANGED: no external tile dependency
     zoom=7.3, center={"lat": 2.6, "lon": 102.7}, opacity=0.80,
     hover_name='dun',
     hover_data={'state': True, 'status_label': True,
@@ -622,5 +638,4 @@ st.markdown("""
 **Chatbot** to ask questions · **Custom Predictor** for scenario simulation
 
 [GitHub](https://github.com/hazimxm04/GE-Insights-Prediction-Hub) |
-[Live API](https://elegant-cooperation-production-67c5.up.railway.app/docs)
 """)
