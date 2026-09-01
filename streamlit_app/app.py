@@ -382,28 +382,26 @@ gdf_filtered = gdf[gdf['state'].isin(view_states)] if view_states else gdf
 
 geojson_dict = json.loads(gdf_filtered.to_json())
 
-plot_df = pd.DataFrame(gdf_filtered.drop(columns='geometry'))
+import plotly.express as px
+import pandas as pd
 
+test_df = pd.DataFrame({'id': ['A', 'B'], 'value': [1, 2]})
+test_geojson = {
+    "type": "FeatureCollection",
+    "features": [
+        {"type": "Feature", "id": "A", "properties": {"id": "A"},
+         "geometry": {"type": "Polygon", "coordinates": [[[100, 2], [101, 2], [101, 3], [100, 3], [100, 2]]]}},
+        {"type": "Feature", "id": "B", "properties": {"id": "B"},
+         "geometry": {"type": "Polygon", "coordinates": [[[102, 2], [103, 2], [103, 3], [102, 3], [102, 2]]]}},
+    ]
+}
 
 fig = px.choropleth_map(
-    gdf_filtered, geojson=geojson_dict, locations='id',
-    featureidkey='properties.id', color='color_label',
-    color_discrete_map=COLOR_MAP,
-    map_style="white-bg",  # ← CHANGED: no external tile dependency
-    zoom=7.3, center={"lat": 2.6, "lon": 102.7}, opacity=0.80,
-    hover_name='dun',
-    hover_data={'state': True, 'status_label': True,
-               'probability': ':.2f', 'id': False, 'color_label': False},
-    labels={'color_label': 'Predicted / Actual Winner'},
-)
-fig.update_traces(marker_line_width=1.0, marker_line_color='rgba(255,255,255,0.4)')
-fig.update_layout(
-    height=680, margin={"r": 0, "t": 0, "l": 0, "b": 0},
-    showlegend=False,  # custom legend below instead — cleaner
-    paper_bgcolor='rgba(0,0,0,0)',
+    test_df, geojson=test_geojson, locations='id',
+    featureidkey='properties.id', color='value',
+    map_style="white-bg", zoom=5, center={"lat": 2.5, "lon": 101.5},
 )
 st.plotly_chart(fig, use_container_width=True)
-
 # ── Simplified 2-row legend ────────────────────────────────────────
 
 st.markdown("""
