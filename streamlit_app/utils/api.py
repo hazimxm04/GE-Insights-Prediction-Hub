@@ -7,7 +7,7 @@ All API calls go through here.
 
 import requests
 
-BASE_URL = "http://localhost:8000"
+BASE_URL = "https://web-production-e12f0.up.railway.app"
 
 def get_all_predictions(state: str) -> dict:
     """Get predictions for all seats in a state."""
