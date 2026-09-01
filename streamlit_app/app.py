@@ -380,7 +380,8 @@ with st.expander("🔍 Filter map by state"):
 
 gdf_filtered = gdf[gdf['state'].isin(view_states)] if view_states else gdf
 
-gdf_filtered = gdf[gdf['state'].isin(view_states)] if view_states else gdf
+import plotly
+st.write(f"DEBUG: plotly version = {plotly.__version__}")
 
 st.write(f"DEBUG: gdf has {len(gdf)} total rows, gdf_filtered has {len(gdf_filtered)} rows")
 st.write(f"DEBUG: view_states = {view_states}")
@@ -393,7 +394,8 @@ geojson_dict = json.loads(gdf_filtered.to_json())
 fig = px.choropleth_map(
     gdf_filtered, geojson=geojson_dict, locations='id',
     featureidkey='properties.id', color='color_label',
-    color_discrete_map=COLOR_MAP, map_style="carto-positron",
+    color_discrete_map=COLOR_MAP,
+    map_style="white-bg",  # ← CHANGED: no external tile dependency
     zoom=7.3, center={"lat": 2.6, "lon": 102.7}, opacity=0.80,
     hover_name='dun',
     hover_data={'state': True, 'status_label': True,
