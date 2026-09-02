@@ -24,7 +24,7 @@ from groq import Groq
 ROOT = Path(__file__).resolve().parents[2]
 sys.path.insert(0, str(ROOT))
 
-# ── Load env ────────────────────────────────────────────────────────
+# -- Load env ----------------------------------------------------------
 
 for p in [Path("backend/.env"), Path(__file__).resolve().parents[3] / "backend/.env"]:
     if p.exists():
@@ -50,9 +50,9 @@ def get_collection():
     return client.get_collection(name="ge_insights", embedding_function=embedding_fn)
 
 
-# ══════════════════════════════════════════════════════════════════
+# ======================================================================
 # TOOL: live scenario prediction
-# ══════════════════════════════════════════════════════════════════
+# ======================================================================
 
 def get_seat_baseline(state: str, seat_name: str) -> dict:
     """Get a seat's REAL structural features as defaults."""
@@ -128,7 +128,7 @@ TOOLS = [{
             "wins a specific Johor or Negeri Sembilan DUN seat, under a "
             "hypothetical 'what if' scenario. Use this whenever the user "
             "asks about a hypothetical change (turnout, margin, etc.) for "
-            "a NAMED seat — not for questions about actual historical results."
+            "a NAMED seat -- not for questions about actual historical results."
         ),
         "parameters": {
             "type": "object",
@@ -171,10 +171,6 @@ def handle_tool_call(tool_call) -> dict:
     )
 
 
-# ══════════════════════════════════════════════════════════════════
-# RAG retrieval (existing logic, unchanged)
-# ══════════════════════════════════════════════════════════════════
-
 def retrieve(question: str, collection, n: int = N_RESULTS) -> list:
     results = collection.query(query_texts=[question], n_results=n)
     return list(zip(results['documents'][0], results['metadatas'][0]))
@@ -184,7 +180,7 @@ def build_prompt(question: str, retrieved_docs: list) -> str:
     context_parts = []
     for i, (doc, meta) in enumerate(retrieved_docs, 1):
         doc_type = meta.get('type', 'document')
-        context_parts.append(f"[Document {i} — {doc_type}]\n{doc}")
+        context_parts.append(f"[Document {i} -- {doc_type}]\n{doc}")
     context = "\n\n".join(context_parts)
 
     return f"""You are an AI assistant for GE-Insights, a Malaysian election prediction system.
@@ -208,14 +204,14 @@ def is_scenario_question(question: str) -> bool:
     return any(k in q for k in scenario_keywords)
 
 
-# ══════════════════════════════════════════════════════════════════
-# Main ask() — routes to tool calling OR RAG
-# ══════════════════════════════════════════════════════════════════
+# ======================================================================
+# Main ask() -- routes to tool calling OR RAG
+# ======================================================================
 
 def ask(question: str, collection) -> dict:
     """Full pipeline: route to tool calling (scenarios) or RAG (facts)."""
 
-    # ── Route 1: Scenario question -> tool calling ──────────────
+    # -- Route 1: Scenario question -> tool calling ----------------
     if is_scenario_question(question):
         messages = [{
             "role": "system",
@@ -223,7 +219,7 @@ def ask(question: str, collection) -> dict:
                 "You help users explore hypothetical election scenarios. "
                 "When asked a 'what if' question about a specific seat, "
                 "call predict_seat_scenario with the seat name and the "
-                "changed parameter. State names are 'johor' or 'neg_sembilan' — "
+                "changed parameter. State names are 'johor' or 'neg_sembilan' -- "
                 "infer from context or ask if ambiguous."
             )
         }, {
@@ -241,7 +237,6 @@ def ask(question: str, collection) -> dict:
         )
 
         msg = response.choices[0].message
-
         if msg.tool_calls:
             tool_result = handle_tool_call(msg.tool_calls[0])
 
@@ -269,12 +264,12 @@ def ask(question: str, collection) -> dict:
         else:
             return {
                 'question':  question,
-                'answer':    msg.content or "I couldn't identify which seat and scenario you're asking about — could you specify the seat name and state?",
+                'answer':    msg.content or "I couldn't identify which seat and scenario you're asking about -- could you specify the seat name and state?",
                 'sources':   [],
                 'n_sources': 0,
             }
 
-    # ── Route 2: Factual question -> RAG (existing logic) ───────
+    # -- Route 2: Factual question -> RAG (existing logic) ---------
     q_lower = question.lower()
 
     is_wrong_query = any(k in q_lower for k in [
@@ -285,6 +280,7 @@ def ask(question: str, collection) -> dict:
         'summary', 'overall', 'total', 'how many seats',
         'overall prediction', 'win in melaka', 'melaka prediction'
     ])
+
     state_filter = None
     if any(k in q_lower for k in ['ns', 'negeri sembilan', 'sembilan']):
         state_filter = 'neg_sembilan'
@@ -341,7 +337,7 @@ def ask(question: str, collection) -> dict:
     }
 
 
-# ── Interactive CLI ──────────────────────────────────────────────────
+# -- Interactive CLI -----------------------------------------------------
 
 def chat():
     print("\nGE-Insights RAG Chatbot (with live scenario predictions)")
