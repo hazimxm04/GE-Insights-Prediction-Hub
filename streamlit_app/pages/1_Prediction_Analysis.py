@@ -319,10 +319,9 @@ if status == 'validated':
         st.plotly_chart(fig, use_container_width=True)
 
         st.info("""
-        **Pattern:** Seats with higher Chinese composition cluster toward
-        Harapan-favoured predictions, while Malay-majority seats cluster
-        toward BN+PN Pact — reflecting Malaysia's documented coalition
-        voting patterns rather than a novel finding.
+        **Pattern:** Seat-level demographic composition tracks closely with 
+        predicted outcome — consistent with Malaysia's well-documented coalition voting history,
+        not a new or original claim.
         """)
 
     st.divider()
@@ -468,7 +467,28 @@ else:
                 c3.markdown(f"`{row[prob_col]:.2f}`")
 
 
-    
+    st.markdown("""
+    <div style="background:#1A1D24; border:1px solid rgba(255,255,255,0.08);
+                border-radius:8px; padding:10px 20px; margin-bottom:16px;
+                display:flex; align-items:center; gap:20px; font-size:13px;">
+        <span style="color:#9CA3AF; font-weight:600;">Trend legend:</span>
+        <span style="color:#F87171;">↓ Red — trending toward BN+PN</span>
+        <span style="color:#4ADE80;">↑ Green — trending toward Harapan</span>
+        <span style="color:#6B7280;">→ Grey — stable, no clear direction</span>
+    </div>
+    """, unsafe_allow_html=True)
+
+    st.markdown("""
+    <div style="background:#1A1D24; border:1px solid rgba(255,255,255,0.08);
+                border-radius:8px; padding:10px 20px; margin-bottom:16px;
+                font-size:12px; color:#9CA3AF;">
+        <span style="font-weight:700; color:#D1D5DB;">Trend strength:</span>
+        ±0.02 or less = stable &nbsp;·&nbsp;
+        ±0.03–0.10 = mild &nbsp;·&nbsp;
+        ±0.11–0.20 = moderate &nbsp;·&nbsp;
+        ±0.21 and beyond = strong historical shift
+    </div>
+    """, unsafe_allow_html=True)
 
     tab1, tab2, tab3, tab4, tab5, tab6, tab7 = st.tabs([
     f"🔴 Safe BN+PN ({len(safe_govt)})",
@@ -531,10 +551,10 @@ else:
         </div>
         <div style="width:1px; height:40px; background:rgba(255,255,255,0.1);"></div>
         <div>
-            <div style="font-size:12px; color:#4ADE80; text-transform:uppercase; letter-spacing:0.5px;">
+            <div style="font-size:12px; color:#F87171; text-transform:uppercase; letter-spacing:0.5px;">
                 ↑ Harapan Gains
             </div>
-            <div style="font-size:32px; font-weight:800; color:#4ADE80;">{len(harapan_gains)}</div>
+            <div style="font-size:32px; font-weight:800; color:#F87171;">{len(harapan_gains)}</div>
         </div>
         <div style="width:1px; height:40px; background:rgba(255,255,255,0.1);"></div>
         <div>
@@ -562,7 +582,7 @@ else:
             st.markdown(f"""
             <div style="display:flex; align-items:center; gap:8px; margin-bottom:12px;">
                 <span style="font-size:18px;">📈</span>
-                <span style="font-weight:700; font-size:15px; color:#4ADE80;">Harapan Gains</span>
+                <span style="font-weight:700; font-size:15px; color:#F87171;">Harapan Gains</span>
                 <span style="font-size:12px; color:#6B7280;">(BN/PN → Harapan)</span>
             </div>
             """, unsafe_allow_html=True)

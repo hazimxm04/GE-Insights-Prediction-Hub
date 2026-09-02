@@ -49,9 +49,12 @@ st.markdown("""
 st.markdown("""
 <div class="headline-card">
     <div class="headline-number">94.64% / 91.67%</div>
-    <div class="headline-label">
+    <div style="font-size:13px; color:#F87171; text-transform:uppercase; letter-spacing:1px; margin-top:4px; font-weight:600;">
+        Accuracy Rate
+    </div>
+    <div class="headline-label" style="margin-top:8px;">
         Validated against actual 2026 Malaysian state election results —
-        not a holdout set, the real outcome.
+        the real outcome, not a simulated test.
     </div>
 </div>
 """, unsafe_allow_html=True)
@@ -154,6 +157,11 @@ with st.expander("🧠 Model Architecture — Validated States (Johor, Negeri Se
     terms) → Random Forest + XGBoost ensemble → isotonic calibration →
     EllipticEnvelope OOD detection with base-rate fallback blending.
 
+    **Hyperparameters** (max_depth, min_samples_leaf, regularization) were
+    tuned by diagnosing overconfidence symptoms — checking for predictions
+    above 90% confidence that turned out wrong — rather than a systematic
+    grid search. *(See Known Limitations.)*
+
     **Result:** 94.64% (Johor) / 91.67% (NS) accuracy against actual
     2026 results.
     """)
@@ -168,6 +176,10 @@ with st.expander("🧠 Model Architecture — Forecast States (Melaka, Selangor,
     loyalty_score = weighted_avg_share + trend_adjustment − blue_wave_pressure
     ```
 
+    The 50/50 blend weight and the blue-wave pressure multiplier are
+    **hand-selected based on observed behavior, not empirically tuned**
+    via cross-validation. *(See Known Limitations.)*
+
     Recency weights: 2008=10%, 2013=20%, 2018=30%, most recent=40%.
 
     Seats matched across election years by **number** (e.g. "N.21"), not
@@ -176,6 +188,7 @@ with st.expander("🧠 Model Architecture — Forecast States (Melaka, Selangor,
     silently dropped its historical loyalty and understated a genuinely
     safe seat.
     """)
+
 
 with st.expander("✅ Validation Strategy"):
     st.markdown("""

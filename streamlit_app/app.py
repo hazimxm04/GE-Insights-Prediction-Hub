@@ -176,13 +176,13 @@ if sentiment_path.exists():
     """, unsafe_allow_html=True)
 
     # Bar 2: clickable expander with article count + full source detail
-    with st.expander(f"📰 {total_articles} articles scored — view sources & methodology"):
+    with st.expander(f"📰 {total_articles} articles scored — view sources"):
         st.markdown("**News Sources**")
 
         sources = [
             ("Free Malaysia Today", "logos/fmt.png"),
             ("Malay Mail", "logos/malaymail.png"),
-            ("Malaysiakini", "logos/malaysiakini.png"),
+            ("Malaysiakini", "logos/malaysiakini.jpg"),
             ("Utusan Malaysia", "logos/utusan.png"),
             ("Bernama", "logos/bernama.png"),
         ]
@@ -309,12 +309,11 @@ status_text  = "🟢 LIVE" if api_ok else "🔴 OFFLINE"
 st.markdown(f"""
 <div class="hero-container">
     <span class="status-badge {status_class}">{status_text}</span>
-    <div class="hero-title">🗳️ MY Ramalan Politik</div>
+    <div class="hero-title">🗳️ MYRamalan</div>
     <div class="hero-subtitle">Malaysian State Assembly (DUN) election prediction, validated on actual 2026 results.</div>
-    <div class="hero-subtitle" style="margin-top:4px;">Federal Parliament (GE17, 222 seats) planned as future extension.</div>
+    <div class="hero-subtitle" style="margin-top:4px; font-style:italic; color:#6B7280;">Data-driven. Real predictions.</div>
 </div>
 """, unsafe_allow_html=True)
-
 # ── Level selector: DUN vs Parliament (styled pill toggle) ─────────
 
 st.markdown("""
@@ -399,7 +398,7 @@ st.divider()
 
 # ── Map (dominant visual element) ─────────────────────────────────
 
-st.subheader("🗺️ Seat-Level Outlook — All States")
+st.subheader("🗺️ Forecast of State Legistative Seats (DUN)")
 
 with st.expander("🔍 Filter map by state"):
     view_states = st.multiselect(
@@ -443,8 +442,8 @@ st.markdown("""
     </div>
     <div class="legend-row" style="margin-bottom:0;">
         <span class="legend-label">Forecast:</span>
-        <span><span class="legend-swatch" style="background:#2563EB;"></span>Safe Govt</span>
-        <span><span class="legend-swatch" style="background:#60A5FA;"></span>Leaning Govt</span>
+        <span><span class="legend-swatch" style="background:#2563EB;"></span>Safe BN+PN </span>
+        <span><span class="legend-swatch" style="background:#60A5FA;"></span>Leaning BN+PN</span>
         <span><span class="legend-swatch" style="background:#A78BFA;"></span>Toss-up</span>
         <span><span class="legend-swatch" style="background:#F87171;"></span>Leaning Harapan</span>
         <span><span class="legend-swatch" style="background:#DC2626;"></span>Safe Harapan</span>
@@ -454,7 +453,6 @@ st.markdown("""
 """, unsafe_allow_html=True)
 
 st.caption("Hover any seat on the map for details. Forecast seats use a lighter, "
-          "more saturated palette than actual results to visually distinguish "
           "confirmed outcomes from model predictions.")
 
 st.divider()
