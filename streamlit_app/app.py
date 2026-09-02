@@ -176,20 +176,36 @@ if sentiment_path.exists():
     """, unsafe_allow_html=True)
 
     # Bar 2: clickable expander with article count + full source detail
-    with st.expander(f"📰 {total_articles} articles scored"):
-        st.markdown("""
-        **News sources:**
-        - Free Malaysia Today (FMT)
-        - Malay Mail
+    with st.expander(f"📰 {total_articles} articles scored — view sources & methodology"):
+        st.markdown("**News Sources**")
 
-        **Sentiment scoring method:**
+        sources = [
+            ("Free Malaysia Today", "logos/fmt.png"),
+            ("Malay Mail", "logos/malaymail.png"),
+            ("Malaysiakini", "logos/malaysiakini.png"),
+            ("Utusan Malaysia", "logos/utusan.png"),
+            ("Bernama", "logos/bernama.png"),
+        ]
+
+        cols = st.columns(5)
+        for col, (name, path) in zip(cols, sources):
+            with col:
+                logo_path = ROOT / "streamlit_app/assets" / path
+                if logo_path.exists():
+                    st.image(str(logo_path), use_container_width=True)
+                st.caption(name)
+
+        st.divider()
+
+        st.markdown("**Sentiment Scoring**")
+        st.markdown("""
         Each article is scored across 9 dimensions (BN, Harapan, and PN
         sentiment, plus racial tension index) using **Groq's Llama** model,
         then aggregated to state-level sentiment scores used in the
         prediction formula.
-
-        **Coverage:** Last 24–48 hours of articles per scraping cycle.
         """)
+
+        st.caption("Coverage: last 24–48 hours of articles per scraping cycle.")
 
 
 if not geojson_path.exists():
@@ -400,7 +416,7 @@ fig = px.choropleth_map(
     gdf_filtered, geojson=geojson_dict, locations='id',
     featureidkey='properties.id', color='color_label',
     color_discrete_map=COLOR_MAP,
-    map_style="white-bg",  # ← CHANGED: no external tile dependency
+    map_style="carto-positron",  # ← CHANGED: no external tile dependency
     zoom=7.3, center={"lat": 2.6, "lon": 102.7}, opacity=0.80,
     hover_name='dun',
     hover_data={'state': True, 'status_label': True,
