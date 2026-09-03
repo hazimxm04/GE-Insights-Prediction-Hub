@@ -25,15 +25,22 @@ ROOT = Path(__file__).resolve().parents[2]
 sys.path.insert(0, str(ROOT))
 
 # -- Load env ----------------------------------------------------------
-
 for p in [Path("backend/.env"), Path(__file__).resolve().parents[2] / "backend/.env"]:
     if p.exists():
         load_dotenv(p)
         break
 
 GROQ_API_KEY = os.getenv("GROQ_API_KEY")
+
 if not GROQ_API_KEY:
-    raise ValueError("GROQ_API_KEY not found in backend/.env")
+    try:
+        import streamlit as st
+        GROQ_API_KEY = st.secrets["GROQ_API_KEY"]
+    except Exception:
+        pass
+
+if not GROQ_API_KEY:
+    raise ValueError("GROQ_API_KEY not found in backend/.env or Streamlit secrets")
 
 CHROMA_DIR = Path(__file__).resolve().parents[2] / "chatbot/chroma_db"
 MODEL      = "openai/gpt-oss-20b"
