@@ -310,7 +310,7 @@ st.markdown(f"""
 <div class="hero-container">
     <span class="status-badge {status_class}">{status_text}</span>
     <div class="hero-title">🗳️ MYRamalan</div>
-    div class="hero-subtitle" style="margin-top:4px; font-style:italic; color:#6B7280;">Data-driven. Real predictions.</div>
+    <div class="hero-subtitle" style="margin-top:4px; font-style:italic; color:#6B7280;">Data-driven. Real predictions.</div>
     <div class="hero-subtitle">Malaysian State Assembly (DUN) election prediction, validated on actual 2026 results.</div>
 </div>
 """, unsafe_allow_html=True)
