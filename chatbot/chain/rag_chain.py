@@ -26,7 +26,7 @@ sys.path.insert(0, str(ROOT))
 
 # -- Load env ----------------------------------------------------------
 
-for p in [Path("backend/.env"), Path(__file__).resolve().parents[3] / "backend/.env"]:
+for p in [Path("backend/.env"), Path(__file__).resolve().parents[2] / "backend/.env"]:
     if p.exists():
         load_dotenv(p)
         break
@@ -35,7 +35,7 @@ GROQ_API_KEY = os.getenv("GROQ_API_KEY")
 if not GROQ_API_KEY:
     raise ValueError("GROQ_API_KEY not found in backend/.env")
 
-CHROMA_DIR = Path("chatbot/chroma_db")
+CHROMA_DIR = Path(__file__).resolve().parents[2] / "chatbot/chroma_db"
 MODEL      = "openai/gpt-oss-20b"
 N_RESULTS  = 4
 

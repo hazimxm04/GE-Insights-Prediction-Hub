@@ -7,8 +7,17 @@ consistent visual language (hero card, styled example prompts).
 import streamlit as st
 import sys
 from pathlib import Path
-sys.path.insert(0, str(Path(__file__).resolve().parents[1]))
-from utils.api import ask_chatbot
+sys.path.insert(0, str(Path(__file__).resolve().parents[2]))
+
+
+from chatbot.chain.rag_chain import ask, get_collection
+
+# Cache the collection so it doesn't reload on every interaction
+@st.cache_resource
+def load_collection():
+    return get_collection()
+
+collection = load_collection()
 
 st.set_page_config(page_title="Ask Me! — MY Ramalan Politik", page_icon="🤖", layout="wide")
 
@@ -101,7 +110,7 @@ if question:
 
     with st.chat_message("assistant"):
         with st.spinner("Searching knowledge base..."):
-            result = ask_chatbot(question)
+            result = ask(question, collection)
 
         if 'error' in result:
             answer = f"Error: {result['error']}"

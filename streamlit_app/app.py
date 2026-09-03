@@ -200,8 +200,8 @@ if sentiment_path.exists():
         st.markdown("**Sentiment Scoring**")
         st.markdown("""
         Each article is scored across 9 dimensions (BN, Harapan, and PN
-        sentiment, plus racial tension index) using **Groq's Llama** model,
-        then aggregated to state-level sentiment scores used in the
+        sentiments, racial tension and economic index) by using **Groq's Llama** model.
+        The score is then aggregated to state-level sentiment scores used in the
         prediction formula.
         """)
 
@@ -310,8 +310,8 @@ st.markdown(f"""
 <div class="hero-container">
     <span class="status-badge {status_class}">{status_text}</span>
     <div class="hero-title">🗳️ MYRamalan</div>
+    div class="hero-subtitle" style="margin-top:4px; font-style:italic; color:#6B7280;">Data-driven. Real predictions.</div>
     <div class="hero-subtitle">Malaysian State Assembly (DUN) election prediction, validated on actual 2026 results.</div>
-    <div class="hero-subtitle" style="margin-top:4px; font-style:italic; color:#6B7280;">Data-driven. Real predictions.</div>
 </div>
 """, unsafe_allow_html=True)
 # ── Level selector: DUN vs Parliament (styled pill toggle) ─────────
@@ -649,6 +649,4 @@ not an official or authoritative election prediction service.
 st.markdown("""
 **Navigation:** **Election Result** for detailed seat tables ·
 **Chatbot** to ask questions · **Custom Predictor** for scenario simulation
-
-[GitHub](https://github.com/hazimxm04/GE-Insights-Prediction-Hub) |
 """)
