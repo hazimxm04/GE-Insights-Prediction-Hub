@@ -1,6 +1,17 @@
 {
   "state": "melaka",
-  "seats": 28,
+  "description": "2 transitions, tuned via GridSearchCV (f1_macro); PN class has only 2 examples -- limited reliability",
+  "transitions": [
+    [
+      2013,
+      2018
+    ],
+    [
+      2018,
+      2021
+    ]
+  ],
+  "seats": 53,
   "features": [
     "majority_change",
     "turnout_change",
@@ -8,11 +19,6 @@
     "log_voters",
     "majority_perc_change",
     "n_candidates_b",
-    "bn_sentiment",
-    "harapan_sentiment",
-    "pn_sentiment",
-    "racial_tension_index",
-    "economic_pressure",
     "malay_pct",
     "chinese_pct",
     "indian_pct",
@@ -21,113 +27,69 @@
     "older_malay_pct",
     "youth_pct",
     "median_age",
-    "bn_sent_x_malay",
-    "harapan_sent_x_chinese",
-    "pn_sent_x_young_malay",
     "tension_x_mixed",
-    "economic_x_youth",
-    "narrative_pressure"
+    "prev_was_bn",
+    "prev_was_pakatan",
+    "prev_was_pn"
   ],
-  "target": "target_non_bn_won",
   "class_balance": {
-    "BN": 23,
-    "non_BN": 5
+    "BN": 34,
+    "Pakatan": 17,
+    "PN": 2
   },
   "models": {
-    "logistic_regression": {
-      "accuracy": 1.0,
-      "precision": 1.0,
-      "recall": 1.0,
-      "f1": 1.0,
-      "auc": 1.0,
-      "brier": 0.0072
-    },
     "random_forest": {
-      "accuracy": 0.9286,
-      "precision": 0.7143,
-      "recall": 1.0,
-      "f1": 0.8333,
-      "auc": 1.0,
-      "brier": 0.0351
+      "accuracy": 0.8679,
+      "precision": 0.8784,
+      "recall": 0.8679,
+      "f1": 0.8702,
+      "auc": 0.9547,
+      "brier": 0.2697
     },
     "xgboost": {
-      "accuracy": 1.0,
-      "precision": 1.0,
-      "recall": 1.0,
-      "f1": 1.0,
+      "accuracy": 0.9811,
+      "precision": 0.9817,
+      "recall": 0.9811,
+      "f1": 0.9781,
       "auc": 1.0,
-      "brier": 0.0
+      "brier": 0.2081
     },
     "rf_calibrated": {
-      "accuracy": 1.0,
-      "precision": 1.0,
-      "recall": 1.0,
-      "f1": 1.0,
-      "auc": 1.0,
-      "brier": 0.0175
+      "accuracy": 0.8679,
+      "precision": 0.8784,
+      "recall": 0.8679,
+      "f1": 0.8702,
+      "auc": 0.9547,
+      "brier": 0.2697
     },
     "ensemble": {
-      "accuracy": 1.0,
-      "auc": 1.0,
-      "brier": 0.0089
+      "accuracy": 0.9623,
+      "auc": 0.999,
+      "brier": 0.2293
     }
   },
   "feature_importance": {
-    "turnout_change": 0.184,
-    "young_chinese_pct": 0.1809,
-    "chinese_pct": 0.1121,
-    "harapan_sent_x_chinese": 0.0885,
-    "narrative_pressure": 0.0846,
-    "log_voters": 0.0676,
-    "bn_sent_x_malay": 0.0578,
-    "malay_pct": 0.0518,
-    "older_malay_pct": 0.0387,
-    "majority_change": 0.0354,
-    "pn_sent_x_young_malay": 0.0317,
-    "young_malay_pct": 0.0298,
-    "youth_pct": 0.0108,
-    "incumbent_held": 0.0078,
-    "tension_x_mixed": 0.006,
-    "majority_perc_change": 0.0054,
-    "indian_pct": 0.0043,
-    "economic_x_youth": 0.0021,
-    "median_age": 0.0008,
-    "n_candidates_b": 0.0001,
-    "bn_sentiment": 0.0,
-    "pn_sentiment": 0.0,
-    "harapan_sentiment": 0.0,
-    "economic_pressure": 0.0,
-    "racial_tension_index": 0.0
-  },
-  "ablation": {
-    "majority_change": 0.0,
-    "turnout_change": 0.0,
-    "incumbent_held": 0.0,
-    "log_voters": 0.0,
-    "majority_perc_change": 0.0,
-    "n_candidates_b": 0.0,
-    "bn_sentiment": 0.0,
-    "harapan_sentiment": 0.0,
-    "pn_sentiment": 0.0,
-    "racial_tension_index": 0.0,
-    "economic_pressure": 0.0,
-    "malay_pct": 0.0,
-    "chinese_pct": -0.0357,
-    "indian_pct": 0.0,
-    "young_malay_pct": 0.0,
-    "young_chinese_pct": -0.0714,
-    "older_malay_pct": 0.0,
-    "youth_pct": 0.0,
-    "median_age": 0.0,
-    "bn_sent_x_malay": 0.0,
-    "harapan_sent_x_chinese": -0.0357,
-    "pn_sent_x_young_malay": 0.0,
+    "older_malay_pct": 0.1988,
+    "log_voters": 0.1331,
+    "chinese_pct": 0.1246,
+    "young_chinese_pct": 0.1231,
+    "malay_pct": 0.1072,
+    "turnout_change": 0.0858,
+    "young_malay_pct": 0.0515,
+    "incumbent_held": 0.0502,
+    "n_candidates_b": 0.0373,
+    "majority_change": 0.0253,
+    "youth_pct": 0.0213,
+    "majority_perc_change": 0.0171,
+    "indian_pct": 0.0107,
+    "median_age": 0.0091,
+    "prev_was_pakatan": 0.005,
     "tension_x_mixed": 0.0,
-    "economic_x_youth": 0.0,
-    "narrative_pressure": 0.0
+    "prev_was_bn": 0.0,
+    "prev_was_pn": 0.0
   },
   "ood": {
-    "n_flagged": 3,
-    "pct_flagged": 10.7
+    "n_flagged": 6,
+    "pct_flagged": 11.3
   }
 }
