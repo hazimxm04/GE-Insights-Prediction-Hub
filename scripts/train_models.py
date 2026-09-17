@@ -8,6 +8,9 @@ from pathlib import Path
 
 ROOT = Path(__file__).resolve().parent.parent
 sys.path.insert(0, str(ROOT))
+sys.path.insert(0, str(ROOT / 'mlops'))
+from model_versioning import version_and_promote
+from alerts import alert_on_success, alert_on_failure
 
 from sklearn.ensemble import RandomForestClassifier
 from xgboost import XGBClassifier
@@ -332,9 +335,15 @@ def main():
             continue
 
         config = TRAINING_CONFIGS[state]
-        result = train_state(state, config)
-        if result:
-            all_results[state] = result
+        try:
+            result = train_state(state, config)
+            if result:
+                all_results[state] = result
+                promoted = version_and_promote(state, result)
+                alert_on_success(state, result['models']['ensemble']['accuracy'], promoted)
+        except Exception as e:
+            alert_on_failure(state, str(e))
+            print(f"Training failed for {state}: {e}")
 
     print(f"\n\n{'='*70}")
     print(f"  TRAINING SUMMARY")

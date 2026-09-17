@@ -133,6 +133,17 @@ def validate_state(state: str):
     else:
         print(f"\nAll seats predicted correctly!")
 
+    import json
+    metadata_path = ROOT / 'backend/models' / state / 'metadata.json'
+    if metadata_path.exists():
+        with open(metadata_path) as f:
+            metadata = json.load(f)
+        metadata['validated_accuracy'] = round(accuracy, 4)
+        metadata['validated_against'] = f"{year_to} actual results"
+        with open(metadata_path, 'w') as f:
+            json.dump(metadata, f, indent=2)
+        print(f"  Wrote validated_accuracy={accuracy:.2%} to metadata.json")
+
     return {
         'state': state,
         'accuracy': accuracy,
