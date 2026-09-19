@@ -1,38 +1,86 @@
-# GE-Insights Prediction Hub
+# MYRamalan - Malaysia's Election Prediction Hub
 
-A multi-phase Malaysian state election intelligence system validated on actual 2026 election results. Combines classical ML, deep learning, LLM sentiment analysis, RAG, and MLOps in one connected pipeline.
-
-**Live API:** https://elegant-cooperation-production-67c5.up.railway.app
-
----
-
-## Results
-
-| State | Election | Seats | Accuracy | AUC-ROC | Wrong |
-|-------|----------|-------|----------|---------|-------|
-| Johor | SE-16 (Jul 11, 2026) | 56 | **94.64%** | 0.979 | 3 |
-| Negeri Sembilan | SE-16 (Aug 1, 2026) | 36 | **91.67%** | 0.978 | 3 |
-| Melaka | SE-16 (upcoming) | 28 | Pre-election forecast | — | — |
-
-Validated on actual 2026 election outcomes — not a random split or toy dataset.
-
-**Melaka 2026 forecast:** 22 government (BN/PN) wins, 6 Harapan wins.
+A multi-phase Malaysian state election intelligence system: classical ML,
+sentiment analysis, RAG, and MLOps automation in one connected pipeline.
+Validated against actual 2026 state election results.
 
 ---
 
-## Key Findings
+## Results (verified against real 2026 election outcomes)
 
-**1. Coalition dynamics drove the biggest accuracy gain (+28% NS)**
-The model initially treated BN and PN as opponents. Discovering they are coalition partners in 2026 and reframing the target from "did non-BN win?" to "did Harapan win?" improved NS accuracy by 28 percentage points — the single largest improvement in the project.
+| State | Election | Seats | Accuracy | OOD flagged |
+|---|---|---|---|---|
+| Johor | 2026 | 56 | **78.57%** (44/56) | 12.5% |
+| Negeri Sembilan | 2026 | 36 | **83.33%** (30/36) | 52.8% |
+| Selangor | pending | — | live forecast, not yet validated | — |
+| Melaka | pending | — | live forecast, not yet validated | — |
+| Perak | pending | — | live forecast, not yet validated | — |
 
-**2. Voter roll demographics provided genuine seat-level signal**
-Adding ethnicity and age composition from 3–5M row anonymised voter rolls gave the model information it had never had before: `chinese_pct`, `young_malay_pct`, `youth_pct`. These are seat-level features the tree can actually split on. NS improved from 63.9% → 77.8% from this alone.
+Predicts binary outcome per seat: **BN** vs. **non-BN** (Harapan and PN
+combined as "opposition"). See
+[docs/multiclass_analysis.md](docs/multiclass_analysis.md) for why this
+framing was chosen, and for an important open finding below.
 
-**3. LSTM confirmed efficient market hypothesis**
-Daily KLCI and USD/MYR prediction achieved 0.52% MAPE (accurate in absolute terms) but only 52% directional accuracy — near-random, consistent with EMH. Documented honestly as a finding rather than hidden.
+---
 
-**4. National narrative × demographics creates seat-level sentiment variation**
-State-level sentiment scores have zero tree importance (every seat gets the same value). Weighting sentiment themes (Islam threat, Malay unity, cost of living) by each seat's demographic composition produces genuine variation — different seats respond differently to the same national narrative.
+## Key finding: BN-PN coalition dynamics are election-specific, not fixed
+
+In the 2026 election, BN and PN's relationship differed **by state**:
+in Johor they competed as separate, opposing coalitions; in Negeri
+Sembilan they appear to have operated under a seat-allocation pact
+(in most seats, only one of BN or PN fielded a candidate). This is a
+political arrangement specific to this election cycle — it is not a
+permanent rule, and could look different next election.
+
+The current model does not yet capture this. The proposed fix is a
+**data-derived feature per seat** ("did both BN and PN field
+candidates in this seat, this election?") rather than a hardcoded
+assumption about how the coalitions relate — so the model adapts to
+whatever the actual candidate lists say for each election, rather
+than encoding today's specific alliance as permanent. This is the
+single most promising lever identified for improving accuracy, ahead
+of further hyperparameter tuning. Full writeup:
+[docs/multiclass_analysis.md](docs/multiclass_analysis.md).
+
+---
+
+## Other findings
+
+**Temporal leakage, found and fixed.** An earlier version of this
+pipeline included prediction-period (Aug 2026) sentiment scores as a
+*training* feature for transitions ending in 2013, 2018, and 2022 —
+using information that did not exist yet at the time of those
+elections. Fixed by splitting the feature set: training uses only
+structural + ethnicity features; sentiment/economic features are
+reserved for prediction time, where they are temporally valid.
+
+**3-class coalition split investigated, and reverted.** Tested
+splitting the target into BN / Pakatan / PN instead of binary. Found
+it underperforms: PN only emerged as a coalition in 2020, so no
+training transition has PN as a "previous" winner, and PN's seat
+count in its one possible training transition varies sharply by
+state (2 seats in Melaka vs. 26 in Perak) — a genuine data
+limitation, not a tuning problem (confirmed via GridSearchCV, which
+improved cross-validation scores but produced zero change in real
+validation accuracy). Reverted to binary; full investigation
+documented rather than discarded.
+
+**Voter-roll demographics provide genuine seat-level signal.**
+Ethnicity and age composition (`chinese_pct`, `young_malay_pct`,
+`youth_pct`, etc.), sourced from anonymised voter rolls, are
+consistently among the top features by importance across all 5
+states — this is real, seat-varying signal that structural features
+alone (majority change, turnout, incumbency) don't capture.
+
+**Sentiment/narrative features are national, weighted by
+demographics.** State-level sentiment scores are constant across all
+seats in a state (zero tree importance on their own). Weighting
+national narrative themes (e.g., "cost of living," "Islam threat")
+by each seat's demographic composition produces genuine seat-level
+variation — different seats respond differently to the same national
+narrative. Currently used only at prediction time for the 3 pending
+states (Selangor, Melaka, Perak), not at training time (to avoid the
+leakage described above).
 
 ---
 
@@ -40,97 +88,214 @@ State-level sentiment scores have zero tree importance (every seat gets the same
 
 ```
 Data sources
-  electiondata.my (voter rolls, results)
-  5 RSS news sources (FMT, Malaysiakini, Malay Mail, Utusan, Bernama)
+  electiondata.my (ballots, stats, voter rolls)
+  5 RSS news sources (FMT, Malaysiakini, Malay Mail, Utusan Malaysia, Bernama*)
   yfinance (KLCI, USD/MYR)
        |
        v
-Phase 1: Election predictor
-  state_pipeline.py → engineer_features()
-  train_models.py → RF + XGB ensemble, OOD detector
-  state_predictor.py → predict_seat(), predict_all()
-  FastAPI → /predict/seat/{state}, /predict/all/{state}
+Training pipeline
+  scripts/train_models.py
+    build_transition()      -- structural + ethnicity features per
+                                historical (year_a -> year_b) transition
+    train_state()            -- RF + XGB ensemble, calibration,
+                                OOD detector (EllipticEnvelope)
+  scripts/training_config.py -- per-state hyperparameters (tuned via
+                                GridSearchCV), transitions, feature lists
        |
-Phase 2: Sentiment + demographics
-  news_scraper.py → 5 politically diverse RSS sources
-  sentiment_scorer.py → Groq/Llama 3.1, 9 scores per article
-  voter rolls → ethnicity + age per DUN seat (3–5M rows)
-  add_ethnicity_features.py → 13 new seat-level features
+       v
+backend/models/{state}/*.pkl + metadata.json
        |
-Phase 3: RAG chatbot
-  builder.py → ChromaDB vector store (325 documents)
-  rag_chain.py → question → embed → retrieve → Groq → answer
-  FastAPI → /chatbot/ask
+       +--> scripts/validation.py
+       |      Regenerates predictions live for states with real 2026
+       |      ground truth (Johor, Neg Sembilan); writes
+       |      validated_accuracy back into metadata.json
        |
-Phase 4: LSTM economic forecasting
-  collector.py → yfinance (KLCI, USD/MYR, 4000+ rows each)
-  preprocessor.py → 60-day sliding windows
-  lstm_model.py → PyTorch, 2-layer LSTM, hidden_size=64
-  evaluator.py → economic_pressure_score per election period
+       +--> backend/core/models/state_predictor.py
+       |      Live prediction: RF+XGB ensemble -> OOD check -> blend
+       |      toward historical seat base-rate if out-of-distribution.
+       |      Adds sentiment/narrative features (prediction-time only)
+       |      via merge_ethnicity_into_features().
        |
-Phase 6: MLOps automation
-  dag_sentiment.py → daily 8am: scrape → score → update → rebuild RAG
-  dag_economic.py → weekly Monday: fetch → LSTM → pressure scores
-  dag_drift.py → post-election: load → accuracy → drift? → retrain
-  scheduler.py → APScheduler (Airflow-compatible DAG design)
+       +--> mlops/model_versioning.py
+       |      Archives every trained model with a timestamp; only
+       |      promotes to "latest" if it beats the current model's
+       |      VALIDATED accuracy (falls back to training accuracy
+       |      with an explicit warning if no validated number exists)
+       |
+       +--> mlops/alerts.py
+       |      Logs every training/validation event to a JSON audit
+       |      trail; email/Slack alerts supported (best-effort)
+       |
+       +--> mlops/dags/ + mlops/scheduler.py
+              Daily sentiment scrape+score, weekly economic update,
+              manual-trigger drift check, monthly retraining --
+              APScheduler (local) + a GitHub Actions scheduled
+              workflow (cloud, genuinely automated) for retraining
+
+* Bernama RSS currently disabled -- intermittent Groq scoring hang
+  not yet root-caused; see docs/multiclass_analysis.md
 ```
 
 ---
 
-## Feature Set (25 features)
+## Feature set
+
+**Training features (15)** — structural + ethnicity only, no
+sentiment/economic (avoids temporal leakage):
 
 | Category | Features |
-|----------|----------|
+|---|---|
 | Structural (6) | majority_change, turnout_change, incumbent_held, log_voters, majority_perc_change, n_candidates_b |
-| Sentiment (4) | bn_sentiment, harapan_sentiment, pn_sentiment, racial_tension_index |
-| Economic (1) | economic_pressure (from LSTM forecast) |
 | Ethnicity + age (8) | malay_pct, chinese_pct, indian_pct, young_malay_pct, young_chinese_pct, older_malay_pct, youth_pct, median_age |
-| Interactions (5) | bn_sent_x_malay, harapan_sent_x_chinese, pn_sent_x_young_malay, tension_x_mixed, economic_x_youth |
-| Narrative (1) | narrative_pressure (national themes × seat demographics) |
+| Interaction (1) | tension_x_mixed |
+
+**Prediction-time features (24)** — adds sentiment, economic, and
+national-narrative interaction features, valid only because they're
+applied after training, not baked into historical rows:
+
+| Category | Features |
+|---|---|
+| Sentiment (4) | bn_sentiment, harapan_sentiment, pn_sentiment, racial_tension_index |
+| Economic (1) | economic_pressure |
+| Sentiment × ethnicity interactions (5) | bn_sent_x_malay, harapan_sent_x_chinese, pn_sent_x_young_malay, tension_x_mixed, economic_x_youth |
+| National narrative (1) | narrative_pressure |
 
 ---
 
-## Accuracy Progression
-
-| Feature set | Johor | NS | Key change |
-|-------------|-------|-----|------------|
-| 6 structural | 89.29% | 63.89% | Baseline |
-| + Sentiment + Economic (11) | 89.29% | 63.89% | No change (state-level constant) |
-| + Ethnicity + age (24) | 89.29% | 77.78% | +14% NS (seat-level signal) |
-| + Coalition target fix (25) | **94.64%** | **91.67%** | +5% Johor, +14% NS |
-
----
-
-## Tech Stack
+## Tech stack
 
 | Component | Technology |
-|-----------|------------|
-| ML models | scikit-learn (RF, XGB, LR, CalibratedCV, EllipticEnvelope) |
-| Deep learning | PyTorch (2-layer LSTM) |
-| LLM / sentiment | Groq API (llama-3.1-8b-instant, free tier) |
-| Vector store | ChromaDB + sentence-transformers (all-MiniLM-L6-v2) |
-| RAG | LangChain-compatible pipeline |
-| API | FastAPI, deployed on Railway |
-| MLOps | APScheduler (Airflow-compatible DAG design) |
-| Data | electiondata.my, yfinance, Bank Negara API |
+|---|---|
+| ML models | scikit-learn (Random Forest, CalibratedClassifierCV, EllipticEnvelope), XGBoost |
+| Hyperparameter search | GridSearchCV + StratifiedKFold |
+| LLM / sentiment | Groq API (llama-3.1-8b-instant) |
+| Vector store / RAG | ChromaDB, sentence-transformers |
+| Deep learning (economic forecast) | PyTorch (LSTM) |
+| Data | electiondata.my, yfinance |
+| Testing | pytest-style regression + smoke tests |
+| CI/CD | GitHub Actions (test suite on every push; scheduled monthly retraining workflow) |
+| Scheduling (local) | APScheduler |
 
 ---
 
-## API Endpoints
+## Testing & CI
 
-| Method | Endpoint | Description |
-|--------|----------|-------------|
-| GET | `/` | API info + available states |
-| GET | `/health` | Health check |
-| POST | `/predict/seat/{state}` | Predict single seat with custom features |
-| GET | `/predict/all/{state}` | Predict all seats using real 2026 data |
-| GET | `/analysis/metadata/{state}` | Model accuracy + feature importance |
-| POST | `/chatbot/ask` | RAG chatbot — ask about predictions |
-| GET | `/economic/forecast` | Latest LSTM economic forecast |
+![Tests](https://github.com/hazimxm04/GE-Insights-Prediction-Hub/actions/workflows/ci.yml/badge.svg)
+
+`scripts/tests/test_training.py` contains regression tests written
+for bugs actually found during development (a coalition-naming
+standardization bug, a config-completeness check, a training/
+inference feature-schema mismatch), plus one end-to-end training
+smoke test — not exhaustive coverage, but targeted at real failure
+modes. Runs automatically on every push via GitHub Actions.
 
 ---
 
-## Quick Start
+## MLOps
+
+- **Model versioning** (`mlops/model_versioning.py`): every training
+  run is archived with a timestamp before being overwritten. A new
+  model only gets promoted to "latest" if it beats the current
+  model's *validated* accuracy — this distinction matters: a model
+  showed 98%+ training accuracy while validating at only 78.57% on
+  real 2026 results, so training accuracy alone is treated as an
+  unreliable promotion signal.
+- **Event logging** (`mlops/alerts.py`): every training run logs to
+  a JSON audit trail (`backend/logs/`).
+- **Orchestration**: `mlops/dags/dag_training.py` wraps the training
+  pipeline for local/scheduled use via `mlops/scheduler.py`
+  (APScheduler). A parallel, genuinely-automated path exists via
+  `.github/workflows/scheduled-training.yml` — a monthly GitHub
+  Actions cron job that retrains, versions, and commits updated
+  models back to the repo, independent of any local machine
+  (verified via a real scheduled run).
+- **Known, accepted limitation**: scheduled retraining currently
+  auto-promotes without a manual review gate. Given the training-vs-
+  validated-accuracy finding above, this is a real, disclosed risk
+  for a politically sensitive model. Planned improvement: a separate
+  "published" tier so scheduled retraining can run freely while a
+  manual review/approve step gates what `StatePredictor` actually
+  serves. See [docs/multiclass_analysis.md](docs/multiclass_analysis.md).
+
+---
+
+## Project structure
+
+```
+scripts/
+  training_config.py     -- per-state hyperparameters, transitions, feature lists
+  train_models.py         -- unified training pipeline (all 5 states)
+  validation.py            -- validates against real results (johor, neg_sembilan)
+  tune_hyperparams.py      -- GridSearchCV + StratifiedKFold search
+  tests/test_training.py   -- regression + smoke tests, run via CI
+
+backend/
+  core/models/state_predictor.py   -- live prediction, OOD fallback
+  core/pipelines/state_pipeline.py -- feature engineering helpers
+  models/{state}/                   -- trained models, versioned history, metadata
+  scripts/add_ethnicity_features.py -- demographic-weighted narrative features
+
+sentiment/
+  scrapers/news_scraper.py         -- RSS scraping, 5 sources, per-source lean disclosed
+  scoring/sentiment_scorer.py      -- Groq scoring, national narrative themes
+
+economic/
+  models/lstm_model.py              -- PyTorch LSTM, economic pressure score
+
+chatbot/
+  knowledge_base/builder.py        -- ChromaDB indexing
+  chain/rag_chain.py                -- RAG pipeline (question -> retrieve -> Groq -> answer)
+
+mlops/
+  model_versioning.py    -- promotion gates (validated accuracy preferred)
+  alerts.py                -- event logging + optional email/Slack
+  scheduler.py             -- APScheduler entry point
+  dags/
+    dag_sentiment.py       -- daily: scrape -> score -> update -> rebuild RAG
+    dag_economic.py        -- weekly: fetch -> LSTM -> pressure score
+    dag_drift.py            -- manual: post-election accuracy + drift check
+    dag_training.py         -- wraps train_models.py for scheduled/manual runs
+
+.github/workflows/
+  ci.yml                    -- test suite on every push
+  scheduled-training.yml    -- monthly automated retraining (GitHub Actions cron)
+
+docs/
+  multiclass_analysis.md    -- full investigation log: binary vs. 3-class target,
+                                sentiment-feature leakage analysis, BN-PN coalition
+                                finding, known issues and future work
+
+data/
+  raw/                       -- ballots, stats, ethnicity, news (parquet/CSV)
+  processed/                 -- sentiment scores, narrative scores, economic pressure
+```
+
+---
+
+## Known limitations
+
+- Only Johor and Neg Sembilan have held their 2026 elections, so
+  those are the only two states with real validated accuracy.
+  Selangor, Melaka, and Perak produce live forecasts.
+- BN-PN coalition dynamics are election- and state-specific (see Key
+  Finding above) — not yet modeled.
+- Sentiment-scoring pipeline (`sentiment_scorer.py`, via Groq)
+  intermittently hangs beyond its configured timeout; not isolated
+  to one news source. Affects only live-forecast sentiment features
+  for pending states, not training or validated accuracy. Bernama
+  RSS temporarily disabled as a partial mitigation.
+- News scraping covers English/Malay sources only; Chinese-language
+  media is not scraped, limiting sentiment signal for Chinese-
+  majority seats.
+- Scoped to Peninsular Malaysian states; Sabah/Sarawak use a
+  different party system (GPS, GRS, WARISAN) not covered by the
+  current BN/Harapan/PN framework.
+- Scheduled retraining auto-promotes without manual review (see
+  MLOps section above).
+
+---
+
+## Quick start
 
 ```bash
 git clone https://github.com/hazimxm04/GE-Insights-Prediction-Hub
@@ -138,139 +303,25 @@ cd GE-Insights-Prediction-Hub
 
 pip install -r requirements.txt
 
-# Set up environment
-cp backend/.env.example backend/.env
-# Add: GROQ_API_KEY=your_key
+# Add your Groq API key to backend/.env
+# GROQ_API_KEY=your_key_here
 
-# Download voter roll data
-python backend/scripts/download_ethnicity.py
+# Train all 5 states
+python scripts/train_models.py
 
-# Train models
-python backend/scripts/train_models.py
+# Validate against real 2026 results (johor, neg_sembilan)
+python scripts/validation.py
 
-# Validate on 2026 results
-python backend/scripts/validate_2026.py
-
-# Start API
-python backend/app/main.py
-# → http://localhost:8000
+# Run tests
+python scripts/tests/test_training.py
 ```
-
----
-
-## MLOps Pipeline
-
-Three automated DAGs run on schedule:
-
-```bash
-# Run all DAGs once (test mode)
-python mlops/scheduler.py --test
-
-# Start live scheduler
-python mlops/scheduler.py
-```
-
-| DAG | Schedule | Tasks |
-|-----|----------|-------|
-| dag_sentiment | Daily 8am | scrape news → score sentiment → update state scores → rebuild RAG |
-| dag_economic | Weekly Monday | fetch KLCI/MYR → LSTM forecast → update pressure scores |
-| dag_drift | Manual (post-election) | load predictions → compute accuracy → detect drift → retrain |
-
----
-
-## RAG Chatbot
-
-```bash
-python chatbot/chain/rag_chain.py
-```
-
-Example questions:
-- "What is the predicted outcome for Melaka 2026?"
-- "Why did the model get N.12 Bentayan wrong?"
-- "What is the economic pressure score for Johor?"
-- "Which seats in NS did the model predict incorrectly?"
-- "What is the racial tension index right now?"
-
----
-
-## Project Structure
-
-```
-GE-Insights-Prediction-Hub/
-├── backend/
-│   ├── app/
-│   │   ├── main.py                    # FastAPI app + router setup
-│   │   └── routes/
-│   │       ├── predictions.py         # /predict endpoints
-│   │       ├── analysis.py            # /analysis endpoints
-│   │       └── chatbot.py             # /chatbot/ask endpoint
-│   ├── core/
-│   │   ├── models/
-│   │   │   └── state_predictor.py     # Inference + OOD + fallback
-│   │   └── pipelines/
-│   │       └── state_pipeline.py      # Feature engineering
-│   ├── models/                        # Saved .pkl files per state
-│   └── scripts/
-│       ├── train_models.py            # Train RF + XGB + OOD
-│       ├── validate_2026.py           # Evaluate on real 2026 data
-│       └── download_ethnicity.py      # Voter roll processing
-├── sentiment/
-│   ├── scrapers/news_scraper.py       # 5 RSS sources
-│   └── scoring/sentiment_scorer.py   # Groq/Llama, 9 scores
-├── economic/
-│   ├── data/                          # collector + preprocessor
-│   ├── models/lstm_model.py           # PyTorch LSTM
-│   └── evaluation/evaluator.py       # RMSE, MAE, directional acc
-├── chatbot/
-│   ├── knowledge_base/builder.py     # ChromaDB indexing
-│   └── chain/rag_chain.py            # RAG pipeline
-├── mlops/
-│   ├── scheduler.py                   # APScheduler entry point
-│   └── dags/
-│       ├── dag_sentiment.py           # Daily pipeline
-│       ├── dag_economic.py            # Weekly pipeline
-│       └── dag_drift.py              # Drift detection
-└── data/
-    ├── raw/                           # Parquet files + voter rolls
-    └── processed/                     # CSVs for model consumption
-```
-
----
-
-## Limitations
-
-- **Small training data:** 28–56 seats per state. Models are regularised (max_depth, min_samples_leaf) but overfitting risk remains.
-- **National indicators for state elections:** KLCI and USD/MYR are national signals applied to state predictions — a known granularity mismatch. State-level economic data (BNM GDP by state) is annual and too sparse for LSTM.
-- **English/Malay news sources only:** Chinese-language media (Sin Chew, Guang Ming) is not scraped, which limits sentiment signal quality for Chinese-majority seats.
-- **LSTM directional accuracy ~52%:** Consistent with efficient market hypothesis for daily price prediction. The economic_pressure_score is meaningful as a trend signal over 90-day election periods, not for daily trading.
-- **Melaka 2026 is a forecast:** No actual results yet. Accuracy will be validated when election results are announced.
-
----
-
-## Honest Negative Results
-
-| Finding | Implication |
-|---------|-------------|
-| LSTM directional accuracy = 52% | Daily price prediction near-random (EMH confirmed) |
-| State-level sentiment = 0% feature importance | Constant features can't be split by trees |
-| Interaction features marginal gain | Multiplying a constant by a variable rescales, doesn't add information |
-| 6 Johor seats still wrong | Chinese urban seats with anomalous 2022 BN result — model trained on that pattern |
-
----
-
-## Data Sources
-
-| Source | Usage | License |
-|--------|-------|---------|
-| electiondata.my | Election results + voter rolls | CC0 |
-| yfinance | KLCI + USD/MYR prices | Yahoo Finance ToS |
-| FMT, Malaysiakini, Malay Mail, Utusan, Bernama | Sentiment scoring | RSS public feeds |
-| Bank Negara Malaysia API | OPR data | BNM open data |
 
 ---
 
 ## Author
 
-Built as an AI/ML portfolio project demonstrating end-to-end system design: from raw data collection through feature engineering, model training, deployment, RAG integration, and MLOps automation.
-
-> Predicting who wins — and being honest about why the model fails — is more valuable than inflating accuracy numbers.
+Built as an ML/AI engineering portfolio project demonstrating
+end-to-end system design: data ingestion, feature engineering,
+model training and evaluation, MLOps (versioning, CI/CD, scheduled
+automation), and honest documentation of what works, what doesn't,
+and why.
