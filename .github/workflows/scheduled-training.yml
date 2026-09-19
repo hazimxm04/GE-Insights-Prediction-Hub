@@ -23,7 +23,7 @@ jobs:
       - name: Install dependencies
         run: |
           python -m pip install --upgrade pip
-          pip install numpy pandas scikit-learn xgboost pyarrow apscheduler
+          pip install -r requirements.txt
 
       - name: Retrain all states
         run: python scripts/train_models.py
