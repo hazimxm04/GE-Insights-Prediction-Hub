@@ -1,0 +1,84 @@
+{
+  "state": "neg_sembilan",
+  "description": "3 transitions, medium regularization, full feature set",
+  "transitions": [
+    [
+      2008,
+      2013
+    ],
+    [
+      2013,
+      2018
+    ],
+    [
+      2018,
+      2023
+    ]
+  ],
+  "seats": 104,
+  "features": [
+    "majority_change",
+    "turnout_change",
+    "incumbent_held",
+    "log_voters",
+    "majority_perc_change",
+    "n_candidates_b",
+    "malay_pct",
+    "chinese_pct",
+    "indian_pct",
+    "young_malay_pct",
+    "young_chinese_pct",
+    "older_malay_pct",
+    "youth_pct",
+    "median_age",
+    "tension_x_mixed"
+  ],
+  "class_balance": {
+    "non_bn": 49,
+    "bn": 55
+  },
+  "models": {
+    "random_forest": {
+      "accuracy": 0.9327,
+      "precision": 0.9773,
+      "recall": 0.8776,
+      "f1": 0.9247,
+      "auc": 0.9948,
+      "brier": 0.0481
+    },
+    "xgboost": {
+      "accuracy": 1.0,
+      "precision": 1.0,
+      "recall": 1.0,
+      "f1": 1.0,
+      "auc": 1.0,
+      "brier": 0.0147
+    },
+    "ensemble": {
+      "accuracy": 0.9712,
+      "auc": 1.0,
+      "brier": 0.028
+    }
+  },
+  "feature_importance": {
+    "young_chinese_pct": 0.2407,
+    "malay_pct": 0.181,
+    "chinese_pct": 0.1516,
+    "young_malay_pct": 0.1286,
+    "older_malay_pct": 0.1044,
+    "majority_change": 0.0419,
+    "majority_perc_change": 0.0291,
+    "n_candidates_b": 0.0216,
+    "youth_pct": 0.0207,
+    "turnout_change": 0.0178,
+    "log_voters": 0.017,
+    "median_age": 0.0157,
+    "incumbent_held": 0.0156,
+    "indian_pct": 0.0143,
+    "tension_x_mixed": 0.0
+  },
+  "ood": {
+    "n_flagged": 11,
+    "pct_flagged": 10.6
+  }
+}

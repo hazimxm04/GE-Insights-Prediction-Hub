@@ -59,11 +59,11 @@ RSS_FEEDS = {
 
     # Government-controlled (RSF: "toe the line of whatever
     # government is in power" — disclosed, not treated as neutral)
-    "bernama": {
-        "name": "Bernama",
-        "url":  "https://www.bernama.com/en/rssfeed.php",
-        "lean": "government_official",
-    },
+    #ernama": {
+     #   "name": "Bernama",
+      #  "url":  "https://www.bernama.com/en/rssfeed.php",
+       # "lean": "government_official",
+    #},
 }
 
 # Lookup table used when tagging articles that came from

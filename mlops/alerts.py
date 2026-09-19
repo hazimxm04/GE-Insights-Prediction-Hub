@@ -26,6 +26,17 @@ from datetime import datetime
 from email.mime.text import MIMEText
 from pathlib import Path
 
+import os
+from dotenv import load_dotenv
+from pathlib import Path
+
+ROOT = Path(__file__).resolve().parent.parent
+load_dotenv(ROOT / ".env")
+
+GMAIL_SENDER = os.getenv("GMAIL_SENDER", "")
+GMAIL_PASSWORD = os.getenv("GMAIL_PASSWORD", "")
+SLACK_WEBHOOK = os.getenv("SLACK_WEBHOOK", "")
+
 # ── Configuration ──────────────────────────────────────────
 
 GMAIL_SENDER = "your-email@gmail.com"          # Your Gmail address

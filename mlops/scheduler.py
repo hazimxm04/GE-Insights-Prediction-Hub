@@ -20,6 +20,7 @@ import argparse
 from pathlib import Path
 from datetime import datetime
 
+
 ROOT = Path(__file__).resolve().parent.parent
 sys.path.insert(0, str(ROOT))
 
@@ -44,6 +45,11 @@ logger = logging.getLogger("ge_insights.scheduler")
 from mlops.dags.dag_sentiment import run_dag as run_sentiment_dag
 from mlops.dags.dag_economic  import run_dag as run_economic_dag
 from mlops.dags.dag_drift     import run_dag as run_drift_dag
+from mlops.dags.dag_training import run_dag as run_training_dag
+# DAG 4: Not scheduled — triggered manually, since retraining a
+# politically sensitive model should involve human review before
+# deployment, not run blindly on autopilot.
+# Run: python mlops/dags/dag_training.py
 
 # ── Scheduler ────────────────────────────────────────────────────
 
@@ -84,9 +90,20 @@ def start_scheduler():
     logger.info("  DAG 1 (sentiment): daily at 08:00 MYT")
     logger.info("  DAG 2 (economic):  every Monday at 06:00 MYT")
     logger.info("  DAG 3 (drift):     manual trigger only")
+    logger.info("  DAG 4 (training):  monthly, 1st at 03:00 MYT (auto-promotes; see docs/multiclass_analysis.md)")
     logger.info("Logs: mlops/logs/pipeline.log")
     logger.info("Press Ctrl+C to stop")
     logger.info("="*55)
+
+    scheduler.add_job(
+        run_training_dag,
+        trigger=CronTrigger(hour=9, minute=0),
+        id="dag_04_scheduled_retraining",
+        name="Scheduled retraining pipeline",
+        max_instances=1,
+        misfire_grace_time=3600,
+
+    )
 
     try:
         scheduler.start()

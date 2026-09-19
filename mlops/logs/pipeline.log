@@ -198,3 +198,76 @@ DAG COMPLETE: dag_03_drift_detection in 0s
 2026-08-14 20:32:06,978 [mlops.dags.dag_drift] INFO:   Retrained: False
 2026-08-14 20:32:06,978 [ge_insights.scheduler] INFO: 
 All DAGs completed. Check mlops/logs/pipeline.log
+2026-09-19 12:16:46,210 [ge_insights.scheduler] INFO: TEST MODE: Running all DAGs once
+2026-09-19 12:16:46,222 [ge_insights.scheduler] INFO: 
+========================================
+2026-09-19 12:16:46,222 [ge_insights.scheduler] INFO: Running DAG 1: Daily sentiment
+2026-09-19 12:16:46,222 [ge_insights.scheduler] INFO: ========================================
+2026-09-19 12:16:46,222 [mlops.dags.dag_sentiment] INFO: ==================================================
+2026-09-19 12:16:46,222 [mlops.dags.dag_sentiment] INFO: DAG START: dag_01_daily_sentiment at 2026-09-19 12:16:46.222058
+2026-09-19 12:16:46,222 [mlops.dags.dag_sentiment] INFO: ==================================================
+2026-09-19 12:16:46,222 [mlops.dags.dag_sentiment] INFO: 
+[TASK] scrape_news
+2026-09-19 12:16:46,222 [mlops.dags.dag_sentiment] INFO: Starting news scrape...
+2026-09-19 12:16:54,344 [mlops.dags.dag_sentiment] INFO: Scraped 51 articles -> C:\Users\User\Downloads\projects\GE-Insights-Prediction-Hub\data\raw\news\news_20260919.csv
+2026-09-19 12:16:54,346 [mlops.dags.dag_sentiment] INFO: [TASK OK] scrape_news: {'status': 'success', 'articles': 51, 'path': 'C:\\Users\\User\\Downloads\\projects\\GE-Insights-Prediction-Hub\\data\\raw\\news\\news_20260919.csv'}
+2026-09-19 12:16:54,346 [mlops.dags.dag_sentiment] INFO: 
+[TASK] score_sentiment
+2026-09-19 12:16:54,346 [mlops.dags.dag_sentiment] INFO: Starting sentiment scoring...
+2026-09-19 12:16:54,384 [mlops.dags.dag_sentiment] INFO: Found 51 articles from C:\Users\User\Downloads\projects\GE-Insights-Prediction-Hub\data\raw\news\news_20260919.csv
+2026-09-19 12:16:54,395 [mlops.dags.dag_sentiment] INFO: Added state mention columns
+2026-09-19 12:22:56,057 [mlops.dags.dag_sentiment] INFO: Scored 211 articles
+2026-09-19 12:22:56,057 [mlops.dags.dag_sentiment] INFO: [TASK OK] score_sentiment: {'status': 'success', 'scored': 211}
+2026-09-19 12:22:56,057 [mlops.dags.dag_sentiment] INFO: 
+[TASK] update_state_scores
+2026-09-19 12:22:56,057 [mlops.dags.dag_sentiment] INFO: Updating state sentiment scores...
+2026-09-19 12:22:58,047 [mlops.dags.dag_sentiment] INFO: Updated scores for 3 states
+2026-09-19 12:22:58,047 [mlops.dags.dag_sentiment] INFO: [TASK OK] update_state_scores: {'status': 'success', 'states': 3}
+2026-09-19 12:22:58,047 [mlops.dags.dag_sentiment] INFO: 
+[TASK] rebuild_rag
+2026-09-19 12:22:58,047 [mlops.dags.dag_sentiment] INFO: Rebuilding RAG knowledge base...
+2026-09-19 12:23:00,561 [chromadb.telemetry.product.posthog] INFO: Anonymized telemetry enabled. See                     https://docs.trychroma.com/telemetry for more information.
+2026-09-19 12:23:01,275 [chromadb.telemetry.product.posthog] ERROR: Failed to send telemetry event ClientStartEvent: capture() takes 1 positional argument but 3 were given
+2026-09-19 12:23:51,253 [sentence_transformers.SentenceTransformer] INFO: Load pretrained SentenceTransformer: all-MiniLM-L6-v2
+2026-09-19 12:23:55,566 [chromadb.telemetry.product.posthog] ERROR: Failed to send telemetry event ClientCreateCollectionEvent: capture() takes 1 positional argument but 3 were given
+2026-09-19 12:23:58,461 [chromadb.telemetry.product.posthog] ERROR: Failed to send telemetry event CollectionAddEvent: capture() takes 1 positional argument but 3 were given
+2026-09-19 12:24:06,281 [chromadb.telemetry.product.posthog] ERROR: Failed to send telemetry event CollectionQueryEvent: capture() takes 1 positional argument but 3 were given
+2026-09-19 12:24:06,281 [mlops.dags.dag_sentiment] INFO: RAG knowledge base rebuilt successfully
+2026-09-19 12:24:06,281 [mlops.dags.dag_sentiment] INFO: [TASK OK] rebuild_rag: {'status': 'success'}
+2026-09-19 12:24:06,281 [mlops.dags.dag_sentiment] INFO: 
+DAG COMPLETE: dag_01_daily_sentiment in 440s
+2026-09-19 12:24:06,281 [ge_insights.scheduler] INFO: 
+========================================
+2026-09-19 12:24:06,281 [ge_insights.scheduler] INFO: Running DAG 2: Weekly economic
+2026-09-19 12:24:06,281 [ge_insights.scheduler] INFO: ========================================
+2026-09-19 12:24:06,281 [mlops.dags.dag_economic] INFO: ==================================================
+2026-09-19 12:24:06,281 [mlops.dags.dag_economic] INFO: DAG START: dag_02_weekly_economic at 2026-09-19 12:24:06.281733
+2026-09-19 12:24:06,281 [mlops.dags.dag_economic] INFO: ==================================================
+2026-09-19 12:24:06,291 [mlops.dags.dag_economic] INFO: 
+[TASK] fetch_economic_data
+2026-09-19 12:24:06,291 [mlops.dags.dag_economic] INFO: Fetching economic data...
+2026-09-19 12:24:08,252 [yfinance] ERROR: Failed to get ticker '^KLSE' reason: Expecting value: line 1 column 1 (char 0)
+2026-09-19 12:24:08,252 [yfinance] ERROR: $^KLSE: possibly delisted; no timezone found
+2026-09-19 12:24:08,254 [mlops.dags.dag_economic] ERROR: Fetch failed: 'Index' object has no attribute 'tz_localize'
+2026-09-19 12:24:08,256 [mlops.dags.dag_economic] ERROR: [TASK FAILED] fetch_economic_data: 'Index' object has no attribute 'tz_localize'
+2026-09-19 12:24:08,256 [mlops.dags.dag_economic] INFO: 
+DAG COMPLETE: dag_02_weekly_economic in 1s
+2026-09-19 12:24:08,256 [ge_insights.scheduler] INFO: 
+========================================
+2026-09-19 12:24:08,256 [ge_insights.scheduler] INFO: Running DAG 3: Drift detection
+2026-09-19 12:24:08,256 [ge_insights.scheduler] INFO: ========================================
+2026-09-19 12:24:08,256 [mlops.dags.dag_drift] INFO: ==================================================
+2026-09-19 12:24:08,256 [mlops.dags.dag_drift] INFO: DAG START: dag_03_drift_detection at 2026-09-19 12:24:08.256671
+2026-09-19 12:24:08,256 [mlops.dags.dag_drift] INFO: ==================================================
+2026-09-19 12:24:08,258 [mlops.dags.dag_drift] INFO: Loading predictions...
+2026-09-19 12:24:08,268 [mlops.dags.dag_drift] INFO:   johor: 56 seats loaded
+2026-09-19 12:24:08,272 [mlops.dags.dag_drift] INFO:   neg_sembilan: 36 seats loaded
+2026-09-19 12:24:08,272 [mlops.dags.dag_drift] INFO: Computing accuracy...
+2026-09-19 12:24:08,278 [mlops.dags.dag_drift] INFO: Detecting drift (threshold: 85%)...
+2026-09-19 12:24:08,278 [mlops.dags.dag_drift] INFO: No drift detected — retraining not needed
+2026-09-19 12:24:08,279 [mlops.dags.dag_drift] INFO: 
+DAG COMPLETE: dag_03_drift_detection in 0s
+2026-09-19 12:24:08,279 [mlops.dags.dag_drift] INFO:   Drift detected: False
+2026-09-19 12:24:08,279 [mlops.dags.dag_drift] INFO:   Retrained: False
+2026-09-19 12:24:08,279 [ge_insights.scheduler] INFO: 
+All DAGs completed. Check mlops/logs/pipeline.log

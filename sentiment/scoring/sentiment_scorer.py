@@ -138,6 +138,7 @@ Return ONLY these 9 lines with numbers, nothing else."""
             messages=[{"role": "user", "content": prompt}],
             max_tokens=100,
             temperature=0.2,
+            timeout=15,
         )
         result = response.choices[0].message.content.strip()
 
@@ -187,11 +188,25 @@ def score_dataframe(df: pd.DataFrame) -> pd.DataFrame:
     print(f"Scoring {total} articles with Groq ({MODEL})...")
     print("(No state filter -- national narratives affect all states)\n")
 
+    from concurrent.futures import ThreadPoolExecutor, TimeoutError as FutureTimeoutError
     for i, row in df.iterrows():
         text = str(row.get('full_text', row.get('title', '')))
         print(f"  [{i+1}/{total}] {text[:55]}...")
 
-        scores = score_article_all(text)
+        with ThreadPoolExecutor(max_workers=1) as executor:
+            future = executor.submit(score_article_all, text)
+            try:
+                scores = future.result(timeout=20)
+            except FutureTimeoutError:
+                print(f"    Hard timeout after 20s, skipping article")
+                scores = {
+                    'bn_sentiment': 0.0, 'harapan_sentiment': 0.0,
+                    'pn_sentiment': 0.0, 'racial_tension': 0.0,
+                    'islam_threat': 0.0, 'malay_unity': 0.0,
+                    'cost_living': 0.0, 'corruption': 0.0,
+                    'govt_performance': 0.0,
+                }
+                
         time.sleep(2)
 
         print(f"    BN={scores['bn_sentiment']:+.2f} | "
