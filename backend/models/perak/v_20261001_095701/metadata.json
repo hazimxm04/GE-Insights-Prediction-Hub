@@ -1,0 +1,80 @@
+{
+  "state": "perak",
+  "description": "2 transitions, 3-way contest (BN/PH/PN), full feature set",
+  "transitions": [
+    [
+      2013,
+      2018
+    ],
+    [
+      2018,
+      2022
+    ]
+  ],
+  "seats": 104,
+  "features": [
+    "majority_change",
+    "turnout_change",
+    "incumbent_held",
+    "log_voters",
+    "majority_perc_change",
+    "n_candidates_b",
+    "malay_pct",
+    "chinese_pct",
+    "indian_pct",
+    "young_malay_pct",
+    "young_chinese_pct",
+    "older_malay_pct",
+    "youth_pct",
+    "median_age",
+    "tension_x_mixed"
+  ],
+  "class_balance": {
+    "non_bn": 46,
+    "bn": 58
+  },
+  "models": {
+    "random_forest": {
+      "accuracy": 0.9231,
+      "precision": 0.975,
+      "recall": 0.8478,
+      "f1": 0.907,
+      "auc": 0.9891,
+      "brier": 0.0501
+    },
+    "xgboost": {
+      "accuracy": 0.9808,
+      "precision": 1.0,
+      "recall": 0.9565,
+      "f1": 0.9778,
+      "auc": 1.0,
+      "brier": 0.0178
+    },
+    "ensemble": {
+      "accuracy": 0.9615,
+      "auc": 0.9981,
+      "brier": 0.0309
+    }
+  },
+  "feature_importance": {
+    "young_chinese_pct": 0.2422,
+    "malay_pct": 0.165,
+    "chinese_pct": 0.1488,
+    "young_malay_pct": 0.1285,
+    "older_malay_pct": 0.1126,
+    "median_age": 0.0461,
+    "indian_pct": 0.0405,
+    "log_voters": 0.0369,
+    "turnout_change": 0.0322,
+    "youth_pct": 0.0211,
+    "majority_change": 0.0104,
+    "majority_perc_change": 0.0092,
+    "n_candidates_b": 0.0051,
+    "incumbent_held": 0.0015,
+    "tension_x_mixed": 0.0
+  },
+  "ood": {
+    "n_flagged": 11,
+    "pct_flagged": 10.6
+  }
+}
