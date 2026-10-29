@@ -77,3 +77,31 @@ def test_every_state_has_a_registry_entry_for_each_setting():
         assert {'url_prefix', 'file_stem', 'ethnicity_year', 'transitions', 'final_test'} <= set(s), state
         for a, b in s['transitions']:
             assert a < b and a >= MIN_YEAR, f'{state}: bad transition {(a, b)}'
+
+# ── ethnicity data: the file training uses must exist and line up with the seats ──
+ETH_COLS = ['malay_pct', 'chinese_pct', 'indian_pct', 'young_malay_pct', 'young_chinese_pct',
+            'older_malay_pct', 'youth_pct', 'median_age']
+
+
+@pytest.mark.parametrize('state', list(STATES))
+def test_ethnicity_year_is_a_registered_voter_roll(state):
+    from backend.core.states import voter_roll_url
+    info = STATES[state]
+    assert info['ethnicity_year'] in info['voter_rolls']
+    url = voter_roll_url(state, info['ethnicity_year'])
+    assert url.startswith('https://lake.electiondata.my/voter_rolls/')
+    assert f"{info['url_prefix']}_" in url and url.endswith(f"_{info['ethnicity_year']}.parquet")
+
+
+@pytest.mark.parametrize('state', list(STATES))
+def test_training_ethnicity_file_exists_and_matches_the_seats(state):
+    """Without this file the models silently train on zeros for 8 features."""
+    year = STATES[state]['ethnicity_year']
+    path = ROOT / 'data' / 'raw' / 'ethnicity' / f'ethnicity_{state}_{year}.csv'
+    assert path.exists(), f'missing {path.name} - run backend/scripts/download_ethnicity.py'
+    eth = pd.read_csv(path)
+    assert set(ETH_COLS) <= set(eth.columns)
+    assert eth[ETH_COLS].notna().all().all()
+    _, stats = _load(state)
+    seats = stats[pd.to_datetime(stats['date']).dt.year == year]['seat'].map(seat_no)
+    assert set(eth['seat'].map(seat_no)) == set(seats), 'ethnicity seats differ from the election seats'

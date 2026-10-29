@@ -16,69 +16,28 @@ Usage:
     python backend/scripts/download_ethnicity.py
 """
 
+import sys
 import pandas as pd
 import numpy as np
 from pathlib import Path
 from datetime import datetime
 
-DATA_DIR = Path("data/raw/ethnicity")
+ROOT = Path(__file__).resolve().parents[2]
+sys.path.insert(0, str(ROOT))
+from backend.core.states import STATES, voter_roll_url
+
+DATA_DIR = ROOT / "data" / "raw" / "ethnicity"
 DATA_DIR.mkdir(parents=True, exist_ok=True)
 
 CURRENT_YEAR = datetime.now().year
 
-# ── Voter roll URLs (from lake.electiondata.my) ───────────────────
+# ── Voter rolls: built from the state registry (backend/core/states.py) ──
+# Output file names are ethnicity_<state>_<year>.csv, the names training, validation
+# and the predictor look for.
 VOTER_ROLLS = {
-    'johor_2022': {
-        'url':   'https://lake.electiondata.my/voter_rolls/jhr_se15_2022.parquet',
-        'state': 'johor',
-        'year':  2022,
-    },
-    'johor_2026': {
-        'url':   'https://lake.electiondata.my/voter_rolls/jhr_se16_2026.parquet',
-        'state': 'johor',
-        'year':  2026,
-    },
-    'ns_2023': {
-        'url':   'https://lake.electiondata.my/voter_rolls/nsn_se15_2023.parquet',
-        'state': 'neg_sembilan',
-        'year':  2023,
-    },
-    'ns_2026': {
-        'url':   'https://lake.electiondata.my/voter_rolls/nsn_se16_2026.parquet',
-        'state': 'neg_sembilan',
-        'year':  2026,
-    },
-    # ADD THESE:
-    'selangor_2023': {
-        'url':   'https://lake.electiondata.my/voter_rolls/sgr_se15_2023.parquet',
-        'state': 'selangor',
-        'year':  2023,
-    },
-    'selangor_2026': {
-        'url':   'https://lake.electiondata.my/voter_rolls/sgr_se16_2026.parquet',
-        'state': 'selangor',
-        'year':  2026,
-    },
-    'melaka_2021': {
-        'url':   'https://lake.electiondata.my/voter_rolls/mlk_se14_2021.parquet',
-        'state': 'melaka',
-        'year':  2021,
-    },
-    'melaka_2026': {
-        'url':   'https://lake.electiondata.my/voter_rolls/mlk_se16_2026.parquet',
-        'state': 'melaka',
-        'year':  2026,
-    },
-    'perak_2022': {
-        'url':   'https://lake.electiondata.my/voter_rolls/prk_se15_2022.parquet',
-        'state': 'perak',
-        'year':  2022,
-    },
-    'perak_2026': {
-        'url':   'https://lake.electiondata.my/voter_rolls/prk_se16_2026.parquet',
-        'state': 'perak',
-        'year':  2026,
-    },
+    f'{state}_{year}': {'url': voter_roll_url(state, year), 'state': state, 'year': year}
+    for state, info in STATES.items()
+    for year in info['voter_rolls']
 }
 
 # ── Feature computation ───────────────────────────────────────────
