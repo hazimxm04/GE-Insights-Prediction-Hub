@@ -60,3 +60,7 @@ __pycache__/
 *.env
 __pycache__/
 *.pyc
+
+backend/models/*/v_*/
+backend/models/*/rejected_*/
+backend/models/*/_candidate/
