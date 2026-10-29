@@ -1,6 +1,6 @@
 {
   "state": "neg_sembilan",
-  "description": "3 transitions, medium regularization, full feature set",
+  "description": "3 transitions, shared model settings, full feature set",
   "transitions": [
     [
       2008,
@@ -15,7 +15,25 @@
       2023
     ]
   ],
-  "seats": 104,
+  "seats": 106,
+  "feature_version": "a_only_v1",
+  "training_cutoff_year": 2023,
+  "holdout": {
+    "train_transitions": [
+      "2008->2013",
+      "2013->2018"
+    ],
+    "test_transition": "2018->2023",
+    "seats": 35,
+    "correct": 32,
+    "accuracy": 0.9143,
+    "brier": 0.0695,
+    "auc": 0.967,
+    "baseline_never_opposition": 18,
+    "baseline_same_as_last": 32
+  },
+  "holdout_accuracy": 0.9143,
+  "in_sample_note": "'models' below are IN-SAMPLE (training-data) metrics; use 'holdout' for real performance",
   "features": [
     "majority_change",
     "turnout_change",
@@ -34,17 +52,17 @@
     "tension_x_mixed"
   ],
   "class_balance": {
-    "non_bn": 49,
+    "non_bn": 51,
     "bn": 55
   },
   "models": {
     "random_forest": {
-      "accuracy": 0.9327,
-      "precision": 0.9773,
-      "recall": 0.8776,
-      "f1": 0.9247,
-      "auc": 0.9948,
-      "brier": 0.0481
+      "accuracy": 0.9434,
+      "precision": 0.9787,
+      "recall": 0.902,
+      "f1": 0.9388,
+      "auc": 0.995,
+      "brier": 0.0425
     },
     "xgboost": {
       "accuracy": 1.0,
@@ -52,35 +70,35 @@
       "recall": 1.0,
       "f1": 1.0,
       "auc": 1.0,
-      "brier": 0.0147
+      "brier": 0.0137
     },
     "ensemble": {
-      "accuracy": 0.9712,
-      "auc": 1.0,
-      "brier": 0.028
+      "accuracy": 0.9906,
+      "auc": 0.9996,
+      "brier": 0.0255
     }
   },
   "feature_importance": {
-    "young_chinese_pct": 0.2407,
-    "malay_pct": 0.181,
-    "chinese_pct": 0.1516,
-    "young_malay_pct": 0.1286,
-    "older_malay_pct": 0.1044,
-    "majority_change": 0.0419,
-    "majority_perc_change": 0.0291,
-    "n_candidates_b": 0.0216,
-    "youth_pct": 0.0207,
-    "turnout_change": 0.0178,
-    "log_voters": 0.017,
-    "median_age": 0.0157,
-    "incumbent_held": 0.0156,
-    "indian_pct": 0.0143,
+    "young_chinese_pct": 0.2364,
+    "malay_pct": 0.1762,
+    "chinese_pct": 0.1546,
+    "young_malay_pct": 0.1185,
+    "older_malay_pct": 0.096,
+    "incumbent_held": 0.0612,
+    "majority_perc_change": 0.0334,
+    "majority_change": 0.0311,
+    "turnout_change": 0.0252,
+    "indian_pct": 0.0248,
+    "youth_pct": 0.0163,
+    "log_voters": 0.0158,
+    "median_age": 0.009,
+    "n_candidates_b": 0.0014,
     "tension_x_mixed": 0.0
   },
   "ood": {
     "n_flagged": 11,
-    "pct_flagged": 10.6
+    "pct_flagged": 10.4
   },
-  "validated_accuracy": 0.8333,
+  "validated_accuracy": 0.8611,
   "validated_against": "2026 actual results"
 }

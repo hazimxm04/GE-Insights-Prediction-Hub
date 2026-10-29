@@ -1,0 +1,80 @@
+{
+  "state": "melaka",
+  "description": "2 transitions, 3-way contest (BN/PH/PN), full feature set",
+  "transitions": [
+    [
+      2013,
+      2018
+    ],
+    [
+      2018,
+      2021
+    ]
+  ],
+  "seats": 53,
+  "features": [
+    "majority_change",
+    "turnout_change",
+    "incumbent_held",
+    "log_voters",
+    "majority_perc_change",
+    "n_candidates_b",
+    "malay_pct",
+    "chinese_pct",
+    "indian_pct",
+    "young_malay_pct",
+    "young_chinese_pct",
+    "older_malay_pct",
+    "youth_pct",
+    "median_age",
+    "tension_x_mixed"
+  ],
+  "class_balance": {
+    "non_bn": 17,
+    "bn": 36
+  },
+  "models": {
+    "random_forest": {
+      "accuracy": 0.9057,
+      "precision": 0.8333,
+      "recall": 0.8824,
+      "f1": 0.8571,
+      "auc": 0.9804,
+      "brier": 0.0783
+    },
+    "xgboost": {
+      "accuracy": 1.0,
+      "precision": 1.0,
+      "recall": 1.0,
+      "f1": 1.0,
+      "auc": 1.0,
+      "brier": 0.0117
+    },
+    "ensemble": {
+      "accuracy": 1.0,
+      "auc": 1.0,
+      "brier": 0.0361
+    }
+  },
+  "feature_importance": {
+    "young_chinese_pct": 0.1749,
+    "older_malay_pct": 0.1521,
+    "malay_pct": 0.1447,
+    "chinese_pct": 0.1166,
+    "log_voters": 0.107,
+    "turnout_change": 0.1003,
+    "young_malay_pct": 0.0757,
+    "n_candidates_b": 0.0318,
+    "incumbent_held": 0.0226,
+    "indian_pct": 0.0223,
+    "majority_perc_change": 0.0191,
+    "majority_change": 0.016,
+    "youth_pct": 0.0122,
+    "median_age": 0.0048,
+    "tension_x_mixed": 0.0
+  },
+  "ood": {
+    "n_flagged": 6,
+    "pct_flagged": 11.3
+  }
+}
