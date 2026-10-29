@@ -22,6 +22,7 @@ from sklearn.metrics import (
 
 from backend.core.features import (  # noqa: F401 (re-exported for other scripts/tests)
     build_transition, seat_no, previous_election_year, OPPOSITION, COALITION_RENAME, MIN_YEAR, LOOKBACK,
+    FEATURE_VERSION,
 )
 from state_data import load_state_data, STATE_URL_PREFIX  # noqa: F401
 from training_config import TRAINING_CONFIGS, FEATURE_NAMES_TRAIN, FEATURE_PREDICTORS
@@ -58,6 +59,37 @@ def evaluate_model(name, model, X_test, y_test):
         'auc': round(auc, 4),
         'brier': round(brier, 4),
     }, proba
+
+
+def compute_holdout(df_train, config):
+    """Honest, time-ordered score: train on every transition except the latest one,
+    test on the latest one. (The saved model is then trained on ALL transitions.)
+    Returns None when there is only one transition."""
+    last_b = int(df_train['year_b'].max())
+    tr = df_train[df_train['year_b'] < last_b]
+    te = df_train[df_train['year_b'] == last_b]
+    if tr.empty or te.empty:
+        return None
+    X_tr, y_tr = tr[FEATURE_NAMES_TRAIN].fillna(0), tr['target_non_bn_won']
+    X_te, y_te = te[FEATURE_NAMES_TRAIN].fillna(0), te['target_non_bn_won']
+    rf = RandomForestClassifier(**config['rf_params'], class_weight='balanced', random_state=42).fit(X_tr, y_tr)
+    xgb = XGBClassifier(**config['xgb_params'], eval_metric='logloss', random_state=42).fit(X_tr, y_tr)
+    proba = (rf.predict_proba(X_te)[:, 1] + xgb.predict_proba(X_te)[:, 1]) / 2
+    pred = (proba >= 0.5).astype(int)
+    n = int(len(y_te))
+    correct = int((pred == y_te.values).sum())
+    last_same = te['winner_coalition_a'].isin(OPPOSITION).astype(int)
+    return {
+        'train_transitions': sorted({f"{int(a)}->{int(b)}" for a, b in zip(tr['year_a'], tr['year_b'])}),
+        'test_transition': f"{int(te['year_a'].iloc[0])}->{last_b}",
+        'seats': n,
+        'correct': correct,
+        'accuracy': round(correct / n, 4),
+        'brier': round(float(brier_score_loss(y_te, proba)), 4),
+        'auc': round(float(roc_auc_score(y_te, proba)), 3) if y_te.nunique() == 2 else None,
+        'baseline_never_opposition': int((y_te == 0).sum()),
+        'baseline_same_as_last': int((last_same == y_te).sum()),
+    }
 
 
 # ── Main training ─────────────────────────────────────────────────
@@ -118,6 +150,14 @@ def train_state(state: str, config: dict):
 
     print(f"  X shape: {X_train.shape}, y shape: {y_train.shape}")
     print(f"  Class balance: Non-BN={y_train.sum()}, BN={len(y_train)-y_train.sum()}")
+
+    # ── Honest held-out score (time-ordered) ─────────────────────
+    holdout = compute_holdout(df_train, config)
+    if holdout:
+        print(f"\n  HELD-OUT ({holdout['test_transition']}, trained on {holdout['train_transitions']}): "
+              f"{holdout['correct']}/{holdout['seats']} = {holdout['accuracy']:.2%}  "
+              f"(never-opposition {holdout['baseline_never_opposition']}, "
+              f"same-as-last {holdout['baseline_same_as_last']})")
 
     # ── Train models ─────────────────────────────────────────────
     print(f"\nTraining models phase...")
@@ -191,7 +231,9 @@ def train_state(state: str, config: dict):
         print(f"    {row['feature']:25s}: {bar} {row['importance']:.4f}")
 
     # ── Save models ──────────────────────────────────────────────
-    out_dir = MODELS_DIR / state
+    # Stage the new model OUTSIDE 'latest'; version_and_promote decides whether it replaces
+    # the prior model (so the gate compares new vs prior, not new vs itself).
+    out_dir = MODELS_DIR / state / '_candidate'
     out_dir.mkdir(parents=True, exist_ok=True)
 
     with open(out_dir / 'rf_model.pkl', 'wb') as f:
@@ -210,6 +252,11 @@ def train_state(state: str, config: dict):
         'description': config['description'],
         'transitions': config['transitions'],
         'seats': len(X_train),
+        'feature_version': FEATURE_VERSION,
+        'training_cutoff_year': int(df_train['year_b'].max()),
+        'holdout': holdout,
+        'holdout_accuracy': holdout['accuracy'] if holdout else None,
+        'in_sample_note': "'models' below are IN-SAMPLE (training-data) metrics; use 'holdout' for real performance",
         'features': FEATURE_NAMES_TRAIN,
         'class_balance': {
             'non_bn': int(y_train.sum()),
@@ -259,8 +306,9 @@ def main():
             result = train_state(state, config)
             if result:
                 all_results[state] = result
-                promoted = version_and_promote(state, result)
-                alert_on_success(state, result['models']['ensemble']['accuracy'], promoted)
+                promoted = version_and_promote(state, result, candidate_dir=MODELS_DIR / state / '_candidate')
+                alert_on_success(state, result['holdout_accuracy'] if result['holdout_accuracy'] is not None
+                                 else result['models']['ensemble']['accuracy'], promoted)
         except Exception as e:
             alert_on_failure(state, str(e))
             print(f"Training failed for {state}: {e}")
@@ -268,7 +316,7 @@ def main():
     print(f"\n\n{'='*70}")
     print(f"  TRAINING SUMMARY")
     print(f"{'='*70}")
-    print(f"  {'State':<18} {'Transitions':<15} {'Seats':<8} {'Ensemble':<10} {'Brier':<8}")
+    print(f"  {'State':<18} {'Transitions':<15} {'Seats':<8} {'Held-out':<10} {'(in-sample)':<12}")
     print(f"  {'-'*70}")
 
     for state, r in all_results.items():
@@ -276,9 +324,10 @@ def main():
         first_yr = TRAINING_CONFIGS[state]['transitions'][0][0]
         last_yr = TRAINING_CONFIGS[state]['transitions'][-1][1]
         trans = f'{first_yr}-{last_yr}'
+        held = f"{r['holdout_accuracy']:.2%}" if r['holdout_accuracy'] is not None else 'n/a'
         print(
             f"  {state:<18} {trans:<15} {r['seats']:<8} "
-            f"{m['ensemble']['accuracy']:>7.2%}  {m['ensemble']['brier']:>7.4f}"
+            f"{held:<10} {m['ensemble']['accuracy']:>7.2%}"
         )
 
     print(f"\n  All models trained and saved to backend/models/")

@@ -24,6 +24,7 @@ sys.path.insert(0, str(ROOT))
 
 from training_config import TRAINING_CONFIGS, FEATURE_NAMES_TRAIN
 from train_models import build_transition, seat_no
+from backend.core.features import FEATURE_VERSION
 from backend.core.states import STATES
 from state_data import load_state_data
 
@@ -67,12 +68,39 @@ def build_eval_set(state: str, year_from: int, year_to: int):
     return df
 
 
+def model_problem(meta, year_to):
+    """Reason this saved model must NOT be validated against election `year_to`, or None."""
+    if meta is None:
+        return 'no metadata.json for this model'
+    if meta.get('feature_version') != FEATURE_VERSION:
+        return ('this model was trained with the old (leaky) features - '
+                'retrain it with scripts/train_models.py first')
+    cutoff = meta.get('training_cutoff_year')
+    if cutoff is None or year_to <= cutoff:
+        return f'election {year_to} is not after the training cutoff year ({cutoff})'
+    return None
+
+
+def load_metadata(state):
+    import json
+    path = ROOT / 'backend/models' / state / 'metadata.json'
+    if not path.exists():
+        return None
+    with open(path) as f:
+        return json.load(f)
+
+
 def validate_state(state: str):
     print(f"\n{'='*70}")
     print(f"  VALIDATION: {state.upper()}")
     year_from, year_to = VALIDATABLE_STATES[state]
     print(f"  (Train transition features: {year_from}->{year_to}, ground truth: {year_to} actual)")
     print(f"{'='*70}")
+
+    problem = model_problem(load_metadata(state), year_to)
+    if problem:
+        print(f"  REFUSED: {problem}")
+        return None
 
     df = build_eval_set(state, year_from, year_to)
     print(f"\nSeats: {len(df)}")

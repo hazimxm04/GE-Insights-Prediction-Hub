@@ -15,6 +15,9 @@ import pandas as pd
 
 LOOKBACK = 2
 MIN_YEAR = 2004
+# Bump this whenever the feature definitions change. Models save it, and validation /
+# promotion refuse models built with a different version (e.g. the old leaky features).
+FEATURE_VERSION = 'a_only_v1'
 
 # Opposition coalitions treated as "non-BN" for the binary target.
 # Note: PN is intentionally NOT distinguished from BN here. Explored
@@ -121,5 +124,7 @@ def build_transition(ballots, stats, year_a, year_b, min_year=MIN_YEAR):
     d['n_candidates_b']       = d['n_candidates_a'].fillna(3)   # legacy name: candidates in A
 
     d['year_prev'] = year_p
+    d['year_a'] = year_a
+    d['year_b'] = year_b
     d['target_non_bn_won'] = d['winner_coalition_b'].isin(OPPOSITION).astype(int)
     return d
