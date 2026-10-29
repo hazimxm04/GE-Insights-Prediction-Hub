@@ -1,200 +1,143 @@
 """
 scripts/tune_hyperparams.py
 ============================
-Systematic hyperparameter search for the 3-class coalition model
-(BN=0, Pakatan=1, PN=2), designed around severe class imbalance.
+Compare model settings (Random Forest / XGBoost) with a TIME-ORDERED test.
 
-WHY THIS EXISTS:
-    Manually-guessed hyperparameters (in training_config.py) optimize
-    nothing in particular. This script searches a grid of hyperparameter
-    combinations and picks the one that scores best on f1_macro under
-    StratifiedKFold cross-validation.
+Why time-ordered: a random k-fold would put seats from the same election in both
+the training and the test part, and seats in one election swing together, so the
+score would be too optimistic. Here every fold trains on earlier elections and
+tests on a later one, exactly like scripts/evaluate_holdout.py:
 
-WHY StratifiedKFold (not regular KFold):
-    PN is extremely rare (as few as 3 examples in some states). Regular
-    random KFold could put ALL PN examples in one fold, leaving other
-    folds unable to evaluate PN performance at all. StratifiedKFold
-    preserves class proportions across folds so every fold gets a
-    chance to score PN.
+    train on transitions 1..j-1  ->  test on transition j      (for every state)
 
-WHY f1_macro (not accuracy):
-    Accuracy rewards a model that always predicts the majority class
-    (BN) and ignores PN entirely, since PN is rare. f1_macro computes
-    F1 separately per class then averages them EQUALLY (not weighted
-    by frequency), so a model that ignores PN gets punished even if
-    overall accuracy looks fine.
+The real 2026 elections (the 'final_test' of each state) are NEVER used here, so
+the settings are not chosen by looking at the answers.
 
-LIMITATION TO KNOW:
-    With PN counts as low as 3 in some states, 3-fold CV puts ~1 PN
-    example per fold. This is close to the mathematical floor for
-    what cross-validation can meaningfully evaluate — the search will
-    still run, but treat PN-specific scores with appropriate caution
-    for the smallest states.
+Score: Brier score over all test seats (lower is better; it rewards sensible
+probabilities, not just the yes/no call). Accuracy is shown too.
+
+Honest limit: there are only a few folds (about two per state) and 28-59 seats
+each, so small differences are noise. Switch to other settings only if they beat
+the current ones clearly (a Brier gap of 0.01 or more).
 
 Usage:
-    python scripts/tune_hyperparams.py johor
-    python scripts/tune_hyperparams.py            # all states
+    python scripts/tune_hyperparams.py                 # all states
+    python scripts/tune_hyperparams.py johor melaka
+Prints the best settings; copy them into scripts/training_config.py by hand,
+then retrain with scripts/train_models.py.
 """
-
 import sys
+import itertools
+from pathlib import Path
+
 import numpy as np
 import pandas as pd
-from pathlib import Path
 
 ROOT = Path(__file__).resolve().parent.parent
 sys.path.insert(0, str(ROOT))
+sys.path.insert(0, str(ROOT / 'mlops'))
+sys.path.insert(0, str(ROOT / 'scripts'))
 
 from sklearn.ensemble import RandomForestClassifier
 from xgboost import XGBClassifier
-from sklearn.model_selection import StratifiedKFold, GridSearchCV
 
-from training_config import TRAINING_CONFIGS, FEATURE_NAMES_TRAIN
-from train_models import build_transition
+import evaluate_holdout as eh
+from backend.core.states import STATES
+from training_config import RF_PARAMS, XGB_PARAMS, FEATURE_NAMES_TRAIN
 
-STATE_URL_PREFIX = {
-    'johor': 'jhr', 'neg_sembilan': 'nsn', 'selangor': 'sgr',
-    'melaka': 'mlk', 'perak': 'prk',
-}
+RF_GRID = {'max_depth': [3, 4, 5, 6], 'min_samples_leaf': [3, 5, 8], 'n_estimators': [100, 150, 200]}
+XGB_GRID = {'max_depth': [2, 3, 4], 'learning_rate': [0.01, 0.03, 0.05, 0.1], 'n_estimators': [100, 150, 200]}
+NOISE = 0.01   # Brier differences smaller than this are treated as noise
 
 
-def load_training_data(state: str, config: dict):
-    """Rebuild the same training set train_models.py uses (all transitions combined)."""
-    prefix = STATE_URL_PREFIX[state]
-    ballots = pd.read_parquet(f'https://lake.electiondata.my/results_headline/headline_ballots_state_{prefix}.parquet')
-    stats   = pd.read_parquet(f'https://lake.electiondata.my/results_headline/headline_stats_state_{prefix}.parquet')
+def make_folds(frames_by_state):
+    """frames_by_state: {state: [(step, dataframe), ...]} in time order.
+    Returns time-ordered folds (state, test_step, train_df, test_df): train on every
+    earlier transition of that state, test on the next one. Needs >= 2 transitions."""
+    folds = []
+    for state, frames in frames_by_state.items():
+        for j in range(1, len(frames)):
+            train = pd.concat([df for _, df in frames[:j]], ignore_index=True)
+            folds.append((state, frames[j][0], train, frames[j][1]))
+    return folds
 
-    transitions = [build_transition(ballots, stats, a, b) for a, b in config['transitions']]
-    df = pd.concat(transitions, ignore_index=True)
 
-    eth_path = ROOT / 'data/raw/ethnicity' / f'ethnicity_{state}_{config["ethnicity_year"]}.csv'
-    eth_cols = ['malay_pct', 'chinese_pct', 'indian_pct', 'young_malay_pct',
-                'young_chinese_pct', 'older_malay_pct', 'youth_pct', 'median_age']
+def build_folds(states):
+    frames = {}
+    for st in states:
+        try:
+            ballots, stats = eh.load_state(st)
+        except Exception as e:
+            print(f'  (skipping {st}: no data - {type(e).__name__})')
+            continue
+        # only the training transitions: the real 2026 test is never used for tuning
+        frames[st] = [((a, b), eh.features(ballots, stats, st, a, b)) for a, b in STATES[st]['transitions']]
+    return make_folds(frames)
 
-    if eth_path.exists():
-        eth_df = pd.read_csv(eth_path)
-        df = df.merge(eth_df[['seat'] + eth_cols], on='seat', how='left')
+
+def make_model(kind, params):
+    if kind == 'rf':
+        return RandomForestClassifier(**params, class_weight='balanced', random_state=42, n_jobs=-1)
+    return XGBClassifier(**params, eval_metric='logloss', random_state=42)
+
+
+def score_params(kind, params, folds):
+    """Returns (brier, accuracy) over all test seats of all folds."""
+    sq, correct, n = 0.0, 0, 0
+    for _, _, tr, te in folds:
+        model = make_model(kind, params).fit(tr[FEATURE_NAMES_TRAIN].fillna(0), tr['target_non_bn_won'])
+        p = model.predict_proba(te[FEATURE_NAMES_TRAIN].fillna(0))[:, 1]
+        y = te['target_non_bn_won'].values
+        sq += float(((p - y) ** 2).sum())
+        correct += int(((p >= 0.5) == y).sum())
+        n += len(y)
+    return sq / n, correct / n
+
+
+def search(kind, grid, current, folds):
+    keys = list(grid)
+    rows = []
+    for values in itertools.product(*(grid[k] for k in keys)):
+        params = dict(zip(keys, values))
+        brier, acc = score_params(kind, params, folds)
+        rows.append((brier, acc, params))
+    rows.sort(key=lambda r: (r[0], -r[1]))
+    cur_brier, cur_acc = score_params(kind, current, folds)
+    return rows, cur_brier, cur_acc
+
+
+def report(name, rows, cur_brier, cur_acc, current):
+    print(f"\n  [{name}]  top 5 of {len(rows)} settings (lower Brier is better)")
+    for brier, acc, params in rows[:5]:
+        print(f"    Brier {brier:.4f}  accuracy {acc:.1%}  {params}")
+    print(f"    current   Brier {cur_brier:.4f}  accuracy {cur_acc:.1%}  {current}")
+    gap = cur_brier - rows[0][0]
+    if gap >= NOISE:
+        print(f"    -> best beats current by {gap:.4f} Brier: worth considering.")
     else:
-        for col in eth_cols:
-            df[col] = 0
-    for col in eth_cols:
-        if col not in df.columns:
-            df[col] = 0
-
-    for col in ['bn_sent_x_malay', 'harapan_sent_x_chinese', 'pn_sent_x_young_malay',
-                'tension_x_mixed', 'economic_x_youth', 'narrative_pressure']:
-        df[col] = 0
-
-    X = df[FEATURE_NAMES_TRAIN].fillna(0)
-    y = df['target_coalition']
-    return X, y
-
-
-def tune_state(state: str):
-    print(f"\n{'='*70}")
-    print(f"  HYPERPARAMETER SEARCH: {state.upper()}")
-    print(f"{'='*70}")
-
-    config = TRAINING_CONFIGS[state]
-    X, y = load_training_data(state, config)
-
-    class_counts = y.value_counts().sort_index()
-    print(f"\nClass distribution: {dict(class_counts)}")
-
-    min_class_count = class_counts.min()
-    n_splits = min(3, min_class_count)
-
-    if n_splits < 2:
-        print(f"  ⚠️  Smallest class has {min_class_count} example(s) — "
-              f"cannot run cross-validated search. Skipping {state}.")
-        return None
-
-    if n_splits < 3:
-        print(f"  ⚠️  Using {n_splits}-fold CV instead of 3-fold "
-              f"(smallest class has only {min_class_count} examples)")
-
-    skf = StratifiedKFold(n_splits=n_splits, shuffle=True, random_state=42)
-
-    # ── Random Forest search ────────────────────────────────────
-    rf_grid = {
-        'max_depth': [3, 4, 5, 6],
-        'min_samples_leaf': [3, 5, 8],
-        'n_estimators': [100, 150, 200],
-    }
-
-    rf_search = GridSearchCV(
-        RandomForestClassifier(class_weight='balanced', random_state=42),
-        rf_grid,
-        cv=skf,
-        scoring='f1_macro',
-        n_jobs=-1,
-    )
-    rf_search.fit(X, y)
-
-    print(f"\n  [Random Forest]")
-    print(f"    Best params: {rf_search.best_params_}")
-    print(f"    Best f1_macro: {rf_search.best_score_:.4f}")
-
-    # ── XGBoost search ───────────────────────────────────────────
-    xgb_grid = {
-        'max_depth': [2, 3, 4],
-        'learning_rate': [0.01, 0.03, 0.05, 0.1],
-        'n_estimators': [100, 150, 200],
-    }
-
-    xgb_search = GridSearchCV(
-        XGBClassifier(eval_metric='mlogloss', random_state=42),
-        xgb_grid,
-        cv=skf,
-        scoring='f1_macro',
-        n_jobs=-1,
-    )
-    xgb_search.fit(X, y)
-
-    print(f"\n  [XGBoost]")
-    print(f"    Best params: {xgb_search.best_params_}")
-    print(f"    Best f1_macro: {xgb_search.best_score_:.4f}")
-
-    print(f"\n  Compare to current hardcoded config:")
-    print(f"    rf_params:  {config['rf_params']}")
-    print(f"    xgb_params: {config['xgb_params']}")
-
-    return {
-        'state': state,
-        'rf_best_params': rf_search.best_params_,
-        'rf_best_score': rf_search.best_score_,
-        'xgb_best_params': xgb_search.best_params_,
-        'xgb_best_score': xgb_search.best_score_,
-    }
+        print(f"    -> best beats current by only {gap:.4f} Brier (< {NOISE}): within noise, keep current settings.")
 
 
 def main():
-    import argparse
-    parser = argparse.ArgumentParser(description='Tune hyperparameters per state')
-    parser.add_argument('states', nargs='*', help='States to tune (default: all)')
-    args = parser.parse_args()
+    states = sys.argv[1:] or list(STATES)
+    print('Time-ordered tuning (train on earlier elections, test on a later one; the real 2026 tests are not used)')
+    folds = build_folds(states)
+    if not folds:
+        print('No folds: need at least two training transitions with data.')
+        return
+    n_seats = sum(len(te) for _, _, _, te in folds)
+    print(f"{len(folds)} folds, {n_seats} test seats in total")
+    for state, step, tr, te in folds:
+        print(f"  {state:<13} test {step[0]}->{step[1]}  train rows {len(tr)}  test seats {len(te)}")
 
-    states = args.states if args.states else list(TRAINING_CONFIGS.keys())
+    rows, cb, ca = search('rf', RF_GRID, RF_PARAMS, folds)
+    report('Random Forest', rows, cb, ca, RF_PARAMS)
+    rows, cb, ca = search('xgb', XGB_GRID, XGB_PARAMS, folds)
+    report('XGBoost', rows, cb, ca, XGB_PARAMS)
 
-    results = []
-    for state in states:
-        if state not in TRAINING_CONFIGS:
-            print(f"❌ Unknown state: {state}")
-            continue
-        result = tune_state(state)
-        if result:
-            results.append(result)
-
-    print(f"\n\n{'='*70}")
-    print(f"  TUNING SUMMARY")
-    print(f"{'='*70}")
-    for r in results:
-        print(f"\n{r['state'].upper()}:")
-        print(f"  rf_params  = {r['rf_best_params']}  (f1_macro={r['rf_best_score']:.4f})")
-        print(f"  xgb_params = {r['xgb_best_params']}  (f1_macro={r['xgb_best_score']:.4f})")
-
-    print(f"\n✅ Copy the best params above into training_config.py manually,")
-    print(f"   then retrain with: python scripts/train_models.py")
+    print("\nIf you change settings: edit RF_PARAMS / XGB_PARAMS in scripts/training_config.py, "
+          "then run scripts/train_models.py.")
 
 
-if __name__ == "__main__":
+if __name__ == '__main__':
     main()
