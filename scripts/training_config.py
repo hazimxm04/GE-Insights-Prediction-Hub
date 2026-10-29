@@ -1,42 +1,28 @@
 # scripts/training_config.py
 
-TRAINING_CONFIGS = {
-    'johor': {
-        'transitions': [(2008, 2013), (2013, 2018), (2018, 2022)],
-        'rf_params': {'n_estimators': 200, 'max_depth': 4, 'min_samples_leaf': 5},
-        'xgb_params': {'n_estimators': 150, 'max_depth': 3, 'learning_rate': 0.03},
-        'description': '3 transitions, medium regularization, full feature set',
-        'ethnicity_year': 2022,
-    },
-    'neg_sembilan': {
-        'transitions': [(2008, 2013), (2013, 2018), (2018, 2023)],
-        'rf_params': {'n_estimators': 200, 'max_depth': 4, 'min_samples_leaf': 5},
-        'xgb_params': {'n_estimators': 150, 'max_depth': 3, 'learning_rate': 0.03},
-        'description': '3 transitions, medium regularization, full feature set',
-        'ethnicity_year': 2023,
-    },
-    'selangor': {
-        'transitions': [(2013, 2018), (2018, 2023)],
-        'rf_params': {'n_estimators': 200, 'max_depth': 4, 'min_samples_leaf': 5},
-        'xgb_params': {'n_estimators': 150, 'max_depth': 3, 'learning_rate': 0.03},
-        'description': '2 transitions, high regularization (small sample), full feature set',
-        'ethnicity_year': 2023,
-    },
-    'melaka': {
-        'transitions': [(2013, 2018), (2018, 2021)],
-        'rf_params': {'n_estimators': 200, 'max_depth': 4, 'min_samples_leaf': 5},
-        'xgb_params': {'n_estimators': 150, 'max_depth': 3, 'learning_rate': 0.03},
-        'description': '2 transitions, 3-way contest (BN/PH/PN), full feature set',
-        'ethnicity_year': 2021,
-    },
-    'perak': {
-        'transitions': [(2013, 2018), (2018, 2022)],
-        'rf_params': {'n_estimators': 200, 'max_depth': 4, 'min_samples_leaf': 5},
-        'xgb_params': {'n_estimators': 150, 'max_depth': 3, 'learning_rate': 0.03},
-        'description': '2 transitions, 3-way contest (BN/PH/PN), full feature set',
-        'ethnicity_year': 2022,
-    },
-}
+import sys
+from pathlib import Path
+
+sys.path.insert(0, str(Path(__file__).resolve().parent.parent))
+from backend.core.features import LOOKBACK, MIN_YEAR      # noqa: F401  (rule lives in features.py)
+from backend.core.states import STATES
+
+# Model settings are the same for every state. To give one state different
+# settings, override it in MODEL_OVERRIDES (and say why).
+RF_PARAMS = {'n_estimators': 200, 'max_depth': 4, 'min_samples_leaf': 5}
+XGB_PARAMS = {'n_estimators': 150, 'max_depth': 3, 'learning_rate': 0.03}
+MODEL_OVERRIDES = {}   # e.g. {'selangor': {'rf_params': {...}}}
+
+TRAINING_CONFIGS = {}
+for _state, _s in STATES.items():
+    TRAINING_CONFIGS[_state] = {
+        'transitions': list(_s['transitions']),
+        'rf_params': dict(RF_PARAMS),
+        'xgb_params': dict(XGB_PARAMS),
+        'description': f"{len(_s['transitions'])} transitions, shared model settings, full feature set",
+        'ethnicity_year': _s['ethnicity_year'],
+    }
+    TRAINING_CONFIGS[_state].update(MODEL_OVERRIDES.get(_state, {}))
 
 # Feature set used in TRAINING.
 # NOTE: This is now the FULL 24-feature set (same as FEATURE_PREDICTORS),

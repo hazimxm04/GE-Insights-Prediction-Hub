@@ -1,4 +1,3 @@
-
 import sys
 import json
 import pickle
@@ -21,86 +20,13 @@ from sklearn.metrics import (
     roc_auc_score, brier_score_loss
 )
 
+from backend.core.features import (  # noqa: F401 (re-exported for other scripts/tests)
+    build_transition, seat_no, previous_election_year, OPPOSITION, COALITION_RENAME, MIN_YEAR, LOOKBACK,
+)
+from state_data import load_state_data, STATE_URL_PREFIX  # noqa: F401
 from training_config import TRAINING_CONFIGS, FEATURE_NAMES_TRAIN, FEATURE_PREDICTORS
 
 MODELS_DIR = ROOT / "backend" / "models"
-
-# Opposition coalitions treated as "non-BN" for the binary target.
-# Note: PN is intentionally NOT distinguished from BN here. Explored
-# a 3-class BN/Pakatan/PN split (see docs/multiclass_analysis.md) and
-# found the BN-vs-PN boundary is not yet learnable: PN only emerged in
-# 2020, so no training transition has PN as a "previous" winner, and
-# only the most recent transition per state has any PN examples at
-# all (2-26 seats depending on state). Binary framing (Pakatan vs
-# everyone else) is answerable well with current data; BN-vs-PN is not.
-OPPOSITION = {'Harapan', 'PH', 'PR'}
-
-STATE_URL_PREFIX = {
-    'johor': 'jhr',
-    'neg_sembilan': 'nsn',
-    'selangor': 'sgr',
-    'melaka': 'mlk',
-    'perak': 'prk',
-}
-
-
-def build_transition(ballots, stats, year_a, year_b):
-    """
-    Build one historical transition (year_a -> year_b) as features.
-    Returns DataFrame with structural features + binary target.
-    """
-    ba = ballots[pd.to_datetime(ballots['date']).dt.year == year_a][
-        ['seat', 'coalition', 'result']
-    ].copy()
-    wa = ba[ba['result'] == 'won'][['seat', 'coalition']].copy()
-    wa.columns = ['seat', 'winner_coalition_a']
-
-    bb = ballots[pd.to_datetime(ballots['date']).dt.year == year_b][
-        ['seat', 'coalition', 'result']
-    ].copy()
-    wb = bb[bb['result'] == 'won'][['seat', 'coalition']].copy()
-    wb.columns = ['seat', 'winner_coalition_b']
-
-    sa = stats[pd.to_datetime(stats['date']).dt.year == year_a][
-        ['seat', 'majority', 'votes_valid', 'voters_total', 'n_candidates']
-    ].copy()
-    sa.columns = ['seat', 'majority_a', 'votes_total_a', 'voters_total_a', 'n_candidates_a']
-
-    sb = stats[pd.to_datetime(stats['date']).dt.year == year_b][
-        ['seat', 'majority', 'votes_valid', 'voters_total', 'n_candidates']
-    ].copy()
-    sb.columns = ['seat', 'majority_b', 'votes_total_b', 'voters_total_b', 'n_candidates_b']
-
-    d = wa.merge(wb, on='seat')
-    d = d.merge(sa, on='seat', how='left')
-    d = d.merge(sb, on='seat', how='left')
-
-    d['majority_change']      = d['majority_b'] - d['majority_a']
-    d['turnout_a']            = d['votes_total_a'] / d['voters_total_a']
-    d['turnout_b']            = d['votes_total_b'] / d['voters_total_b']
-    d['turnout_change']       = d['turnout_b'] - d['turnout_a']
-    d['incumbent_held']       = (d['winner_coalition_a'] == d['winner_coalition_b']).astype(int)
-    d['log_voters']           = np.log(d['voters_total_b'].fillna(d['voters_total_a']))
-    d['majority_perc_change'] = d['majority_change'] / d['voters_total_b'].replace(0, np.nan)
-    d['n_candidates_b']       = d['n_candidates_b'].fillna(3)
-
-    d['target_non_bn_won'] = d['winner_coalition_b'].isin(OPPOSITION).astype(int)
-
-    coalition_rename = {
-        'Harapan': 'PH',
-        'Pakatan Harapan': 'PH',
-        'Pakatan Rakyat': 'PR',
-        'PERIKATAN': 'PN',
-        'Perikatan Nasional': 'PN',
-    }
-    d['winner_coalition_a'] = d['winner_coalition_a'].replace(coalition_rename)
-    d['winner_coalition_b'] = d['winner_coalition_b'].replace(coalition_rename)
-
-    d['target_non_bn_won'] = d['winner_coalition_b'].isin(OPPOSITION).astype(int)
-
-    return d
-
-    return d
 
 
 # ── Evaluation helper ─────────────────────────────────────────────
@@ -142,14 +68,7 @@ def train_state(state: str, config: dict):
     print(f"  {config['description']}")
     print(f"{'='*70}")
 
-    state_prefix = STATE_URL_PREFIX[state]
-
-    print(f"\nLoading {state.upper()} election data...")
-    url_ballots = f'https://lake.electiondata.my/results_headline/headline_ballots_state_{state_prefix}.parquet'
-    url_stats   = f'https://lake.electiondata.my/results_headline/headline_stats_state_{state_prefix}.parquet'
-
-    ballots = pd.read_parquet(url_ballots)
-    stats   = pd.read_parquet(url_stats)
+    ballots, stats = load_state_data(state)
     print(f"  Ballots: {len(ballots)} rows, Stats: {len(stats)} rows")
 
     print(f"\nBuilding {len(config['transitions'])} training transitions...")
@@ -173,7 +92,8 @@ def train_state(state: str, config: dict):
 
     if eth_path.exists():
         eth_df = pd.read_csv(eth_path)
-        df_train = df_train.merge(eth_df[['seat'] + eth_cols], on='seat', how='left')
+        eth_df['seat_no'] = eth_df['seat'].map(seat_no)
+        df_train = df_train.merge(eth_df[['seat_no'] + eth_cols], on='seat_no', how='left')
         print(f"  Loaded ethnicity: {state} {config['ethnicity_year']}")
     else:
         print(f"  Ethnicity file missing: {eth_path}")

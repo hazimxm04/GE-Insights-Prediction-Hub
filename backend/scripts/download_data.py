@@ -17,11 +17,15 @@ DATASETS = {
     "johor_ballots":      f"{DATA_LAKE}/headline_ballots_state_jhr.parquet",
     "ns_ballots":         f"{DATA_LAKE}/headline_ballots_state_nsn.parquet",
     "melaka_ballots":     f"{DATA_LAKE}/headline_ballots_state_mlk.parquet",
+    "selangor_ballots":   f"{DATA_LAKE}/headline_ballots_state_sgr.parquet",
+    "perak_ballots":      f"{DATA_LAKE}/headline_ballots_state_prk.parquet",
 
     # Stats (seat-level: turnout, total voters, majority)
     "johor_stats":        f"{DATA_LAKE}/headline_stats_state_jhr.parquet",
     "ns_stats":           f"{DATA_LAKE}/headline_stats_state_nsn.parquet",
     "melaka_stats":       f"{DATA_LAKE}/headline_stats_state_mlk.parquet",
+    "selangor_stats":     f"{DATA_LAKE}/headline_stats_state_sgr.parquet",
+    "perak_stats":        f"{DATA_LAKE}/headline_stats_state_prk.parquet",
 }
 
 RAW_DATA_PATH = Path("data/raw")

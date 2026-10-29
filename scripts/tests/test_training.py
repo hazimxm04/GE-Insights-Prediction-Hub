@@ -31,18 +31,18 @@ def test_coalition_standardization_applied_to_both_columns():
     compute wrong values for raw labels like 'Harapan' instead of 'PH'.
     """
     fake_ballots = pd.DataFrame({
-        'seat': ['A', 'A'],
-        'date': ['2013-01-01', '2018-01-01'],
-        'coalition': ['Harapan', 'BN'],
-        'result': ['won', 'won'],
+        'seat': ['A', 'A', 'A'],
+        'date': ['2008-01-01', '2013-01-01', '2018-01-01'],
+        'coalition': ['BN', 'Harapan', 'BN'],
+        'result': ['won', 'won', 'won'],
     })
     fake_stats = pd.DataFrame({
-        'seat': ['A', 'A'],
-        'date': ['2013-01-01', '2018-01-01'],
-        'majority': [1000, 2000],
-        'votes_valid': [10000, 11000],
-        'voters_total': [15000, 16000],
-        'n_candidates': [3, 3],
+        'seat': ['A', 'A', 'A'],
+        'date': ['2008-01-01', '2013-01-01', '2018-01-01'],
+        'majority': [900, 1000, 2000],
+        'votes_valid': [9000, 10000, 11000],
+        'voters_total': [14000, 15000, 16000],
+        'n_candidates': [3, 3, 3],
     })
     df = build_transition(fake_ballots, fake_stats, 2013, 2018)
     assert df['winner_coalition_a'].iloc[0] == 'PH', \
@@ -52,13 +52,13 @@ def test_coalition_standardization_applied_to_both_columns():
 def test_target_non_bn_won_is_binary():
     """Confirms target stays strictly 0/1."""
     fake_ballots = pd.DataFrame({
-        'seat': ['A', 'A'], 'date': ['2013-01-01', '2018-01-01'],
-        'coalition': ['BN', 'PH'], 'result': ['won', 'won'],
+        'seat': ['A', 'A', 'A'], 'date': ['2008-01-01', '2013-01-01', '2018-01-01'],
+        'coalition': ['BN', 'BN', 'PH'], 'result': ['won', 'won', 'won'],
     })
     fake_stats = pd.DataFrame({
-        'seat': ['A', 'A'], 'date': ['2013-01-01', '2018-01-01'],
-        'majority': [1000, 2000], 'votes_valid': [10000, 11000],
-        'voters_total': [15000, 16000], 'n_candidates': [3, 3],
+        'seat': ['A', 'A', 'A'], 'date': ['2008-01-01', '2013-01-01', '2018-01-01'],
+        'majority': [900, 1000, 2000], 'votes_valid': [9000, 10000, 11000],
+        'voters_total': [14000, 15000, 16000], 'n_candidates': [3, 3, 3],
     })
     df = build_transition(fake_ballots, fake_stats, 2013, 2018)
     assert set(df['target_non_bn_won'].unique()) <= {0, 1}

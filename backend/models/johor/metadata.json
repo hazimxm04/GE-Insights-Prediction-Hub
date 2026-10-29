@@ -80,5 +80,7 @@
   "ood": {
     "n_flagged": 16,
     "pct_flagged": 10.0
-  }
+  },
+  "validated_accuracy": 0.7857,
+  "validated_against": "2026 actual results"
 }

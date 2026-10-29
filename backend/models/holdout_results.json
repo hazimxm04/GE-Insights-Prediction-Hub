@@ -1,0 +1,275 @@
+[
+  {
+    "state": "johor",
+    "train": [
+      "2008->2013"
+    ],
+    "test": "2013->2018",
+    "is_real_2026": false,
+    "seats": 56,
+    "opposition_wins": 36,
+    "model": {
+      "correct": 37,
+      "n": 56,
+      "brier": 0.2521,
+      "auc": 0.94
+    },
+    "never_opposition_correct": 20,
+    "same_as_last_correct": 38,
+    "model_vs_same_as_last_differ_on": 1,
+    "predicted_opposition": 17,
+    "false_positive": 0,
+    "false_negative": 19
+  },
+  {
+    "state": "johor",
+    "train": [
+      "2008->2013",
+      "2013->2018"
+    ],
+    "test": "2018->2022",
+    "is_real_2026": false,
+    "seats": 56,
+    "opposition_wins": 12,
+    "model": {
+      "correct": 51,
+      "n": 56,
+      "brier": 0.113,
+      "auc": 0.981
+    },
+    "never_opposition_correct": 44,
+    "same_as_last_correct": 32,
+    "model_vs_same_as_last_differ_on": 19,
+    "predicted_opposition": 17,
+    "false_positive": 5,
+    "false_negative": 0
+  },
+  {
+    "state": "johor",
+    "train": [
+      "2008->2013",
+      "2013->2018",
+      "2018->2022"
+    ],
+    "test": "2022->2026",
+    "is_real_2026": true,
+    "seats": 56,
+    "opposition_wins": 8,
+    "model": {
+      "correct": 48,
+      "n": 56,
+      "brier": 0.0833,
+      "auc": 0.927
+    },
+    "never_opposition_correct": 48,
+    "same_as_last_correct": 50,
+    "model_vs_same_as_last_differ_on": 2,
+    "predicted_opposition": 14,
+    "false_positive": 7,
+    "false_negative": 1
+  },
+  {
+    "state": "neg_sembilan",
+    "train": [
+      "2008->2013"
+    ],
+    "test": "2013->2018",
+    "is_real_2026": false,
+    "seats": 35,
+    "opposition_wins": 20,
+    "model": {
+      "correct": 28,
+      "n": 35,
+      "brier": 0.1538,
+      "auc": 0.95
+    },
+    "never_opposition_correct": 15,
+    "same_as_last_correct": 29,
+    "model_vs_same_as_last_differ_on": 1,
+    "predicted_opposition": 13,
+    "false_positive": 0,
+    "false_negative": 7
+  },
+  {
+    "state": "neg_sembilan",
+    "train": [
+      "2008->2013",
+      "2013->2018"
+    ],
+    "test": "2018->2023",
+    "is_real_2026": false,
+    "seats": 35,
+    "opposition_wins": 17,
+    "model": {
+      "correct": 32,
+      "n": 35,
+      "brier": 0.0695,
+      "auc": 0.967
+    },
+    "never_opposition_correct": 18,
+    "same_as_last_correct": 32,
+    "model_vs_same_as_last_differ_on": 6,
+    "predicted_opposition": 14,
+    "false_positive": 0,
+    "false_negative": 3
+  },
+  {
+    "state": "neg_sembilan",
+    "train": [
+      "2008->2013",
+      "2013->2018",
+      "2018->2023"
+    ],
+    "test": "2023->2026",
+    "is_real_2026": true,
+    "seats": 36,
+    "opposition_wins": 11,
+    "model": {
+      "correct": 31,
+      "n": 36,
+      "brier": 0.1035,
+      "auc": 0.985
+    },
+    "never_opposition_correct": 25,
+    "same_as_last_correct": 30,
+    "model_vs_same_as_last_differ_on": 3,
+    "predicted_opposition": 16,
+    "false_positive": 5,
+    "false_negative": 0
+  },
+  {
+    "state": "selangor",
+    "train": [
+      "2008->2013"
+    ],
+    "test": "2013->2018",
+    "is_real_2026": false,
+    "seats": 56,
+    "opposition_wins": 51,
+    "model": {
+      "correct": 51,
+      "n": 56,
+      "brier": 0.0673,
+      "auc": 0.91
+    },
+    "never_opposition_correct": 5,
+    "same_as_last_correct": 47,
+    "model_vs_same_as_last_differ_on": 8,
+    "predicted_opposition": 52,
+    "false_positive": 3,
+    "false_negative": 2
+  },
+  {
+    "state": "selangor",
+    "train": [
+      "2008->2013",
+      "2013->2018"
+    ],
+    "test": "2018->2023",
+    "is_real_2026": false,
+    "seats": 56,
+    "opposition_wins": 32,
+    "model": {
+      "correct": 37,
+      "n": 56,
+      "brier": 0.2673,
+      "auc": 0.967
+    },
+    "never_opposition_correct": 24,
+    "same_as_last_correct": 37,
+    "model_vs_same_as_last_differ_on": 2,
+    "predicted_opposition": 51,
+    "false_positive": 19,
+    "false_negative": 0
+  },
+  {
+    "state": "melaka",
+    "train": [
+      "2008->2013"
+    ],
+    "test": "2013->2018",
+    "is_real_2026": false,
+    "seats": 28,
+    "opposition_wins": 15,
+    "model": {
+      "correct": 23,
+      "n": 28,
+      "brier": 0.1399,
+      "auc": 0.908
+    },
+    "never_opposition_correct": 13,
+    "same_as_last_correct": 20,
+    "model_vs_same_as_last_differ_on": 5,
+    "predicted_opposition": 12,
+    "false_positive": 1,
+    "false_negative": 4
+  },
+  {
+    "state": "melaka",
+    "train": [
+      "2008->2013",
+      "2013->2018"
+    ],
+    "test": "2018->2021",
+    "is_real_2026": false,
+    "seats": 28,
+    "opposition_wins": 5,
+    "model": {
+      "correct": 22,
+      "n": 28,
+      "brier": 0.1238,
+      "auc": 1.0
+    },
+    "never_opposition_correct": 23,
+    "same_as_last_correct": 18,
+    "model_vs_same_as_last_differ_on": 4,
+    "predicted_opposition": 11,
+    "false_positive": 6,
+    "false_negative": 0
+  },
+  {
+    "state": "perak",
+    "train": [
+      "2008->2013"
+    ],
+    "test": "2013->2018",
+    "is_real_2026": false,
+    "seats": 59,
+    "opposition_wins": 29,
+    "model": {
+      "correct": 29,
+      "n": 59,
+      "brier": 0.2269,
+      "auc": 0.882
+    },
+    "never_opposition_correct": 30,
+    "same_as_last_correct": 42,
+    "model_vs_same_as_last_differ_on": 27,
+    "predicted_opposition": 1,
+    "false_positive": 1,
+    "false_negative": 29
+  },
+  {
+    "state": "perak",
+    "train": [
+      "2008->2013",
+      "2013->2018"
+    ],
+    "test": "2018->2022",
+    "is_real_2026": false,
+    "seats": 59,
+    "opposition_wins": 24,
+    "model": {
+      "correct": 46,
+      "n": 59,
+      "brier": 0.1251,
+      "auc": 0.982
+    },
+    "never_opposition_correct": 35,
+    "same_as_last_correct": 50,
+    "model_vs_same_as_last_differ_on": 10,
+    "predicted_opposition": 37,
+    "false_positive": 13,
+    "false_negative": 0
+  }
+]
