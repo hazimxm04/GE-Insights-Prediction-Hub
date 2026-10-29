@@ -1,5 +1,7 @@
 name: Scheduled Retraining
 
+# Monthly: refresh the election data, run the tests, retrain, validate, and open a pull
+# request with the new models. It never pushes straight to main.
 on:
   schedule:
     - cron: '0 3 1 * *'
@@ -10,6 +12,7 @@ jobs:
     runs-on: ubuntu-latest
     permissions:
       contents: write
+      pull-requests: write
 
     steps:
       - name: Checkout code
@@ -20,18 +23,40 @@ jobs:
         with:
           python-version: '3.11'
 
-      - name: Install dependencies
+      - name: Install dependencies (versions pinned to match requirements.txt)
         run: |
           python -m pip install --upgrade pip
-          pip install -r requirements.txt
+          pip install pytest numpy==1.26.4 pandas==2.3.1 scikit-learn==1.8.0 xgboost==2.1.1 \
+                      pyarrow==21.0.0 python-dotenv==1.0.0 requests==2.32.3
+
+      - name: Refresh election data
+        run: python backend/scripts/download_data.py --refresh
+
+      - name: Run tests (leakage, data quality, training)
+        run: python -m pytest scripts/tests -v -k "not end_to_end"
 
       - name: Retrain all states
         run: python scripts/train_models.py
 
-      - name: Commit updated models
+      - name: Validate against the real 2026 results
+        run: python scripts/validation.py
+
+      - name: Open a pull request with the new models
+        env:
+          GH_TOKEN: ${{ github.token }}
         run: |
           git config user.name "github-actions[bot]"
           git config user.email "github-actions[bot]@users.noreply.github.com"
           git add backend/models/
-          git diff --staged --quiet || git commit -m "Automated monthly retraining"
-          git push
+          if git diff --staged --quiet; then
+            echo "No model changes - nothing to propose."
+            exit 0
+          fi
+          BRANCH="auto/retrain-$(date +%Y%m%d-%H%M)"
+          git checkout -b "$BRANCH"
+          git commit -m "Automated monthly retraining (tests and validation passed)"
+          git push origin "$BRANCH"
+          gh pr create --base main --head "$BRANCH" \
+            --title "Automated retraining $(date +%Y-%m-%d)" \
+            --body "Models retrained after a data refresh. Tests passed and validation ran; check metadata.json (holdout, validated_accuracy) before merging." \
+            || echo "Branch pushed, but the pull request was not created. Enable 'Allow GitHub Actions to create and approve pull requests' in the repo settings, or open it by hand."

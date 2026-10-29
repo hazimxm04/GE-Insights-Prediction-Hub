@@ -1,68 +1,42 @@
 #!/usr/bin/env python
 """
-Download election data from electiondata.my
-Run once: python backend/scripts/download_data.py
-Re-run after new elections only.
-"""
+Download election data (ballots + stats) for every state in the registry
+(backend/core/states.py) from electiondata.my into data/raw/.
 
-import pandas as pd
+    python backend/scripts/download_data.py            # only what is missing
+    python backend/scripts/download_data.py --refresh  # re-download everything (after a new election)
+
+This is a thin wrapper around scripts/state_data.py, the one shared loader, so the file
+names and URLs are defined in one place. A refresh downloads to a temporary file first, so a
+failed download never deletes the copy you already have.
+"""
+import sys
 from pathlib import Path
 
-# ── Config ────────────────────────────────────────────────────────
+ROOT = Path(__file__).resolve().parents[2]
+sys.path.insert(0, str(ROOT))
+sys.path.insert(0, str(ROOT / 'scripts'))
 
-DATA_LAKE = "https://lake.electiondata.my/results_headline"
+from backend.core.states import STATES
+from state_data import load_state_data
 
-DATASETS = {
-    # Ballots (candidate-level: who ran, how many votes)
-    "johor_ballots":      f"{DATA_LAKE}/headline_ballots_state_jhr.parquet",
-    "ns_ballots":         f"{DATA_LAKE}/headline_ballots_state_nsn.parquet",
-    "melaka_ballots":     f"{DATA_LAKE}/headline_ballots_state_mlk.parquet",
 
-    # Stats (seat-level: turnout, total voters, majority)
-    "johor_stats":        f"{DATA_LAKE}/headline_stats_state_jhr.parquet",
-    "ns_stats":           f"{DATA_LAKE}/headline_stats_state_nsn.parquet",
-    "melaka_stats":       f"{DATA_LAKE}/headline_stats_state_mlk.parquet",
-}
-
-RAW_DATA_PATH = Path("data/raw")
-
-# ── Download ──────────────────────────────────────────────────────
-
-def download_all():
-    RAW_DATA_PATH.mkdir(parents=True, exist_ok=True)
-
-    for name, url in DATASETS.items():
-        save_path = RAW_DATA_PATH / f"{name}.parquet"
-
-        # Skip if already downloaded
-        if save_path.exists():
-            print(f"⏭️  Skipping {name} (already exists)")
-            continue
-
-        print(f"⬇️  Downloading {name}...")
+def main():
+    refresh = '--refresh' in sys.argv
+    failed = []
+    for state in STATES:
+        print(f"{state}: {'refreshing' if refresh else 'checking'} ...")
         try:
-            df = pd.read_parquet(url)
-            df.to_parquet(save_path, index=False)
-            print(f"✅ Saved: {save_path} ({df.shape[0]} rows, {df.shape[1]} cols)")
-            print(f"   Columns: {df.columns.tolist()}")
-            print(f"   Years: {sorted(df['date'].dt.year.unique()) if 'date' in df.columns else 'N/A'}")
+            ballots, stats = load_state_data(state, refresh=refresh)
+            print(f"  ok ({len(ballots)} ballot rows, {len(stats)} stats rows)")
         except Exception as e:
-            print(f"❌ Failed {name}: {e}")
+            failed.append(state)
+            print(f"  FAILED: {e}")
+    if failed:
+        print(f"\nFailed: {', '.join(failed)}")
+        sys.exit(1)
+    print("\nDownload complete.")
 
-    print("\n✅ Download complete!")
-
-def force_refresh():
-    """Re-download everything (use after new election)"""
-    for name in DATASETS:
-        save_path = RAW_DATA_PATH / f"{name}.parquet"
-        if save_path.exists():
-            save_path.unlink()
-            print(f"🗑️  Deleted: {save_path}")
-    download_all()
 
 if __name__ == "__main__":
-    import sys
-    if "--refresh" in sys.argv:
-        force_refresh()
-    else:
-        download_all()
+    main()

@@ -1,7 +1,19 @@
 #!/usr/bin/env python
 """
-State election predictor with OOD fallback (binary: BN vs non-BN).
+State election predictor with OOD fallback (binary: opposition vs everyone else).
 Usage: from backend.core.models.state_predictor import StatePredictor
+
+HOW THE FORECAST IS BUILT (leak-free)
+  * Features come from backend/core/features.py -- the SAME code that built the
+    training data -- using only election A (the latest held election) and the one
+    before it. Election B (the one being forecast) is never needed.
+  * The historical base rate uses only elections up to and including A.
+  * A is the latest election we are allowed to know about. States that have held their
+    2026 election (Johor, Negeri Sembilan) default to the year before it, so the output is
+    the 2026 forecast that can be compared with the real result; other states default to
+    their latest election and give a genuine forecast. `as_of=<year>` overrides this.
+  * The training data has tension_x_mixed fixed at 0 (sentiment was not trained
+    on), so it is fixed at 0 here too, unless a caller overrides it.
 """
 import warnings
 warnings.filterwarnings("ignore", category=UserWarning)
@@ -14,130 +26,118 @@ from pathlib import Path
 
 ROOT = Path(__file__).resolve().parents[3]
 sys.path.insert(0, str(ROOT))
+sys.path.insert(0, str(ROOT / 'scripts'))
 
-from backend.core.pipelines.state_pipeline import StateElectionPipeline
+from backend.core.features import build_features, seat_base_rates, seat_no, MIN_YEAR
+from backend.core.states import STATES
+from state_data import load_state_data
+from training_config import TRAINING_CONFIGS
 
 MODELS_DIR = ROOT / "backend" / "models"
 
+# Matches scripts/training_config.py's FEATURE_NAMES_TRAIN exactly --
+# this is what the saved models were actually trained on.
 FEATURE_NAMES = [
     'majority_change', 'turnout_change', 'incumbent_held',
     'log_voters', 'majority_perc_change', 'n_candidates_b',
-    'bn_sentiment', 'harapan_sentiment', 'pn_sentiment',
-    'racial_tension_index', 'economic_pressure',
     'malay_pct', 'chinese_pct', 'indian_pct',
     'young_malay_pct', 'young_chinese_pct',
     'older_malay_pct', 'youth_pct', 'median_age',
-    'bn_sent_x_malay', 'harapan_sent_x_chinese',
-    'pn_sent_x_young_malay', 'tension_x_mixed',
-    'economic_x_youth', 'narrative_pressure',
+    'tension_x_mixed',
 ]
 
-VALID_STATES = ['johor', 'neg_sembilan', 'selangor', 'melaka', 'perak']
+VALID_STATES = list(STATES)
+
+# States whose 2026 election has been held (real results exist to compare with).
+VALIDATED_STATES = {k for k, v in STATES.items() if v['final_test']}
+
+
+def default_as_of(state: str, election_years) -> int:
+    """The election treated as "latest known" (election A) when no year is given.
+
+    States whose 2026 election has been held (Johor, Negeri Sembilan) default to the
+    year before it, so the predictor reproduces what could have been forecast for 2026
+    and can be compared with the real result. Other states default to their latest
+    election, so they give a genuine forecast of the next one."""
+    final_test = STATES[state]['final_test']
+    return int(final_test[0]) if final_test else int(max(election_years))
 
 # ── OOD confidence thresholds ─────────────────────────────────────
-OOD_HIGH   = 1.0   # score < 1.0  -> HIGH confidence
-OOD_MEDIUM = 2.5   # score < 2.5  -> MEDIUM confidence
-                   # score >= 2.5 -> LOW confidence (OOD)
+OOD_HIGH   = 1.0
+OOD_MEDIUM = 2.5
 
 
 class StatePredictor:
     """
-    Predicts DUN seat outcomes for a Malaysian state (binary: BN vs non-BN).
+    Forecasts DUN seats for a Malaysian state (binary: opposition wins or not).
 
     3-layer prediction:
-      Layer 1: RF + XGB ensemble (main model)
+      Layer 1: RF + XGB ensemble (15 structural + ethnicity features, built by
+               backend/core/features.py exactly as in training)
       Layer 2: OOD detection (Mahalanobis distance)
-      Layer 3: Historical base rate fallback (when OOD)
-
-    Note on scope: this predicts Pakatan vs establishment (BN or PN
-    combined as "non-Pakatan"). A 3-class BN/Pakatan/PN split was
-    explored and found not yet reliably learnable -- PN's electoral
-    history (since 2020) is too short relative to the training window
-    to separate it from BN. See docs/multiclass_analysis.md.
+      Layer 3: Historical base rate blended in when a seat is OOD
 
     Usage:
-        predictor = StatePredictor('johor')
-        result = predictor.predict_seat('N.10 Perling', features_dict)
+        predictor = StatePredictor('selangor')              # forecast the next election
+        predictor = StatePredictor('johor')                 # Johor 2026 as forecast from 2022
+        predictor = StatePredictor('johor', as_of=2026)     # forecast the election after 2026
         results = predictor.predict_all()
+        result = predictor.predict_seat('N.10 Perling', {'turnout_change': 0.05})
     """
 
-    def __init__(self, state: str):
+    def __init__(self, state: str, as_of: int = None):
         state = state.lower()
         if state not in VALID_STATES:
             raise ValueError(f"Invalid state '{state}'. Choose: {VALID_STATES}")
 
         self.state     = state
         self.model_dir = MODELS_DIR / state
+        self.config    = TRAINING_CONFIGS[state]
 
         self.rf      = pickle.load(open(self.model_dir / "rf_model.pkl",      "rb"))
         self.xgb     = pickle.load(open(self.model_dir / "xgb_model.pkl",     "rb"))
         self.rf_cal  = pickle.load(open(self.model_dir / "rf_calibrated.pkl", "rb"))
         self.ood     = pickle.load(open(self.model_dir / "ood_detector.pkl",  "rb"))
 
-        self.base_rates = self._compute_base_rates()
+        self._ballots, self._stats = load_state_data(state)
+        years = pd.to_datetime(self._stats['date']).dt.year
+        # A = the latest election we are allowed to know about
+        self.year_a = int(as_of) if as_of is not None else default_as_of(state, years.unique())
+        if self.year_a not in set(years):
+            raise ValueError(f"No {state} election in {self.year_a}; elections: {sorted(set(years))}")
 
-        print(f"StatePredictor loaded: {state} ({len(self.base_rates)} seats)")
+        self.base_rates, self.default_base_rate = seat_base_rates(self._ballots, self.year_a)
+        print(f"StatePredictor loaded: {state} (forecasting the election after {self.year_a}; "
+              f"{len(self.base_rates)} seats)")
 
-    def get_seat_context(self, seat_name: str) -> dict:
-        """
-        Fetch real sentiment/ethnicity/economic data for a seat.
-        Used to auto-fill features not provided by the caller.
-        """
-        from backend.core.pipelines.state_pipeline import StateElectionPipeline
-        from backend.scripts.add_ethnicity_features import merge_ethnicity_into_features
+    def _build_live_features(self) -> pd.DataFrame:
+        """Features for the election after A, from backend/core/features.py
+        (the same code as training), plus ethnicity matched on seat number."""
+        df = build_features(self._ballots, self._stats, self.year_a)
 
-        pipeline = StateElectionPipeline(self.state)
-        sentiment = pipeline.load_sentiment_features()
-        economic_pressure = pipeline.load_economic_features()
+        eth_path = ROOT / 'data/raw/ethnicity' / f'ethnicity_{self.state}_{self.config["ethnicity_year"]}.csv'
+        eth_cols = ['malay_pct', 'chinese_pct', 'indian_pct', 'young_malay_pct',
+                    'young_chinese_pct', 'older_malay_pct', 'youth_pct', 'median_age']
 
-        df = pd.DataFrame([{'seat': seat_name}])
-        df['bn_sentiment']         = sentiment['bn_sentiment']
-        df['harapan_sentiment']    = sentiment['harapan_sentiment']
-        df['pn_sentiment']         = sentiment['pn_sentiment']
-        df['racial_tension_index'] = sentiment['racial_tension_index']
-        df['economic_pressure']    = economic_pressure
+        if eth_path.exists():
+            eth_df = pd.read_csv(eth_path)
+            eth_df['seat_no'] = eth_df['seat'].map(seat_no)
+            df = df.merge(eth_df[['seat_no'] + eth_cols], on='seat_no', how='left')
 
-        year_to = pipeline.config.get('val_year') or pipeline.config['test_year']
-        df = merge_ethnicity_into_features(
-            df_features=df, state=self.state, year_b=year_to,
-            sentiment=sentiment, economic_pressure=economic_pressure
-        )
+        for col in eth_cols:
+            if col not in df.columns:
+                df[col] = 0.0
+            df[col] = df[col].fillna(0.0)
 
-        context_features = [f for f in FEATURE_NAMES if f not in [
-            'majority_change', 'turnout_change', 'incumbent_held',
-            'log_voters', 'majority_perc_change', 'n_candidates_b'
-        ]]
-        return {f: float(df.iloc[0].get(f, 0.0)) for f in context_features}
+        # Trained as a constant 0 (see train_models.py); feeding a real value would put the
+        # input outside what the models and the OOD detector saw in training.
+        df['tension_x_mixed'] = 0.0
+        return df
 
-    # ── Historical base rate ──────────────────────────────────────
-
-    def _compute_base_rates(self) -> dict:
-        """
-        Compute per-seat historical win rate for non-BN across all
-        elections on record. Weights recent elections more heavily.
-        Used as fallback when a seat is OOD.
-        """
-        pipeline = StateElectionPipeline(self.state)
-        df       = pipeline.ballots.copy()
-
-        df['year'] = pd.to_datetime(df['date'], errors='coerce').dt.year
-        winners = df[df['result'].isin(['won', 'won_uncontested'])].copy()
-
-        bn_coalitions = {'BN', 'PERIKATAN'}
-        winners['non_bn'] = (~winners['coalition'].isin(bn_coalitions)).astype(int)
-
-        base_rates = {}
-        for seat, group in winners.groupby('seat'):
-            group = group.sort_values('year')
-            n     = len(group)
-            weights = np.array([0.5 ** (n - i - 1) for i in range(n)])
-            rate    = np.average(group['non_bn'].values, weights=weights)
-            base_rates[seat] = round(rate, 4)
-
-        return base_rates
+    # ── Historical base rate (only elections up to A) ─────────────
 
     def _get_base_rate(self, seat_name: str) -> float:
-        return self.base_rates.get(seat_name, 0.35)
+        return self.base_rates.get(seat_no(seat_name), self.default_base_rate)
 
     # ── OOD score ────────────────────────────────────────────────
 
@@ -156,29 +156,13 @@ class StatePredictor:
 
     # ── Core prediction ───────────────────────────────────────────
 
-    def predict_seat(self, seat_name: str, features: dict) -> dict:
+    def predict_seat_from_row(self, seat_name: str, feature_row: dict) -> dict:
         """
-        Predict outcome for a single DUN seat.
-
-        Returns dict:
-            seat_name        -> seat name
-            prediction       -> "non-BN" or "BN"
-            probability      -> final probability (0-1)
-            rf_prob          -> raw RF probability
-            xgb_prob         -> raw XGB probability
-            ensemble_prob    -> average of RF + XGB
-            calibrated_prob  -> calibrated RF probability
-            base_rate        -> historical non-BN win rate
-            is_ood           -> True if regime shift detected
-            ood_score        -> Mahalanobis distance
-            confidence       -> "HIGH", "MEDIUM", "LOW"
-            fallback_used    -> True if base rate blended in
-            model_used       -> which model drove the prediction
-            warning          -> human-readable explanation
+        Predict outcome for a single seat given a fully-built
+        feature dict (matching FEATURE_NAMES exactly, computed the
+        same way as training).
         """
-        context = self.get_seat_context(seat_name)
-        full_features = {**context, **features}
-        X = pd.DataFrame([[full_features.get(f, 0.0) for f in FEATURE_NAMES]],
+        X = pd.DataFrame([[feature_row.get(f, 0.0) for f in FEATURE_NAMES]],
                         columns=FEATURE_NAMES)
 
         rf_prob       = float(self.rf.predict_proba(X)[0][1])
@@ -186,8 +170,8 @@ class StatePredictor:
         ensemble_prob = (rf_prob + xgb_prob) / 2
         cal_prob      = float(self.rf_cal.predict_proba(X)[0][1])
 
-        score  = float(self._ood_score(X)[0])
-        is_ood = bool(self.ood.predict(X)[0] == -1)
+        score  = float(self._ood_score(X.values)[0])
+        is_ood = bool(self.ood.predict(X.values)[0] == -1)
 
         base_rate     = self._get_base_rate(seat_name)
         fallback_used = False
@@ -230,43 +214,43 @@ class StatePredictor:
             'warning':         warning,
         }
 
-    def predict_all(self, year_from: int = None, year_to: int = None):
-        from backend.core.pipelines.state_pipeline import StateElectionPipeline
-        from backend.scripts.add_ethnicity_features import merge_ethnicity_into_features
+    def seat_baseline(self, seat_name: str):
+        """This seat's real feature values (the starting point for a 'what if' scenario),
+        or None if the seat is not found. Matches on the seat name or the seat number."""
+        all_features = self._build_live_features()
+        row = all_features[all_features['seat'] == seat_name]
+        if row.empty:
+            row = all_features[all_features['seat_no'] == seat_no(seat_name)]
+        if row.empty:
+            return None
+        return {f: float(row.iloc[0].get(f, 0.0)) for f in FEATURE_NAMES}
 
-        pipeline = StateElectionPipeline(self.state)
+    def predict_seat(self, seat_name: str, features: dict) -> dict:
+        """
+        Predict a single seat, merging user-supplied feature overrides with this
+        seat's real baseline (same code as predict_all() and as training).
+        Used by the chatbot's 'what if' scenario tool.
+        """
+        baseline = self.seat_baseline(seat_name) or {f: 0.0 for f in FEATURE_NAMES}
+        merged = {**baseline, **features}
+        return self.predict_seat_from_row(seat_name, merged)
 
-        year_from = year_from or pipeline.config['test_year']
-        year_to   = year_to   or pipeline.config['val_year']
-
-        if year_to is None:
+    def predict_all(self):
+        """Predict every seat for this state's most recent transition."""
+        df = self._build_live_features()
+        if df.empty:
             return pd.DataFrame()
 
-        df = pipeline.engineer_features(year_from, year_to)
-
-        sentiment = pipeline.load_sentiment_features()
-        df['bn_sentiment']         = sentiment['bn_sentiment']
-        df['harapan_sentiment']    = sentiment['harapan_sentiment']
-        df['pn_sentiment']         = sentiment['pn_sentiment']
-        df['racial_tension_index'] = sentiment['racial_tension_index']
-
-        economic_pressure = pipeline.load_economic_features()
-        df['economic_pressure'] = economic_pressure
-
-        df = merge_ethnicity_into_features(
-            df_features=df,
-            state=self.state,
-            year_b=year_to,
-            sentiment=sentiment,
-            economic_pressure=economic_pressure
-        )
+        for col in FEATURE_NAMES:
+            if col not in df.columns:
+                df[col] = 0.0
 
         X = df[FEATURE_NAMES].fillna(0)
 
         results = []
         for i, row in df.iterrows():
-            features = {f: float(X.loc[i, f]) for f in FEATURE_NAMES}
-            result   = self.predict_seat(row['seat'], features)
+            feature_row = {f: float(X.loc[i, f]) for f in FEATURE_NAMES}
+            result = self.predict_seat_from_row(row['seat'], feature_row)
             results.append(result)
 
         return pd.DataFrame(results)
@@ -287,14 +271,9 @@ if __name__ == "__main__":
                 cols = ['seat_name', 'prediction', 'probability',
                         'confidence', 'is_ood', 'fallback_used']
                 print(df[cols].head().to_string(index=False))
-
-                fallback = df[df['fallback_used']]
-                if len(fallback) > 0:
-                    print(f"\n  Seats using OOD fallback ({len(fallback)}):")
-                    for _, r in fallback.head(5).iterrows():
-                        print(f"    {r['seat_name']:<35} "
-                              f"P={r['probability']:.2f} "
-                              f"base={r['base_rate']:.2f} "
-                              f"OOD={r['ood_score']:.2f}")
+                print(f"\n  OOD rate: {df['is_ood'].mean():.1%} "
+                      f"({df['is_ood'].sum()}/{len(df)} seats)")
+            else:
+                print("  (No predictions -- data not yet available)")
         except Exception as e:
             print(f"  Error: {e}")

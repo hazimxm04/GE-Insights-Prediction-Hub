@@ -23,12 +23,12 @@ ROOT = Path(__file__).resolve().parent.parent
 sys.path.insert(0, str(ROOT))
 
 from training_config import TRAINING_CONFIGS, FEATURE_NAMES_TRAIN
-from train_models import build_transition, STATE_URL_PREFIX
+from train_models import build_transition, seat_no
+from backend.core.features import FEATURE_VERSION
+from backend.core.states import STATES
+from state_data import load_state_data
 
-VALIDATABLE_STATES = {
-    'johor':        (2022, 2026),
-    'neg_sembilan': (2023, 2026),
-}
+VALIDATABLE_STATES = {k: v['final_test'] for k, v in STATES.items() if v['final_test']}
 
 
 def load_models(state: str):
@@ -40,12 +40,7 @@ def load_models(state: str):
 
 
 def build_eval_set(state: str, year_from: int, year_to: int):
-    prefix = STATE_URL_PREFIX[state]
-    url_ballots = f'https://lake.electiondata.my/results_headline/headline_ballots_state_{prefix}.parquet'
-    url_stats   = f'https://lake.electiondata.my/results_headline/headline_stats_state_{prefix}.parquet'
-
-    ballots = pd.read_parquet(url_ballots)
-    stats   = pd.read_parquet(url_stats)
+    ballots, stats = load_state_data(state)
 
     df = build_transition(ballots, stats, year_from, year_to)
 
@@ -56,7 +51,8 @@ def build_eval_set(state: str, year_from: int, year_to: int):
 
     if eth_path.exists():
         eth_df = pd.read_csv(eth_path)
-        df = df.merge(eth_df[['seat'] + eth_cols], on='seat', how='left')
+        eth_df['seat_no'] = eth_df['seat'].map(seat_no)
+        df = df.merge(eth_df[['seat_no'] + eth_cols], on='seat_no', how='left')
     else:
         for col in eth_cols:
             df[col] = 0
@@ -72,12 +68,39 @@ def build_eval_set(state: str, year_from: int, year_to: int):
     return df
 
 
+def model_problem(meta, year_to):
+    """Reason this saved model must NOT be validated against election `year_to`, or None."""
+    if meta is None:
+        return 'no metadata.json for this model'
+    if meta.get('feature_version') != FEATURE_VERSION:
+        return ('this model was trained with the old (leaky) features - '
+                'retrain it with scripts/train_models.py first')
+    cutoff = meta.get('training_cutoff_year')
+    if cutoff is None or year_to <= cutoff:
+        return f'election {year_to} is not after the training cutoff year ({cutoff})'
+    return None
+
+
+def load_metadata(state):
+    import json
+    path = ROOT / 'backend/models' / state / 'metadata.json'
+    if not path.exists():
+        return None
+    with open(path) as f:
+        return json.load(f)
+
+
 def validate_state(state: str):
     print(f"\n{'='*70}")
     print(f"  VALIDATION: {state.upper()}")
     year_from, year_to = VALIDATABLE_STATES[state]
     print(f"  (Train transition features: {year_from}->{year_to}, ground truth: {year_to} actual)")
     print(f"{'='*70}")
+
+    problem = model_problem(load_metadata(state), year_to)
+    if problem:
+        print(f"  REFUSED: {problem}")
+        return None
 
     df = build_eval_set(state, year_from, year_to)
     print(f"\nSeats: {len(df)}")

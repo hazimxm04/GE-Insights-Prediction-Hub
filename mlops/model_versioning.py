@@ -4,14 +4,18 @@ from pathlib import Path
 from datetime import datetime
 
 ROOT = Path(__file__).resolve().parent.parent
+import sys
+sys.path.insert(0, str(ROOT))
+from backend.core.features import FEATURE_VERSION
 MODELS_DIR = ROOT / "backend" / "models"
 
 
-def version_and_promote(state: str, new_metadata: dict, min_improvement: float = 0.0) -> bool:
+def version_and_promote(state: str, new_metadata: dict, min_improvement: float = 0.0,
+                        candidate_dir=None) -> bool:
     """
     Archive the current 'latest' model under a timestamped folder,
     then decide whether the NEW model should become 'latest' based
-    on validated accuracy (not training accuracy -- see note below).
+    on the held-out score (time-ordered test), never on training accuracy.
 
     KNOWN LIMITATION: if the current 'latest' model has a
     validated_accuracy (from validation.py) but the newly-trained
@@ -23,6 +27,10 @@ def version_and_promote(state: str, new_metadata: dict, min_improvement: float =
     validated_accuracy is populated before the NEXT comparison runs.
 
     Args:
+        candidate_dir: folder holding the NEWLY trained model files, staged OUTSIDE 'latest'.
+                       'latest' must still hold the PRIOR model, so the comparison is new vs prior
+                       (before this, training overwrote 'latest' first and the gate compared the new
+                       model with itself, so it always promoted).
         state: e.g. 'johor'
         new_metadata: the metadata dict just produced by train_state()
         min_improvement: require at least this much accuracy gain
@@ -67,37 +75,51 @@ def version_and_promote(state: str, new_metadata: dict, min_improvement: float =
         with open(current_metadata_path) as f:
             current_meta = json.load(f)
 
-        # Prefer validated accuracy if present in metadata, else fall
-        # back to training accuracy with an explicit warning.
-        current_acc = current_meta.get('validated_accuracy',
-                                        current_meta['models']['ensemble']['accuracy'])
-        new_acc = new_metadata.get('validated_accuracy',
-                                    new_metadata['models']['ensemble']['accuracy'])
-
-        if 'validated_accuracy' not in current_meta or 'validated_accuracy' not in new_metadata:
-            print(f"  WARNING: comparing on TRAINING accuracy, not validated "
-                  f"accuracy -- this can be misleading (see docstring)")
-
-        if new_acc < current_acc + min_improvement:
-            print(f"  New model ({new_acc:.2%}) not better than current "
-                  f"({current_acc:.2%} + {min_improvement:.0%} threshold)")
-            print(f"  KEEPING current model as 'latest'. New attempt archived "
-                  f"at {version_dir}")
-            promote = False
-        else:
-            print(f"  New model ({new_acc:.2%}) beats current ({current_acc:.2%}) "
-                  f"-- promoting")
+        # Compare on the HELD-OUT score only (time-ordered test), never on training
+        # accuracy. Only compare when both models were built with the same feature
+        # definitions and scored on the same test transition; otherwise the numbers
+        # are not comparable and the new model is promoted with a note.
+        cur_h, new_h = current_meta.get('holdout'), new_metadata.get('holdout')
+        if current_meta.get('feature_version') != FEATURE_VERSION:
+            print("  Current model was built with old/leaky features (or has no feature_version) "
+                  "- replacing it")
             promote = True
+        elif not cur_h or not new_h:
+            print("  Cannot compare held-out scores (missing) - promoting the new model")
+            promote = True
+        elif cur_h['test_transition'] != new_h['test_transition']:
+            print(f"  Held-out test changed ({cur_h['test_transition']} -> {new_h['test_transition']}); "
+                  f"scores are not comparable - promoting the new model")
+            promote = True
+        else:
+            current_acc, new_acc = cur_h['accuracy'], new_h['accuracy']
+            if new_acc < current_acc + min_improvement:
+                print(f"  New model held-out {new_acc:.2%} not better than current "
+                      f"{current_acc:.2%} (+{min_improvement:.0%} threshold)")
+                print(f"  KEEPING current model as 'latest'. New attempt archived at {version_dir}")
+                promote = False
+            else:
+                print(f"  New model held-out {new_acc:.2%} beats current {current_acc:.2%} - promoting")
+                promote = True
 
-    if promote:
-        # The caller is responsible for having already written the NEW
-        # model files directly to latest_dir (train_models.py does this).
-        # We've already archived what was there before overwriting, so
-        # nothing further to do here except confirm.
+    if candidate_dir is not None:
+        candidate_dir = Path(candidate_dir)
+        if promote:
+            for fname in model_files:
+                src = candidate_dir / fname
+                if src.exists():
+                    shutil.copy(src, latest_dir / fname)
+            shutil.rmtree(candidate_dir, ignore_errors=True)
+            print(f"  '{state}' latest model updated (prior model archived at {version_dir.name})")
+        else:
+            rejected = latest_dir / f'rejected_{timestamp}'
+            shutil.move(str(candidate_dir), str(rejected))
+            print(f"  Kept current model as 'latest'; rejected candidate saved at {rejected.name}")
+    elif promote:
+        # Legacy call (models already written to 'latest'): nothing further to do.
         print(f"  '{state}' latest model updated (v_{timestamp} archived as prior version)")
     else:
-        # Restore the archived prior model back into latest_dir, since
-        # train_models.py already overwrote it with the new (rejected) one.
+        # Legacy call: restore the archived prior model into latest_dir.
         for fname in model_files:
             src = version_dir / fname
             if src.exists():
@@ -141,6 +163,7 @@ if __name__ == "__main__":
         print(f"Version history for {args.state}:")
         for v in versions:
             meta = get_version_metadata(args.state, v)
-            acc = meta.get('validated_accuracy', meta['models']['ensemble']['accuracy'])
-            label = "validated" if 'validated_accuracy' in meta else "training (unvalidated)"
+            acc = meta.get('holdout_accuracy')
+            label = 'held-out' if acc is not None else 'no held-out score (old model)'
+            acc = acc if acc is not None else float('nan')
             print(f"  {v}: {acc:.2%} ({label})")
