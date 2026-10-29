@@ -1,34 +1,35 @@
 """
-builder.py
-==========
-Builds the ChromaDB vector store from your project data:
-  1. Election predictions (validation_2026.csv per state)
-  2. Scored sentiment articles (scored_articles.csv)
-  3. State sentiment scores (state_sentiment_scores.csv)
-  4. Economic pressure scores (election_economic_pressure.csv)
-  5. Melaka 2026 prediction (melaka_2026_prediction.csv)
+chatbot/knowledge_base/builder.py
+===================================
+Builds the ChromaDB knowledge base for the GE-Insights RAG chatbot.
 
-Each piece of data becomes a "document" in ChromaDB.
-Documents are embedded as vectors so semantic search works:
-  "Why did BN win?" finds relevant BN prediction docs
-  "What is racial tension?" finds relevant sentiment docs
+Reads LIVE data (metadata.json, validation_2026.csv, or a live
+StatePredictor forecast) for all 5 states, rather than hardcoded
+numbers -- so the knowledge base reflects whatever the current
+trained models actually say, not a stale snapshot from an earlier
+run.
 
 Usage:
     python chatbot/knowledge_base/builder.py
 """
 
 import os
+import sys
+import json
 import pandas as pd
 from pathlib import Path
 from dotenv import load_dotenv
 import chromadb
 from chromadb.utils import embedding_functions
 
+ROOT = Path(__file__).resolve().parents[2]
+sys.path.insert(0, str(ROOT))
+
 # ── Load env ────────────────────────────────────────────────────────
 
 env_paths = [
     Path("backend/.env"),
-    Path(__file__).resolve().parents[3] / "backend" / ".env",
+    ROOT / "backend" / ".env",
 ]
 for p in env_paths:
     if p.exists():
@@ -37,9 +38,16 @@ for p in env_paths:
 
 # ── Paths ───────────────────────────────────────────────────────────
 
-PROCESSED_DIR = Path("data/processed")
-CHROMA_DIR    = Path("chatbot/chroma_db")
+PROCESSED_DIR = ROOT / "data" / "processed"
+MODELS_DIR    = ROOT / "backend" / "models"
+CHROMA_DIR    = ROOT / "chatbot" / "chroma_db"
 CHROMA_DIR.mkdir(parents=True, exist_ok=True)
+
+ALL_STATES = ['johor', 'neg_sembilan', 'selangor', 'melaka', 'perak']
+
+# States that have held their 2026 election (real ground truth exists)
+VALIDATED_STATES = {'johor', 'neg_sembilan'}
+
 
 # ── ChromaDB setup ──────────────────────────────────────────────────
 
@@ -54,67 +62,116 @@ def get_chroma_client():
 # ── Document builders ───────────────────────────────────────────────
 
 def build_prediction_docs(state: str) -> list:
-    path = Path(f"backend/models/{state}/validation_2026.csv")
-    if not path.exists():
-        print(f"  No validation data for {state}")
-        return []
+    """
+    Build prediction documents for one state. Uses real validated
+    results (validation_2026.csv) if the state's election has
+    happened; otherwise falls back to a live forecast via
+    StatePredictor, clearly labeled as unvalidated.
+    """
+    val_path = MODELS_DIR / state / 'validation_2026.csv'
 
-    df = pd.read_csv(path)
-    docs = []
+    if val_path.exists():
+        df = pd.read_csv(val_path)
+        docs = []
 
-    for _, row in df.iterrows():
-        seat    = row.get('seat', '')
-        pred    = row.get('prediction', '')
-        actual  = row.get('actual', '')
-        prob    = row.get('probability', 0)
-        is_ood  = row.get('is_ood', False)
-        correct = str(pred).strip() == str(actual).strip()
+        for _, row in df.iterrows():
+            seat    = row.get('seat', '')
+            pred    = row.get('predicted_non_bn', row.get('prediction', ''))
+            actual  = row.get('actual_non_bn', row.get('actual', ''))
+            prob    = row.get('probability', 0)
+            is_ood  = row.get('is_ood', False)
+            correct = row.get('correct', str(pred).strip() == str(actual).strip())
 
-        # Make wrong predictions very explicit
-        if not correct:
-            correctness = f"WRONG PREDICTION - model predicted {pred} but actual result was {actual}"
-        else:
-            correctness = f"Correct prediction - model predicted {pred}, actual was {actual}"
+            correctness = (
+                f"WRONG PREDICTION - model predicted {pred} but actual result was {actual}"
+                if not correct else
+                f"Correct prediction - model predicted {pred}, actual was {actual}"
+            )
 
-        text = f"""
+            text = f"""
 Seat: {seat} ({state.replace('_', ' ').title()})
-Model prediction: {pred} (probability: {prob:.2f})
+Model prediction: {pred} (probability: {float(prob):.2f})
 Actual 2026 result: {actual}
 {correctness}
 OOD flagged: {'Yes - unusual pattern' if is_ood else 'No'}
 State: {state}
-        """.strip()
+Status: VALIDATED against real 2026 election results
+            """.strip()
 
-        docs.append({
-            'text': text,
-            'metadata': {
-                'type':       'prediction',
-                'state':      state,
-                'seat':       seat,
-                'prediction': str(pred),
-                'actual':     str(actual),
-                'correct':    str(correct),
-                'is_ood':     str(is_ood),
-            }
-        })
+            docs.append({
+                'text': text,
+                'metadata': {
+                    'type':       'prediction',
+                    'state':      state,
+                    'seat':       str(seat),
+                    'prediction': str(pred),
+                    'actual':     str(actual),
+                    'correct':    str(correct),
+                    'is_ood':     str(is_ood),
+                    'validated':  'true',
+                }
+            })
 
-    wrong_count = sum(1 for _, r in df.iterrows()
-                      if str(r.get('prediction','')).strip() != str(r.get('actual','')).strip())
-    print(f"  Built {len(docs)} prediction docs for {state} ({wrong_count} wrong)")
-    return docs
+        wrong_count = sum(1 for _, r in df.iterrows() if not r.get('correct', True))
+        print(f"  Built {len(docs)} VALIDATED prediction docs for {state} ({wrong_count} wrong)")
+        return docs
+
+    else:
+        try:
+            from backend.core.models.state_predictor import StatePredictor
+
+            predictor = StatePredictor(state)
+            forecast_df = predictor.predict_all()
+
+            if forecast_df.empty:
+                print(f"  No forecast available for {state} (election data not ready)")
+                return []
+
+            docs = []
+            for _, row in forecast_df.iterrows():
+                seat   = row.get('seat_name', '')
+                pred   = row.get('prediction', '')
+                prob   = row.get('probability', 0)
+                is_ood = row.get('is_ood', False)
+
+                text = f"""
+Seat: {seat} ({state.replace('_', ' ').title()})
+Model forecast: {pred} (probability: {float(prob):.2f})
+OOD flagged: {'Yes - unusual pattern' if is_ood else 'No'}
+State: {state}
+Status: LIVE FORECAST -- election has not happened yet, this is
+NOT a validated result. Accuracy will only be known once the
+{state.replace('_', ' ').title()} election takes place.
+                """.strip()
+
+                docs.append({
+                    'text': text,
+                    'metadata': {
+                        'type':       'prediction',
+                        'state':      state,
+                        'seat':       str(seat),
+                        'prediction': str(pred),
+                        'is_ood':     str(is_ood),
+                        'validated':  'false',
+                    }
+                })
+
+            print(f"  Built {len(docs)} LIVE FORECAST docs for {state} (not yet validated)")
+            return docs
+
+        except Exception as e:
+            print(f"  Could not build forecast docs for {state}: {e}")
+            return []
 
 
 def build_sentiment_docs() -> list:
-    """
-    Convert scored_articles.csv into documents.
-    Each article becomes one document with its sentiment scores.
-    """
+    """Convert scored_articles.csv into documents, one per article."""
     path = PROCESSED_DIR / "scored_articles.csv"
     if not path.exists():
         print("  No scored articles found")
         return []
 
-    df = pd.read_csv(path).head(200)  # limit to 200 most recent
+    df = pd.read_csv(path).head(200)
     docs = []
 
     for _, row in df.iterrows():
@@ -124,7 +181,7 @@ def build_sentiment_docs() -> list:
         harapan = row.get('harapan_sentiment', 0)
         pn      = row.get('pn_sentiment', 0)
         tension = row.get('racial_tension', 0)
-        snippet = row.get('text_snippet', '')[:300]
+        snippet = str(row.get('text_snippet', ''))[:300]
 
         text = f"""
 News article: {title}
@@ -141,7 +198,7 @@ Content: {snippet}
             'metadata': {
                 'type': 'sentiment_article',
                 'source': str(source),
-                'title': str(title[:100]),
+                'title': str(title)[:100],
                 'bn_sentiment': str(bn),
                 'harapan_sentiment': str(harapan),
                 'pn_sentiment': str(pn),
@@ -154,69 +211,51 @@ Content: {snippet}
 
 def build_state_summary_docs() -> list:
     """
-    Build high-level state summary documents combining
-    prediction accuracy + sentiment + economic context.
+    Build high-level state summary documents combining prediction
+    accuracy + sentiment + economic context. Reads accuracy/wrong-
+    seat counts LIVE from each state's metadata.json and
+    validation_2026.csv instead of hardcoding numbers.
     """
     docs = []
 
-    # State sentiment scores
     sentiment_path = PROCESSED_DIR / "state_sentiment_scores.csv"
     economic_path  = PROCESSED_DIR / "election_economic_pressure.csv"
 
     sentiment_df = pd.read_csv(sentiment_path) if sentiment_path.exists() else pd.DataFrame()
     economic_df  = pd.read_csv(economic_path)  if economic_path.exists()  else pd.DataFrame()
 
-    state_info = {
-        'johor': {
-            'election_date': 'July 11, 2026',
-            'total_seats': 56,
-            'accuracy': '94.64%',
-            'wrong_seats': 3,
-        },
-        'neg_sembilan': {
-            'election_date': 'August 1, 2026',
-            'total_seats': 36,
-            'accuracy': '91.67%',
-            'wrong_seats': 3,
-        },
-        'melaka': {
-            'election_date': 'Upcoming 2026',
-            'total_seats': 28,
-            'accuracy': 'Pre-election forecast',
-            'wrong_seats': 'N/A',
-        },
-    }
+    for state in ALL_STATES:
+        election_status = "2026 (validated)" if state in VALIDATED_STATES else "pending"
 
-    docs.append({
-        'text': """
-    Melaka 2026 election overall prediction summary:
-    Total seats: 28
-    Predicted government wins (BN/PN): 22 seats
-    Predicted Harapan wins: 6 seats
-    BN/PN expected majority: comfortable
+        metadata_path = MODELS_DIR / state / 'metadata.json'
+        seats = 'unknown'
+        accuracy_text = "Not yet validated -- this state's election is pending."
+        wrong_seats_text = "N/A (pending election)"
 
-    Predicted Harapan seats (Chinese-majority):
-    N.22 Bandar Hilir (chinese=73%): Harapan P=1.00
-    N.20 Kota Laksamana (chinese=77%): Harapan P=1.00
-    N.19 Kesidang (chinese=56%): Harapan P=1.00
-    N.16 Ayer Keroh (chinese=48%): Harapan P=1.00
-    N.17 Bukit Katil (mixed): Harapan P=0.52
-    N.11 Sungai Udang (Malay): Harapan P=0.52 OOD
+        if metadata_path.exists():
+            with open(metadata_path) as f:
+                meta = json.load(f)
+            seats = meta.get('seats', 'unknown')
 
-    Predicted BN/PN seats: remaining 22 rural Malay seats
-    Pattern: Chinese-majority seats go Harapan,
-            Malay-majority seats go BN/PN.
-    This forecast uses 2018->2021 patterns + 25 features
-    including voter roll demographics and national sentiment.
-        """.strip(),
-        'metadata': {
-            'type': 'melaka_summary',
-            'state': 'melaka',
-        }
-    })
+            if 'validated_accuracy' in meta:
+                acc = meta['validated_accuracy']
+                accuracy_text = f"{acc:.2%} (validated against real 2026 results)"
+            else:
+                train_acc = meta.get('models', {}).get('ensemble', {}).get('accuracy')
+                if train_acc is not None:
+                    accuracy_text = (f"{train_acc:.2%} training accuracy "
+                                     f"(NOT validated -- election pending or "
+                                     f"validation.py not yet run for this state)")
 
-    for state, info in state_info.items():
-        # Get sentiment for this state
+        val_path = MODELS_DIR / state / 'validation_2026.csv'
+        if val_path.exists():
+            val_df = pd.read_csv(val_path)
+            if 'correct' in val_df.columns:
+                wrong_df = val_df[val_df['correct'] == False]
+                wrong_names = wrong_df['seat'].tolist() if 'seat' in wrong_df.columns else []
+                wrong_seats_text = (f"{len(wrong_names)} seats: {', '.join(wrong_names)}"
+                                     if wrong_names else "0 (all correct)")
+
         sent_row = sentiment_df[sentiment_df['state'] == state] if not sentiment_df.empty else pd.DataFrame()
         econ_key = f"{state}_2026"
         econ_row = economic_df[economic_df['state'] == econ_key] if not economic_df.empty else pd.DataFrame()
@@ -240,139 +279,87 @@ Current sentiment ({state}):
 
         text = f"""
 State: {state.replace('_', ' ').title()}
-Election date: {info['election_date']}
-Total DUN seats: {info['total_seats']}
-Model accuracy on 2026 results: {info['accuracy']}
-Wrong predictions: {info['wrong_seats']}
+Election status: {election_status}
+Total DUN seats: {seats}
+Model accuracy: {accuracy_text}
+Wrong predictions: {wrong_seats_text}
 {sent_text}
 {econ_text}
 
-Key finding: The model uses 25 features including structural
-voting patterns, voter roll demographics (3-5M rows),
-LLM sentiment scoring, and PyTorch LSTM economic forecasting.
-Coalition target: BN+PN = government bloc, Harapan = opposition.
+Model uses structural voting patterns and voter roll demographics
+at training time; sentiment/narrative features are added only at
+prediction time (for pending states) to avoid temporal leakage.
+Prediction target: BN alone vs. non-BN (Harapan/PN combined). BN-PN
+coalition dynamics vary by state and election cycle -- see
+docs/multiclass_analysis.md for the full methodology and known
+limitations.
         """.strip()
 
         docs.append({
             'text': text,
-            'metadata': {
-                'type': 'state_summary',
-                'state': state,
-            }
+            'metadata': {'type': 'state_summary', 'state': state}
         })
 
-    print(f"  Built {len(docs)} state summary docs")
+    print(f"  Built {len(docs)} state summary docs (live data)")
     return docs
 
 
-def build_melaka_prediction_docs() -> list:
-    """Build documents from Melaka 2026 pre-election prediction."""
-    path = PROCESSED_DIR / "melaka_2026_prediction.csv"
-    if not path.exists():
-        return []
+def build_wrong_predictions_summary_doc() -> dict:
+    """
+    Build the 'wrong predictions summary' document dynamically from
+    each validated state's real validation_2026.csv.
+    """
+    sections = []
 
-    df = pd.read_csv(path)
-    docs = []
+    for state in sorted(VALIDATED_STATES):
+        val_path = MODELS_DIR / state / 'validation_2026.csv'
+        metadata_path = MODELS_DIR / state / 'metadata.json'
 
-    for _, row in df.iterrows():
-        seat      = row.get('seat_name', '')
-        pred      = row.get('prediction', '')
-        prob      = row.get('probability', 0)
-        is_ood    = row.get('is_ood', False)
-        malay_pct = row.get('malay_pct', 0)
-        chin_pct  = row.get('chinese_pct', 0)
-        incumbent = row.get('incumbent', '')
+        if not val_path.exists():
+            continue
 
-        text = f"""
-Melaka 2026 pre-election prediction:
-Seat: {seat}
-2021 incumbent: {incumbent}
-2026 forecast: {pred} (probability: {prob:.2f})
-Malay voter composition: {malay_pct:.1%}
-Chinese voter composition: {chin_pct:.1%}
-OOD flagged: {'Yes' if is_ood else 'No'}
-Note: This is a forecast before the election. 
-Accuracy will be validated when results are announced.
-        """.strip()
+        val_df = pd.read_csv(val_path)
+        total = len(val_df)
+        wrong_df = val_df[val_df['correct'] == False] if 'correct' in val_df.columns else pd.DataFrame()
+        correct_count = total - len(wrong_df)
 
-        docs.append({
-            'text': text,
-            'metadata': {
-                'type': 'melaka_forecast',
-                'seat': str(seat),
-                'prediction': str(pred),
-                'probability': str(prob),
-            }
-        })
+        lines = [f"{state.replace('_', ' ').title()} 2026 ({len(wrong_df)} wrong seats):"]
+        for _, row in wrong_df.iterrows():
+            seat = row.get('seat', 'unknown')
+            pred = row.get('predicted_non_bn', row.get('prediction', 'unknown'))
+            actual = row.get('actual_non_bn', row.get('actual', 'unknown'))
+            lines.append(f"  {seat}: predicted={pred}, actual={actual}")
 
-    print(f"  Built {len(docs)} Melaka forecast docs")
-    return docs
+        if metadata_path.exists():
+            with open(metadata_path) as f:
+                meta = json.load(f)
+            acc = meta.get('validated_accuracy')
+            if acc is not None:
+                lines.append(f"Overall accuracy: {acc:.2%} ({correct_count}/{total} correct)")
 
-def build_selangor_prediction_docs() -> list:
-    path = PROCESSED_DIR / "selangor_2026_bluwave.csv"
-    if not path.exists():
-        return []
+        sections.append("\n".join(lines))
 
-    df = pd.read_csv(path)
-    docs = []
+    text = "Wrong predictions summary (live, from validation_2026.csv):\n\n" + "\n\n".join(sections)
 
-    for _, row in df.iterrows():
-        seat        = row.get('seat_name', '')
-        prob        = row.get('harapan_holds_probability', 0)
-        vulnerability = row.get('vulnerability', '')
-        is_ood      = row.get('is_ood', False)
-        malay_pct   = row.get('malay_pct', 0)
-        chin_pct    = row.get('chinese_pct', 0)
-        winner_2023 = row.get('winner_2023', '')
-        ph_2008     = row.get('ph_won_2008', 0)
-        ph_2013     = row.get('ph_won_2013', 0)
-        ph_2018     = row.get('ph_won_2018', 0)
+    return {
+        'text': text.strip(),
+        'metadata': {'type': 'wrong_predictions_summary', 'state': 'all'}
+    }
 
-        prediction = 'Harapan' if prob >= 0.5 else 'BN/PN'
-
-        text = f"""
-Selangor blue wave vulnerability analysis:
-Seat: {seat}
-2023 winner: {winner_2023}
-Vulnerability category: {vulnerability}
-Harapan holds probability: {prob:.2f} (prediction: {prediction})
-Historical PH loyalty: won 2008={bool(ph_2008)}, 2013={bool(ph_2013)}, 2018={bool(ph_2018)}
-Malay voter composition: {malay_pct:.1%}
-Chinese voter composition: {chin_pct:.1%}
-OOD flagged: {'Yes' if is_ood else 'No'}
-Note: This is a blue wave scenario analysis, not tied to a specific
-election date. Combines historical PH loyalty with Johor-model transfer
-and current sentiment pressure.
-        """.strip()
-
-        docs.append({
-            'text': text,
-            'metadata': {
-                'type': 'selangor_forecast',
-                'seat': str(seat),
-                'state': 'selangor',
-                'prediction': prediction,
-                'vulnerability': str(vulnerability),
-            }
-        })
-
-    print(f"  Built {len(docs)} Selangor forecast docs")
-    return docs
 
 # ── Build ChromaDB ──────────────────────────────────────────────────
 
 def build_knowledge_base():
     """Build complete ChromaDB knowledge base from all project data."""
     print("Building GE-Insights knowledge base...\n")
-    print("="*55)
+    print("=" * 55)
 
     client, embedding_fn = get_chroma_client()
 
-    # Delete existing collection if rebuilding
     try:
         client.delete_collection("ge_insights")
         print("Deleted existing collection")
-    except:
+    except Exception:
         pass
 
     collection = client.create_collection(
@@ -381,76 +368,42 @@ def build_knowledge_base():
         metadata={"description": "GE-Insights election prediction knowledge base"}
     )
 
-    # Collect all documents
     all_docs = []
 
     print("\nBuilding documents:")
-    for state in ['johor', 'neg_sembilan', 'melaka']:
+    for state in ALL_STATES:
         all_docs.extend(build_prediction_docs(state))
 
     all_docs.extend(build_sentiment_docs())
     all_docs.extend(build_state_summary_docs())
-    all_docs.extend(build_melaka_prediction_docs())
-    all_docs.extend(build_selangor_prediction_docs())
+    all_docs.append(build_wrong_predictions_summary_doc())
 
-    # Add before collection.add()
-    wrong_summary = """
-    Wrong predictions summary:
-
-    Johor 2026 (3 wrong seats):
-    N.12 Bentayan: predicted BN, actual Harapan (chinese_pct=70%)
-    N.13 Simpang Jeram: predicted BN, actual Harapan (chinese_pct=45%)
-    N.41 Puteri Wangsa: predicted BN, actual Harapan (chinese_pct=52%)
-    N.45 Stulang: predicted BN, actual Harapan (chinese_pct=53%)
-    N.48 Skudai: predicted BN, actual Harapan (chinese_pct=61%)
-    N.52 Senai: predicted BN, actual Harapan (chinese_pct=55%)
-    Pattern: all Chinese-majority urban seats that flipped back to Harapan
-
-    Negeri Sembilan 2026 (3 wrong seats):
-    N.01 Chennah: predicted non-BN, actual BN
-    N.18 Pilah: predicted non-BN, actual BN
-    N.36 Repah: predicted non-BN, actual BN
-    Pattern: Malay BN strongholds where model overcorrected
-
-    Overall accuracy:
-    Johor: 94.64% (53/56 correct)
-    NS: 91.67% (33/36 correct)
-    """
-
-    all_docs.append({
-        'text': wrong_summary.strip(),
-        'metadata': {'type': 'wrong_predictions_summary', 'state': 'all'}
-    })
-
-    # Add to ChromaDB
     print(f"\nAdding {len(all_docs)} documents to ChromaDB...")
 
-    texts    = [d['text'] for d in all_docs]
-    metas    = [d['metadata'] for d in all_docs]
-    ids      = [f"doc_{i}" for i in range(len(all_docs))]
+    texts = [d['text'] for d in all_docs]
+    metas = [d['metadata'] for d in all_docs]
+    ids   = [f"doc_{i}" for i in range(len(all_docs))]
 
-    # Add in batches of 100
     batch_size = 100
     for i in range(0, len(texts), batch_size):
         collection.add(
-            documents=texts[i:i+batch_size],
-            metadatas=metas[i:i+batch_size],
-            ids=ids[i:i+batch_size],
+            documents=texts[i:i + batch_size],
+            metadatas=metas[i:i + batch_size],
+            ids=ids[i:i + batch_size],
         )
-        print(f"  Added batch {i//batch_size + 1}/{(len(texts)-1)//batch_size + 1}")
+        print(f"  Added batch {i // batch_size + 1}/{(len(texts) - 1) // batch_size + 1}")
 
     print(f"\nKnowledge base built successfully!")
     print(f"  Total documents: {collection.count()}")
     print(f"  Stored in: {CHROMA_DIR}")
 
-    # Test search
-    print(f"\nTest search: 'Why did BN win Johor?'")
+    print(f"\nTest search: 'What is the accuracy for Johor?'")
     results = collection.query(
-        query_texts=["Why did BN win Johor?"],
+        query_texts=["What is the accuracy for Johor?"],
         n_results=2
     )
     for doc in results['documents'][0]:
-        print(f"  → {doc[:100]}...")
+        print(f"  -> {doc[:150]}...")
 
 
 if __name__ == "__main__":

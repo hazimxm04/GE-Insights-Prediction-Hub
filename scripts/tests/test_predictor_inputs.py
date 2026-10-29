@@ -113,3 +113,36 @@ def test_backtest_predictor_matches_validation(state, as_of):
     m = pred.merge(val, on='sn')
     assert len(m) == len(val)
     assert (m['ensemble_prob'] - m['probability']).abs().max() < 1e-3
+
+
+# ── which election is "latest known" by default ────────────────────────────────
+def test_default_election_a_follows_the_registry():
+    from backend.core.models.state_predictor import default_as_of
+    from backend.core.states import STATES
+    for state, info in STATES.items():
+        years = [2008, 2013, 2018, 2022, 2026]
+        got = default_as_of(state, years)
+        if info['final_test']:
+            assert got == info['final_test'][0], state      # reproduces the forecast for its 2026 election
+        else:
+            assert got == max(years), state                  # genuine forecast of the next election
+
+
+# ── the chatbot "what if" baseline comes from the shared feature code ──────────
+def test_seat_baseline_matches_the_batch_prediction_features():
+    model = ROOT / 'backend' / 'models' / 'johor' / 'rf_model.pkl'
+    if not model.exists():
+        pytest.skip('saved model not available')
+    try:
+        from backend.core.models.state_predictor import StatePredictor, FEATURE_NAMES
+        p = StatePredictor('johor')
+        live = p._build_live_features()
+    except Exception as e:
+        pytest.skip(f'cannot build predictor here: {type(e).__name__}')
+    row = live.iloc[0]
+    base = p.seat_baseline(row['seat'])
+    for f in FEATURE_NAMES:
+        assert base[f] == pytest.approx(float(row[f]))
+    assert p.seat_baseline('N.99 Nowhere') is None
+    # same seat found by number even if the name differs
+    assert p.seat_baseline(row['seat_no'] + ' Some Other Name') is not None

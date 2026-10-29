@@ -8,9 +8,10 @@ HOW THE FORECAST IS BUILT (leak-free)
     training data -- using only election A (the latest held election) and the one
     before it. Election B (the one being forecast) is never needed.
   * The historical base rate uses only elections up to and including A.
-  * `as_of=<year>` pretends A is that year, to reproduce a backtest. For example
-    StatePredictor('johor', as_of=2022) forecasts Johor 2026 as it could have been
-    forecast in 2022, and can be compared with the real result.
+  * A is the latest election we are allowed to know about. States that have held their
+    2026 election (Johor, Negeri Sembilan) default to the year before it, so the output is
+    the 2026 forecast that can be compared with the real result; other states default to
+    their latest election and give a genuine forecast. `as_of=<year>` overrides this.
   * The training data has tension_x_mixed fixed at 0 (sentiment was not trained
     on), so it is fixed at 0 here too, unless a caller overrides it.
 """
@@ -50,6 +51,17 @@ VALID_STATES = list(STATES)
 # States whose 2026 election has been held (real results exist to compare with).
 VALIDATED_STATES = {k for k, v in STATES.items() if v['final_test']}
 
+
+def default_as_of(state: str, election_years) -> int:
+    """The election treated as "latest known" (election A) when no year is given.
+
+    States whose 2026 election has been held (Johor, Negeri Sembilan) default to the
+    year before it, so the predictor reproduces what could have been forecast for 2026
+    and can be compared with the real result. Other states default to their latest
+    election, so they give a genuine forecast of the next one."""
+    final_test = STATES[state]['final_test']
+    return int(final_test[0]) if final_test else int(max(election_years))
+
 # ── OOD confidence thresholds ─────────────────────────────────────
 OOD_HIGH   = 1.0
 OOD_MEDIUM = 2.5
@@ -67,7 +79,8 @@ class StatePredictor:
 
     Usage:
         predictor = StatePredictor('selangor')              # forecast the next election
-        predictor = StatePredictor('johor', as_of=2022)     # backtest of Johor 2026
+        predictor = StatePredictor('johor')                 # Johor 2026 as forecast from 2022
+        predictor = StatePredictor('johor', as_of=2026)     # forecast the election after 2026
         results = predictor.predict_all()
         result = predictor.predict_seat('N.10 Perling', {'turnout_change': 0.05})
     """
@@ -89,7 +102,7 @@ class StatePredictor:
         self._ballots, self._stats = load_state_data(state)
         years = pd.to_datetime(self._stats['date']).dt.year
         # A = the latest election we are allowed to know about
-        self.year_a = int(as_of) if as_of is not None else int(years.max())
+        self.year_a = int(as_of) if as_of is not None else default_as_of(state, years.unique())
         if self.year_a not in set(years):
             raise ValueError(f"No {state} election in {self.year_a}; elections: {sorted(set(years))}")
 
@@ -157,8 +170,8 @@ class StatePredictor:
         ensemble_prob = (rf_prob + xgb_prob) / 2
         cal_prob      = float(self.rf_cal.predict_proba(X)[0][1])
 
-        score  = float(self._ood_score(X)[0])
-        is_ood = bool(self.ood.predict(X)[0] == -1)
+        score  = float(self._ood_score(X.values)[0])
+        is_ood = bool(self.ood.predict(X.values)[0] == -1)
 
         base_rate     = self._get_base_rate(seat_name)
         fallback_used = False
@@ -201,21 +214,25 @@ class StatePredictor:
             'warning':         warning,
         }
 
-    def predict_seat(self, seat_name: str, features: dict) -> dict:
-        """
-        Predict a single seat, merging user-supplied feature
-        overrides with this seat's real, currently-computed baseline
-        (same build_transition()-based pipeline as predict_all()).
-        Used by the chatbot's 'what if' scenario tool-calling.
-        """
+    def seat_baseline(self, seat_name: str):
+        """This seat's real feature values (the starting point for a 'what if' scenario),
+        or None if the seat is not found. Matches on the seat name or the seat number."""
         all_features = self._build_live_features()
         row = all_features[all_features['seat'] == seat_name]
         if row.empty:
             row = all_features[all_features['seat_no'] == seat_no(seat_name)]
+        if row.empty:
+            return None
+        return {f: float(row.iloc[0].get(f, 0.0)) for f in FEATURE_NAMES}
 
-        baseline = {f: float(row.iloc[0].get(f, 0.0)) for f in FEATURE_NAMES} if not row.empty else {f: 0.0 for f in FEATURE_NAMES}
+    def predict_seat(self, seat_name: str, features: dict) -> dict:
+        """
+        Predict a single seat, merging user-supplied feature overrides with this
+        seat's real baseline (same code as predict_all() and as training).
+        Used by the chatbot's 'what if' scenario tool.
+        """
+        baseline = self.seat_baseline(seat_name) or {f: 0.0 for f in FEATURE_NAMES}
         merged = {**baseline, **features}
-
         return self.predict_seat_from_row(seat_name, merged)
 
     def predict_all(self):

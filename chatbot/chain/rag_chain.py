@@ -61,26 +61,21 @@ def get_collection():
 # TOOL: live scenario prediction
 # ======================================================================
 
-def get_seat_baseline(state: str, seat_name: str) -> dict:
-    """Get a seat's REAL structural features as defaults."""
-    from backend.core.pipelines.state_pipeline import StateElectionPipeline
-
-    pipeline = StateElectionPipeline(state)
-    year_from, year_to = (2022, 2026) if state == 'johor' else (2023, 2026)
-    df = pipeline.engineer_features(year_from, year_to)
-
-    row = df[df['seat'] == seat_name]
-    if row.empty:
+def get_seat_baseline(state: str, seat_name: str, predictor=None) -> dict:
+    """Get a seat's REAL structural features as defaults.
+    Uses the same feature code as training (backend/core/features.py), through StatePredictor."""
+    if predictor is None:
+        from backend.core.models.state_predictor import StatePredictor
+        predictor = StatePredictor(state)
+    baseline = predictor.seat_baseline(seat_name)
+    if baseline is None:
         return None
-
-    return {
-        'majority_change':      float(row.iloc[0]['majority_change']),
-        'turnout_change':       float(row.iloc[0]['turnout_change']),
-        'incumbent_held':       int(row.iloc[0]['incumbent_held']),
-        'log_voters':           float(row.iloc[0]['log_voters']),
-        'majority_perc_change': float(row.iloc[0]['majority_perc_change']),
-        'n_candidates_b':       int(row.iloc[0]['n_candidates_b']),
-    }
+    keys = ['majority_change', 'turnout_change', 'incumbent_held',
+            'log_voters', 'majority_perc_change', 'n_candidates_b']
+    out = {k: baseline[k] for k in keys}
+    out['incumbent_held'] = int(out['incumbent_held'])
+    out['n_candidates_b'] = int(out['n_candidates_b'])
+    return out
 
 
 def predict_seat_tool(state: str, seat_name: str,
@@ -96,7 +91,8 @@ def predict_seat_tool(state: str, seat_name: str,
     """
     from backend.core.models.state_predictor import StatePredictor
 
-    baseline = get_seat_baseline(state, seat_name)
+    predictor = StatePredictor(state)
+    baseline = get_seat_baseline(state, seat_name, predictor)
     if baseline is None:
         return {"error": f"Seat '{seat_name}' not found in {state}"}
 
@@ -112,7 +108,6 @@ def predict_seat_tool(state: str, seat_name: str,
     if n_candidates_b is not None:
         features['n_candidates_b'] = n_candidates_b
 
-    predictor = StatePredictor(state)
     result = predictor.predict_seat(seat_name, features)
 
     return {
