@@ -60,6 +60,10 @@ def test_freeze_writes_receipt_and_cannot_be_overwritten(tmp_path, monkeypatch):
     assert (df['predicted_opposition'] == (df['probability'] >= ff.CUTOFF).astype(int)).all()
     assert manifest['model_feature_version'] == manifest['feature_version']
     assert ff.verify_folder(folder) == []
+    # text files are hashed with line endings normalised, binary files as they are
+    meta = ROOT / 'backend' / 'models' / 'selangor' / 'metadata.json'
+    assert manifest['model_files_sha256']['metadata.json'] == ff.sha256_file(meta, text=True)
+    assert manifest['model_files_sha256']['rf_model.pkl'] == ff.sha256_file(ROOT / 'backend' / 'models' / 'selangor' / 'rf_model.pkl')
 
     # a second freeze for the same state and day must not overwrite
     with pytest.raises(SystemExit):
@@ -69,6 +73,11 @@ def test_freeze_writes_receipt_and_cannot_be_overwritten(tmp_path, monkeypatch):
     text = (folder / 'forecast.csv').read_text(encoding='utf-8')
     (folder / 'forecast.csv').write_text(text.replace('0.', '0.9', 1), encoding='utf-8', newline='\n')
     assert any('changed after it was frozen' in p for p in ff.verify_folder(folder))
+
+
+def test_text_and_binary_files_are_told_apart():
+    assert ff.is_text('metadata.json') and ff.is_text('ethnicity_x.csv')
+    assert not ff.is_text('rf_model.pkl') and not ff.is_text('johor_ballots.parquet')
 
 
 def test_checksum_ignores_windows_line_endings(tmp_path):
