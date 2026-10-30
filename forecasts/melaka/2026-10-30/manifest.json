@@ -1,0 +1,29 @@
+{
+  "state": "melaka",
+  "frozen_at_utc": "2026-10-30T02:45:50Z",
+  "forecasting_election_after": 2021,
+  "n_seats": 28,
+  "cutoff": 0.5,
+  "target": "opposition (Pakatan Harapan) wins the seat; BN and PN count together as \"no\"",
+  "feature_version": "a_only_v1",
+  "model_feature_version": "a_only_v1",
+  "code_commit": "2c02a7ec22c0f4fbb9079b18567230279581b710",
+  "forecast_csv_sha256": "8e8044d5a687fdd5fa9daee4ce3683b811b19f352c7f6b2de5e9d75ffdb9e1ab",
+  "model_files_sha256": {
+    "rf_model.pkl": "275c6d4f5817d2679efe6f569ff8607422c77854a28e194553a043f1e7b18884",
+    "xgb_model.pkl": "0eee97fa18304d625ad760f0678fb301eeaa0cdd63224dbf12ec254b1577fe79",
+    "rf_calibrated.pkl": "88bc244f218097b8e6f7ae52b1d42f515dbbd92643e706f4f9722b0bc69e8875",
+    "ood_detector.pkl": "6d3212b66cfc672a3508c9e9a374c23034d1af57809632fa72483c1c810c1c7d",
+    "metadata.json": "9d8350db261a04ef86303853259a4d3c16d3cd1394eb74b06bcfff85a0ece32c"
+  },
+  "data_files_sha256": {
+    "melaka_ballots.parquet": "9345204441d96a6b865030b8379196b4f1be28fb2e55ecc1994f48ab565c2cc6",
+    "melaka_stats.parquet": "4aeb18b77874060d68f569a9e4d5d7199eebea5e49ba3e362710da894af0c8d4",
+    "ethnicity_melaka_2021.csv": "1a6bcf0e51d3f44e6682f82e9afb5cdc7cb8ffa12a75a892f775282f29ef280a"
+  },
+  "notes": [
+    "Sentiment and narrative features are not used by these models (held at 0).",
+    "Baselines \"never opposition\" and \"same as last time\" are saved in forecast.csv.",
+    "Do not edit these files. A new forecast goes in a new dated folder."
+  ]
+}

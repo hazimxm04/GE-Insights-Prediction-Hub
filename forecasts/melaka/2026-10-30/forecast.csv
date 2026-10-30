@@ -1,0 +1,29 @@
+seat_no,seat_name,predicted_opposition,prediction,probability,rf_prob,xgb_prob,calibrated_prob,confidence,is_ood,ood_score,model_used,base_rate,baseline_never_opposition,baseline_same_as_last
+N.01,N.01 Kuala Linggi,0,BN,0.0,0.0832,0.014,0.0,LOW,False,143.8427,calibrated_rf,0.0,0,0
+N.02,N.02 Tanjung Bidara,0,BN,0.0,0.0133,0.0142,0.0,LOW,False,15.2399,calibrated_rf,0.0,0,0
+N.03,N.03 Ayer Limau,0,BN,0.0,0.0358,0.0134,0.0,LOW,False,65.0638,calibrated_rf,0.0,0,0
+N.04,N.04 Lendu,0,BN,0.0,0.0562,0.0134,0.0,LOW,False,208.3832,calibrated_rf,0.0,0,0
+N.05,N.05 Taboh Naning,0,BN,0.0,0.0455,0.0134,0.0,LOW,False,154.4877,calibrated_rf,0.0,0,0
+N.06,N.06 Rembia,0,BN,0.0,0.1453,0.055,0.0,LOW,False,57.5554,calibrated_rf,0.2581,0,0
+N.07,N.07 Gadek,0,BN,0.0,0.3102,0.0799,0.0,LOW,False,122.7269,calibrated_rf,0.2581,0,0
+N.08,N.08 Machap Jaya,0,BN,0.4107,0.5672,0.1079,0.4107,LOW,False,112.509,calibrated_rf,0.2581,0,0
+N.09,N.09 Durian Tunggal,0,BN,0.1693,0.3453,0.0228,0.1693,LOW,False,52.6009,calibrated_rf,0.2581,0,0
+N.10,N.10 Asahan,0,BN,0.1693,0.2802,0.0335,0.1693,LOW,False,230.2528,calibrated_rf,0.0,0,0
+N.11,N.11 Sungai Udang,0,BN,0.0,0.1455,0.0271,0.0,LOW,True,581.95,ensemble+base_rate(alpha=1.00),0.0,0,0
+N.12,N.12 Pantai Kundor,0,BN,0.0,0.0396,0.0137,0.0,LOW,False,94.2896,calibrated_rf,0.0,0,0
+N.13,N.13 Paya Rumput,0,BN,0.1693,0.5165,0.1935,0.1693,LOW,False,154.1517,calibrated_rf,0.2581,0,0
+N.14,N.14 Kelebang,0,BN,0.1693,0.4015,0.0615,0.1693,LOW,False,74.5915,calibrated_rf,0.2581,0,0
+N.15,N.15 Pengkalan Batu,0,BN,0.1693,0.4586,0.0885,0.1693,LOW,False,67.3891,calibrated_rf,0.4516,0,0
+N.16,N.16 Ayer Keroh,1,non-BN,0.6074,0.7003,0.6514,0.6074,LOW,False,308.6498,calibrated_rf,0.9677,0,1
+N.17,N.17 Bukit Katil,0,BN,0.3609,0.612,0.4229,0.3609,LOW,False,129.8263,calibrated_rf,0.9032,0,1
+N.18,N.18 Ayer Molek,0,BN,0.0,0.0817,0.0161,0.0,LOW,False,86.1619,calibrated_rf,0.0,0,0
+N.19,N.19 Kesidang,1,non-BN,0.6074,0.7214,0.6542,0.6074,LOW,False,404.0881,calibrated_rf,0.9677,0,1
+N.20,N.20 Kota Laksamana,1,non-BN,0.9677,0.7083,0.63,0.6074,LOW,True,712.8786,ensemble+base_rate(alpha=1.00),0.9677,0,1
+N.21,N.21 Duyong,0,BN,0.1693,0.5391,0.0648,0.1693,LOW,False,78.9566,calibrated_rf,0.3871,0,0
+N.22,N.22 Bandar Hilir,1,non-BN,0.9677,0.6824,0.3606,0.6074,LOW,True,731.8623,ensemble+base_rate(alpha=1.00),0.9677,0,1
+N.23,N.23 Telok Mas,0,BN,0.0975,0.3264,0.0279,0.0975,LOW,False,51.4093,calibrated_rf,0.2581,0,0
+N.24,N.24 Bemban,0,BN,0.1693,0.3185,0.0513,0.1693,LOW,False,59.0161,calibrated_rf,0.2581,0,0
+N.25,N.25 Rim,0,BN,0.0,0.1706,0.0189,0.0,LOW,False,162.1896,calibrated_rf,0.0,0,0
+N.26,N.26 Serkam,0,BN,0.0,0.0252,0.0171,0.0,LOW,False,23.2663,calibrated_rf,0.0,0,0
+N.27,N.27 Merlimau,0,BN,0.0,0.1082,0.0164,0.0,LOW,False,213.3315,calibrated_rf,0.0,0,0
+N.28,N.28 Sungai Rambai,0,BN,0.0,0.0092,0.0137,0.0,LOW,False,76.4954,calibrated_rf,0.0,0,0

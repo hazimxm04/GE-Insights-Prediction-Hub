@@ -1,0 +1,29 @@
+{
+  "state": "perak",
+  "frozen_at_utc": "2026-10-30T02:45:55Z",
+  "forecasting_election_after": 2022,
+  "n_seats": 59,
+  "cutoff": 0.5,
+  "target": "opposition (Pakatan Harapan) wins the seat; BN and PN count together as \"no\"",
+  "feature_version": "a_only_v1",
+  "model_feature_version": "a_only_v1",
+  "code_commit": "2c02a7ec22c0f4fbb9079b18567230279581b710",
+  "forecast_csv_sha256": "54946dfd0fa5fac8243faf653194b7daac62f83d93273ab982838863829ec6c1",
+  "model_files_sha256": {
+    "rf_model.pkl": "6ba504f643dac5fa85b63f7e1a4c518847435569c2c3dd241f0d550a1e7a0c68",
+    "xgb_model.pkl": "ad07f248a84807477e34717d066db86ae2c412f8371559416fb72d013081c316",
+    "rf_calibrated.pkl": "32967f2e09c9d9dc65d8669a926b5783a63a33fae175d79144d8e34948684c73",
+    "ood_detector.pkl": "8bdd84670a7a97511178c3761c5336b674cb38b22a2b588def078aa3e2475417",
+    "metadata.json": "53918401d7c3024d34759e343a3aee2bcb4d0e62cb1437e673997d3ac29cf4f4"
+  },
+  "data_files_sha256": {
+    "perak_ballots.parquet": "976fc57c2aa3fe25e07971542808a987751fe6402eb9523d6c198442066db6df",
+    "perak_stats.parquet": "c70e173d2d0e3b626fa16c3428b0b36b71303c5e4c2d0f7d2214f3a5d5b8ab13",
+    "ethnicity_perak_2022.csv": "26c7ffee86300a00fe7d73939724188d1f80b776f2d0598897387ccd533d9953"
+  },
+  "notes": [
+    "Sentiment and narrative features are not used by these models (held at 0).",
+    "Baselines \"never opposition\" and \"same as last time\" are saved in forecast.csv.",
+    "Do not edit these files. A new forecast goes in a new dated folder."
+  ]
+}

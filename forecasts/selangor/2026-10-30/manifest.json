@@ -1,0 +1,29 @@
+{
+  "state": "selangor",
+  "frozen_at_utc": "2026-10-30T02:45:35Z",
+  "forecasting_election_after": 2023,
+  "n_seats": 56,
+  "cutoff": 0.5,
+  "target": "opposition (Pakatan Harapan) wins the seat; BN and PN count together as \"no\"",
+  "feature_version": "a_only_v1",
+  "model_feature_version": "a_only_v1",
+  "code_commit": "2c02a7ec22c0f4fbb9079b18567230279581b710",
+  "forecast_csv_sha256": "f8306c6b9366f3123bee87ea570285cdcb8e703cb319a56ae530827cd6c797f0",
+  "model_files_sha256": {
+    "rf_model.pkl": "7a196ed03ad74ee6ba12763cd760b0522eb765bc2aea859f8b76b343eeccdbea",
+    "xgb_model.pkl": "cf6af4cc73528a59277a9154b4e440bfbb6d5c0bd6ad0e3edc2a5346c3612d2d",
+    "rf_calibrated.pkl": "d8a288c9180829f9f90fe0e0d302beb214d73b9be3bdc676a0175175a8a9da7b",
+    "ood_detector.pkl": "49f29dac05e10dea0acd4f7bc73e15b535a646352df76f32a759256e2f5b5754",
+    "metadata.json": "877391607d06b88e58e4e2f53740e93f9820cf7d0528e7b9a48f77a7e6cf2034"
+  },
+  "data_files_sha256": {
+    "selangor_ballots.parquet": "867ef153d8e31fb7ba727cfaed7e700952e2b661fb41092ff412d35a2e2a35ed",
+    "selangor_stats.parquet": "7e41d8cdd2882a1309f38d98ea540bf303ebcc8a5dde0ddb103a4d09ac67cd32",
+    "ethnicity_selangor_2023.csv": "15d57762bd8f755aaa46ec4736c3d6c0e9b4fd5ae63f6dfbe7bf9ae7977e30df"
+  },
+  "notes": [
+    "Sentiment and narrative features are not used by these models (held at 0).",
+    "Baselines \"never opposition\" and \"same as last time\" are saved in forecast.csv.",
+    "Do not edit these files. A new forecast goes in a new dated folder."
+  ]
+}
