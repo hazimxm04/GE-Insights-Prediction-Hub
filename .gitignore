@@ -64,3 +64,5 @@ __pycache__/
 backend/models/*/v_*/
 backend/models/*/rejected_*/
 backend/models/*/_candidate/
+
+scratch/
