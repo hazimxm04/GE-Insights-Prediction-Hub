@@ -1,0 +1,60 @@
+seat_no,seat_name,predicted_opposition,prediction,probability,rf_prob,xgb_prob,calibrated_prob,confidence,is_ood,ood_score,model_used,base_rate,baseline_never_opposition,baseline_same_as_last
+N.01,N.01 Pengkalan Hulu,0,BN,0.1683,0.131,0.0893,0.1683,LOW,False,51.2993,calibrated_rf,0.0,0,0
+N.02,N.02 Temengor,0,BN,0.135,0.1837,0.1285,0.135,LOW,False,72.4062,calibrated_rf,0.0,0,0
+N.03,N.03 Kenering,0,BN,0.075,0.1778,0.0817,0.075,LOW,False,24.5521,calibrated_rf,0.0,0,0
+N.04,N.04 Kota Tampan,0,BN,0.0,0.0148,0.0156,0.0,LOW,False,15.0684,calibrated_rf,0.0,0,0
+N.05,N.05 Selama,0,BN,0.1902,0.257,0.2226,0.1902,LOW,False,23.239,calibrated_rf,0.0,0,0
+N.06,N.06 Kubu Gajah,0,BN,0.1902,0.2513,0.2062,0.1902,LOW,False,29.2956,calibrated_rf,0.0,0,0
+N.07,N.07 Batu Kurau,0,BN,0.0968,0.1578,0.118,0.0968,LOW,False,18.9957,calibrated_rf,0.0,0,0
+N.08,N.08 Titi Serong,0,BN,0.3056,0.3273,0.1075,0.3056,LOW,False,33.9331,calibrated_rf,0.4516,0,0
+N.09,N.09 Kuala Kurau,1,non-BN,0.8135,0.6053,0.8033,0.8135,LOW,False,21.2718,calibrated_rf,0.4516,0,0
+N.10,N.10 Alor Pongsu,0,BN,0.1902,0.2094,0.1086,0.1902,LOW,False,14.4932,calibrated_rf,0.0,0,0
+N.11,N.11 Gunong Semanggol,0,BN,0.1902,0.2639,0.1659,0.1902,LOW,False,22.7911,calibrated_rf,0.1935,0,0
+N.12,N.12 Selinsing,0,BN,0.2449,0.3165,0.1914,0.2449,LOW,False,9.2532,calibrated_rf,0.1935,0,0
+N.13,N.13 Kuala Sepetang,0,BN,0.2627,0.2801,0.127,0.2627,LOW,False,26.82,calibrated_rf,0.1935,0,0
+N.14,N.14 Changkat Jering,0,BN,0.2528,0.3189,0.127,0.2528,LOW,False,18.7377,calibrated_rf,0.1935,0,0
+N.15,N.15 Trong,0,BN,0.0417,0.1142,0.0751,0.0417,LOW,False,21.3428,calibrated_rf,0.0,0,0
+N.16,N.16 Kamunting,0,BN,0.1902,0.2556,0.06,0.1902,LOW,False,14.7013,calibrated_rf,0.2581,0,0
+N.17,N.17 Pokok Assam,1,non-BN,1.0,0.9108,0.9698,1.0,LOW,False,37.7767,calibrated_rf,0.9677,0,1
+N.18,N.18 Aulong,1,non-BN,1.0,0.9835,0.971,1.0,LOW,False,39.9988,calibrated_rf,0.9677,0,1
+N.19,N.19 Chenderoh,0,BN,0.0417,0.1452,0.0751,0.0417,LOW,False,21.4152,calibrated_rf,0.0,0,0
+N.20,N.20 Lubok Merbau,0,BN,0.0968,0.1598,0.1164,0.0968,LOW,False,10.9844,calibrated_rf,0.0645,0,0
+N.21,N.21 Lintang,0,BN,0.0,0.2322,0.2476,0.1568,LOW,True,80.5841,ensemble+base_rate(alpha=1.00),0.0,0,0
+N.22,N.22 Jalong,1,non-BN,1.0,0.8538,0.9337,1.0,LOW,False,31.1852,calibrated_rf,0.9677,0,1
+N.23,N.23 Manjoi,0,BN,0.2581,0.2938,0.0918,0.2581,LOW,False,58.6934,calibrated_rf,0.2581,0,0
+N.24,N.24 Hulu Kinta,0,BN,0.4509,0.5929,0.8775,0.4509,LOW,False,30.5729,calibrated_rf,0.7742,0,1
+N.25,N.25 Canning,1,non-BN,1.0,0.9644,0.966,1.0,LOW,False,40.1117,calibrated_rf,0.9677,0,1
+N.26,N.26 Tebing Tinggi,1,non-BN,0.6992,0.6281,0.5766,0.6992,LOW,False,29.2597,calibrated_rf,0.9677,0,1
+N.27,N.27 Pasir Pinji,1,non-BN,1.0,0.9243,0.966,1.0,LOW,False,49.3866,calibrated_rf,0.9677,0,1
+N.28,N.28 Bercham,1,non-BN,1.0,0.978,0.971,1.0,LOW,False,58.3974,calibrated_rf,0.9677,0,1
+N.29,N.29 Kepayang,1,non-BN,0.9677,0.8796,0.9611,0.8611,LOW,True,86.4809,ensemble+base_rate(alpha=1.00),0.9677,0,1
+N.30,N.30 Buntong,1,non-BN,0.9677,0.9782,0.9727,1.0,LOW,True,186.6445,ensemble+base_rate(alpha=1.00),0.9677,0,1
+N.31,N.31 Jelapang,1,non-BN,1.0,0.9863,0.976,1.0,LOW,False,32.6522,calibrated_rf,0.9677,0,1
+N.32,N.32 Menglembu,1,non-BN,1.0,0.9674,0.9727,1.0,LOW,False,33.1045,calibrated_rf,0.9677,0,1
+N.33,N.33 Tronoh,1,non-BN,1.0,0.9351,0.971,1.0,LOW,False,62.2379,calibrated_rf,0.9677,0,1
+N.34,N.34 Bukit Chandan,0,BN,0.1902,0.1726,0.0849,0.1902,LOW,False,9.6754,calibrated_rf,0.0,0,0
+N.35,N.35 Manong,0,BN,0.1902,0.1822,0.1343,0.1902,LOW,False,7.8689,calibrated_rf,0.0,0,0
+N.36,N.36 Pengkalan Baharu,0,BN,0.0933,0.0935,0.0169,0.0933,LOW,False,13.6149,calibrated_rf,0.0,0,0
+N.37,N.37 Pantai Remis,1,non-BN,1.0,0.9835,0.971,1.0,LOW,False,31.3324,calibrated_rf,0.9677,0,1
+N.38,N.38 Astaka,1,non-BN,1.0,0.9526,0.971,1.0,LOW,False,42.2553,calibrated_rf,0.7742,0,1
+N.39,N.39 Belanja,0,BN,0.0933,0.0378,0.0156,0.0933,LOW,False,50.6045,calibrated_rf,0.0,0,0
+N.40,N.40 Bota,0,BN,0.1902,0.2109,0.0613,0.1902,LOW,False,23.8925,calibrated_rf,0.1935,0,0
+N.41,N.41 Malim Nawar,1,non-BN,1.0,0.9614,0.966,1.0,LOW,False,29.0739,calibrated_rf,0.9677,0,1
+N.42,N.42 Keranji,1,non-BN,1.0,0.899,0.9727,1.0,LOW,False,25.4734,calibrated_rf,0.7742,0,1
+N.43,N.43 Tualang Sekah,1,non-BN,0.5481,0.4836,0.4317,0.5481,LOW,False,19.6334,calibrated_rf,0.6452,0,1
+N.44,N.44 Sungai Rapat,1,non-BN,0.7024,0.6921,0.9533,0.7024,LOW,False,28.9645,calibrated_rf,0.9677,0,1
+N.45,N.45 Simpang Pulai,1,non-BN,1.0,0.9513,0.956,1.0,LOW,False,56.6009,calibrated_rf,0.9677,0,1
+N.46,N.46 Teja,1,non-BN,0.8135,0.8132,0.968,0.8135,LOW,False,41.4036,calibrated_rf,0.7742,0,1
+N.47,N.47 Chenderiang,0,BN,0.2581,0.606,0.5838,0.8135,LOW,True,258.7282,ensemble+base_rate(alpha=1.00),0.2581,0,0
+N.48,N.48 Ayer Kuning,0,BN,0.1689,0.2174,0.2578,0.1689,LOW,False,38.7691,calibrated_rf,0.0,0,0
+N.49,N.49 Sungai Manik,0,BN,0.3055,0.3272,0.1095,0.3055,LOW,False,15.923,calibrated_rf,0.0,0,0
+N.50,N.50 Kampong Gajah,0,BN,0.1902,0.2034,0.0719,0.1902,LOW,False,32.9822,calibrated_rf,0.1935,0,0
+N.51,N.51 Pasir Panjang,0,BN,0.3226,0.249,0.0946,0.1902,LOW,True,76.9727,ensemble+base_rate(alpha=1.00),0.3226,0,0
+N.52,N.52 Pangkor,0,BN,0.0,0.2339,0.076,0.1902,LOW,True,338.3711,ensemble+base_rate(alpha=1.00),0.0,0,0
+N.53,N.53 Rungkup,0,BN,0.1568,0.1863,0.071,0.1568,LOW,False,14.5849,calibrated_rf,0.0,0,0
+N.54,N.54 Hutan Melintang,1,non-BN,0.5947,0.5218,0.6689,0.5947,LOW,False,19.9638,calibrated_rf,0.7097,0,1
+N.55,N.55 Pasir Bedamar,1,non-BN,1.0,0.9806,0.9727,1.0,LOW,False,28.3876,calibrated_rf,0.9677,0,1
+N.56,N.56 Changkat Jong,0,BN,0.1902,0.2306,0.0764,0.1902,LOW,False,22.5517,calibrated_rf,0.0645,0,0
+N.57,N.57 Sungkai,1,non-BN,0.9318,0.8229,0.9139,0.9318,LOW,False,22.4954,calibrated_rf,0.9677,0,1
+N.58,N.58 Slim,0,BN,0.0,0.2,0.051,0.1683,LOW,True,82.1943,ensemble+base_rate(alpha=1.00),0.0,0,0
+N.59,N.59 Behrang,0,BN,0.2463,0.294,0.1179,0.2463,LOW,False,64.6035,calibrated_rf,0.3226,0,0

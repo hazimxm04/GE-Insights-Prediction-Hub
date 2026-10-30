@@ -1,0 +1,57 @@
+seat_no,seat_name,predicted_opposition,prediction,probability,rf_prob,xgb_prob,calibrated_prob,confidence,is_ood,ood_score,model_used,base_rate,baseline_never_opposition,baseline_same_as_last
+N.01,N.01 Sungai Air Tawar,0,BN,0.1333,0.1129,0.0648,0.1333,LOW,False,24.5612,calibrated_rf,0.0,0,0
+N.02,N.02 Sabak,0,BN,0.3112,0.2531,0.1119,0.3112,LOW,False,25.654,calibrated_rf,0.3871,0,0
+N.03,N.03 Sungai Panjang,0,BN,0.1333,0.1992,0.128,0.1333,LOW,False,26.401,calibrated_rf,0.0,0,0
+N.04,N.04 Sekinchan,1,non-BN,0.9677,0.9436,0.908,0.9804,LOW,True,50.9973,ensemble+base_rate(alpha=1.00),0.9677,0,1
+N.05,N.05 Hulu Bernam,0,BN,0.3714,0.2301,0.081,0.3714,LOW,False,34.2168,calibrated_rf,0.0,0,0
+N.06,N.06 Kuala Kubu Baharu,1,non-BN,0.9032,0.9273,0.9356,0.9809,LOW,True,53.7247,ensemble+base_rate(alpha=1.00),0.9032,0,1
+N.07,N.07 Batang Kali,0,BN,0.2581,0.1727,0.0895,0.1333,LOW,True,77.5341,ensemble+base_rate(alpha=1.00),0.2581,0,0
+N.08,N.08 Sungai Burong,0,BN,0.1333,0.1956,0.0782,0.1333,LOW,False,22.8331,calibrated_rf,0.0,0,0
+N.09,N.09 Permatang,0,BN,0.4742,0.444,0.169,0.4742,LOW,False,18.2438,calibrated_rf,0.2581,0,0
+N.10,N.10 Bukit Melawati,0,BN,0.4286,0.3825,0.1982,0.4286,LOW,False,26.1723,calibrated_rf,0.3226,0,0
+N.11,N.11 Ijok,0,BN,0.3748,0.3126,0.1132,0.3748,LOW,False,18.6249,calibrated_rf,0.4516,0,0
+N.12,N.12 Jeram,0,BN,0.1333,0.2902,0.2051,0.1333,LOW,False,36.0053,calibrated_rf,0.2581,0,0
+N.13,N.13 Kuang,0,BN,0.1333,0.2007,0.1039,0.1333,LOW,False,22.7811,calibrated_rf,0.2581,0,0
+N.14,N.14 Rawang,1,non-BN,0.9677,0.9358,0.9351,1.0,LOW,True,86.319,ensemble+base_rate(alpha=1.00),0.9677,0,1
+N.15,N.15 Taman Templer,1,non-BN,0.9032,0.7165,0.7292,0.8971,LOW,True,61.2025,ensemble+base_rate(alpha=1.00),0.9032,0,1
+N.16,N.16 Sungai Tua,1,non-BN,0.9677,0.6836,0.7634,0.8471,LOW,True,51.4009,ensemble+base_rate(alpha=1.00),0.9677,0,1
+N.17,N.17 Gombak Setia,0,BN,0.4516,0.1963,0.1172,0.1333,LOW,True,80.2522,ensemble+base_rate(alpha=1.00),0.4516,0,0
+N.18,N.18 Hulu Kelang,0,BN,0.4516,0.2806,0.3628,0.2606,LOW,True,81.6659,ensemble+base_rate(alpha=1.00),0.4516,0,0
+N.19,N.19 Bukit Antarabangsa,1,non-BN,0.9677,0.9076,0.9026,0.9804,LOW,True,79.8237,ensemble+base_rate(alpha=1.00),0.9677,0,1
+N.20,N.20 Lembah Jaya,1,non-BN,0.9677,0.8545,0.9367,0.8971,LOW,True,69.5452,ensemble+base_rate(alpha=1.00),0.9677,0,1
+N.21,N.21 Pandan Indah,1,non-BN,0.9677,0.862,0.9342,0.9804,LOW,True,79.9432,ensemble+base_rate(alpha=1.00),0.9677,0,1
+N.22,N.22 Teratai,1,non-BN,0.9677,0.9466,0.9367,1.0,LOW,True,80.0886,ensemble+base_rate(alpha=1.00),0.9677,0,1
+N.23,N.23 Dusun Tua,0,BN,0.3871,0.6699,0.6,0.8971,LOW,True,47.504,ensemble+base_rate(alpha=1.00),0.3871,0,0
+N.24,N.24 Semenyih,0,BN,0.2581,0.1712,0.0895,0.1333,LOW,True,67.285,ensemble+base_rate(alpha=1.00),0.2581,0,0
+N.25,N.25 Kajang,1,non-BN,0.9677,0.9432,0.9326,0.9995,LOW,True,71.8839,ensemble+base_rate(alpha=1.00),0.9677,0,1
+N.26,N.26 Sungai Ramal,0,BN,0.4516,0.183,0.1286,0.1333,LOW,True,51.1668,ensemble+base_rate(alpha=1.00),0.4516,0,0
+N.27,N.27 Balakong,1,non-BN,0.9677,0.9419,0.9351,1.0,LOW,True,86.6324,ensemble+base_rate(alpha=1.00),0.9677,0,1
+N.28,N.28 Seri Kembangan,1,non-BN,0.9677,0.9578,0.9342,1.0,LOW,True,62.363,ensemble+base_rate(alpha=1.00),0.9677,0,1
+N.29,N.29 Seri Serdang,1,non-BN,0.9032,0.813,0.8753,0.9804,LOW,True,68.2719,ensemble+base_rate(alpha=1.00),0.9032,0,1
+N.30,N.30 Kinrara,1,non-BN,0.9677,0.9505,0.9367,1.0,LOW,True,78.8167,ensemble+base_rate(alpha=1.00),0.9677,0,1
+N.31,N.31 Subang Jaya,1,non-BN,0.9677,0.9578,0.9342,1.0,LOW,True,87.1634,ensemble+base_rate(alpha=1.00),0.9677,0,1
+N.32,N.32 Seri Setia,1,non-BN,0.9677,0.8596,0.9342,0.9804,LOW,True,82.4549,ensemble+base_rate(alpha=1.00),0.9677,0,1
+N.33,N.33 Taman Medan,0,BN,0.4516,0.4427,0.2603,0.581,LOW,True,52.6516,ensemble+base_rate(alpha=1.00),0.4516,0,0
+N.34,N.34 Bukit Gasing,1,non-BN,0.9677,0.9252,0.9342,0.9866,LOW,True,266.8181,ensemble+base_rate(alpha=1.00),0.9677,0,1
+N.35,N.35 Kampung Tunku,1,non-BN,0.9677,0.9435,0.9367,0.9991,LOW,True,184.2829,ensemble+base_rate(alpha=1.00),0.9677,0,1
+N.36,N.36 Bandar Utama,1,non-BN,0.9677,0.9476,0.9342,1.0,LOW,True,84.4728,ensemble+base_rate(alpha=1.00),0.9677,0,1
+N.37,N.37 Bukit Lanjan,1,non-BN,0.9677,0.9363,0.9367,1.0,LOW,True,97.5476,ensemble+base_rate(alpha=1.00),0.9677,0,1
+N.38,N.38 Paya Jaras,0,BN,0.3871,0.2705,0.1708,0.2116,LOW,True,47.5842,ensemble+base_rate(alpha=1.00),0.3871,0,0
+N.39,N.39 Kota Damansara,1,non-BN,0.8387,0.5158,0.2506,0.6308,LOW,True,80.1277,ensemble+base_rate(alpha=1.00),0.8387,0,1
+N.40,N.40 Kota Anggerik,1,non-BN,0.9677,0.3982,0.1865,0.4286,LOW,True,74.1928,ensemble+base_rate(alpha=1.00),0.9677,0,1
+N.41,N.41 Batu Tiga,1,non-BN,0.9677,0.33,0.3314,0.3714,LOW,True,74.0464,ensemble+base_rate(alpha=1.00),0.9677,0,1
+N.42,N.42 Meru,1,non-BN,0.9677,0.7705,0.8807,0.8971,LOW,True,48.2639,ensemble+base_rate(alpha=1.00),0.9677,0,1
+N.43,N.43 Sementa,0,BN,0.2514,0.255,0.1308,0.2514,LOW,False,26.2496,calibrated_rf,0.3871,0,0
+N.44,N.44 Selat Klang,0,BN,0.2797,0.2417,0.0898,0.2797,LOW,False,13.9574,calibrated_rf,0.4516,0,0
+N.45,N.45 Bandar Baru Klang,1,non-BN,0.9677,0.9578,0.9367,1.0,LOW,True,73.2036,ensemble+base_rate(alpha=1.00),0.9677,0,1
+N.46,N.46 Pelabuhan Klang,1,non-BN,0.544,0.5349,0.2882,0.544,LOW,False,36.0141,calibrated_rf,0.9677,0,1
+N.47,N.47 Pandamaran,1,non-BN,0.9677,0.9556,0.9342,1.0,LOW,True,81.0329,ensemble+base_rate(alpha=1.00),0.9677,0,1
+N.48,N.48 Sentosa,1,non-BN,0.9677,0.9537,0.9326,1.0,LOW,True,98.8534,ensemble+base_rate(alpha=1.00),0.9677,0,1
+N.49,N.49 Sungai Kandis,0,BN,0.4516,0.2038,0.1076,0.1333,LOW,True,52.6209,ensemble+base_rate(alpha=1.00),0.4516,0,0
+N.50,N.50 Kota Kemuning,1,non-BN,0.9677,0.9411,0.9326,0.9934,LOW,True,61.3964,ensemble+base_rate(alpha=1.00),0.9677,0,1
+N.51,N.51 Sijangkang,0,BN,0.4397,0.2935,0.1577,0.4397,LOW,False,25.9839,calibrated_rf,0.1935,0,0
+N.52,N.52 Banting,1,non-BN,0.9677,0.9545,0.9356,1.0,LOW,True,44.6456,ensemble+base_rate(alpha=1.00),0.9677,0,1
+N.53,N.53 Morib,0,BN,0.3556,0.3192,0.158,0.3556,LOW,False,23.81,calibrated_rf,0.3871,0,0
+N.54,N.54 Tanjong Sepat,1,non-BN,0.8971,0.8557,0.8515,0.8971,LOW,False,34.627,calibrated_rf,0.9032,0,1
+N.55,N.55 Dengkil,0,BN,0.2581,0.16,0.0769,0.1333,LOW,True,43.9268,ensemble+base_rate(alpha=1.00),0.2581,0,0
+N.56,N.56 Sungai Pelek,1,non-BN,0.9032,0.8187,0.883,0.8971,LOW,True,49.9215,ensemble+base_rate(alpha=1.00),0.9032,0,1
