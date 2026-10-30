@@ -68,6 +68,12 @@ def sha256_file(path: Path, text: bool = False) -> str:
     return hashlib.sha256(data).hexdigest()
 
 
+def is_text(name: str) -> bool:
+    """Text files are hashed with line endings normalised (Windows may check them out as CRLF).
+    Model pickles and parquet files are binary and are hashed as they are."""
+    return str(name).endswith(('.csv', '.json'))
+
+
 def pending_states():
     """States whose next election has not been held yet (no real result to score)."""
     return [s for s, v in STATES.items() if v['final_test'] is None]
@@ -151,8 +157,8 @@ def freeze_state(state: str, allow_dirty: bool = False, today: str = None) -> Pa
         'model_feature_version': meta.get('feature_version'),
         'code_commit': code_commit(),
         'forecast_csv_sha256': sha256_file(csv_path, text=True),
-        'model_files_sha256': {f: sha256_file(model_dir / f) for f in MODEL_FILES if (model_dir / f).exists()},
-        'data_files_sha256': {f.name: sha256_file(f, text=f.suffix == '.csv') for f in data_files if f.exists()},
+        'model_files_sha256': {f: sha256_file(model_dir / f, text=is_text(f)) for f in MODEL_FILES if (model_dir / f).exists()},
+        'data_files_sha256': {f.name: sha256_file(f, text=is_text(f.name)) for f in data_files if f.exists()},
         'notes': [
             'Sentiment and narrative features are not used by these models (held at 0).',
             'Baselines "never opposition" and "same as last time" are saved in forecast.csv.',
@@ -195,7 +201,7 @@ def verify_folder(folder: Path, check_models: bool = False) -> list:
             r = subprocess.run(['git', 'show', f'{manifest["code_commit"]}:{rel}'], cwd=ROOT, capture_output=True)
             if r.returncode != 0:
                 problems.append(f'{folder}: {rel} not found at commit {manifest["code_commit"]}')
-            elif hashlib.sha256(r.stdout).hexdigest() != expected:
+            elif hashlib.sha256(r.stdout.replace(b'\r\n', b'\n') if is_text(name) else r.stdout).hexdigest() != expected:
                 problems.append(f'{folder}: {rel} at the recorded commit does not match the manifest')
     return problems
 
