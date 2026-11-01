@@ -66,3 +66,9 @@ backend/models/*/rejected_*/
 backend/models/*/_candidate/
 
 scratch/
+
+finetune/distilbert_finetuned/
+finetune/data/
+*.safetensors
+*.pt
+eval/pool_v3_groq_cache_*.csv

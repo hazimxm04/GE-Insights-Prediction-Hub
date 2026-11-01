@@ -1,0 +1,192 @@
+{
+  "n": 98,
+  "extra": "eval/label_batch1.csv",
+  "folds": 5,
+  "seed": 42,
+  "epochs": 8,
+  "positives": {
+    "islam_threat": 5,
+    "malay_unity": 64,
+    "cost_living": 3,
+    "corruption": 9,
+    "govt_performance": 6
+  },
+  "methods": {
+    "tfidf_lr": {
+      "0.5": {
+        "per_theme_f1": {
+          "islam_threat": 0.0,
+          "malay_unity": 0.875,
+          "cost_living": 0.0,
+          "corruption": 0.154,
+          "govt_performance": 0.0
+        },
+        "macro_f1": 0.206,
+        "ci95": [
+          0.166,
+          0.261
+        ]
+      },
+      "0.3": {
+        "per_theme_f1": {
+          "islam_threat": 0.167,
+          "malay_unity": 0.848,
+          "cost_living": 0.0,
+          "corruption": 0.207,
+          "govt_performance": 0.174
+        },
+        "macro_f1": 0.279,
+        "ci95": [
+          0.2,
+          0.363
+        ]
+      },
+      "average_precision": {
+        "per_theme": {
+          "islam_threat": 0.112,
+          "malay_unity": 0.962,
+          "cost_living": 0.038,
+          "corruption": 0.22,
+          "govt_performance": 0.118
+        },
+        "macro": 0.29,
+        "ci95": [
+          0.255,
+          0.388
+        ]
+      }
+    },
+    "distilbert": {
+      "0.5": {
+        "per_theme_f1": {
+          "islam_threat": 0.0,
+          "malay_unity": 0.852,
+          "cost_living": 0.0,
+          "corruption": 0.0,
+          "govt_performance": 0.0
+        },
+        "macro_f1": 0.17,
+        "ci95": [
+          0.155,
+          0.214
+        ]
+      },
+      "0.3": {
+        "per_theme_f1": {
+          "islam_threat": 0.2,
+          "malay_unity": 0.883,
+          "cost_living": 0.0,
+          "corruption": 0.462,
+          "govt_performance": 0.333
+        },
+        "macro_f1": 0.376,
+        "ci95": [
+          0.231,
+          0.488
+        ]
+      },
+      "average_precision": {
+        "per_theme": {
+          "islam_threat": 0.192,
+          "malay_unity": 0.938,
+          "cost_living": 0.073,
+          "corruption": 0.439,
+          "govt_performance": 0.213
+        },
+        "macro": 0.371,
+        "ci95": [
+          0.312,
+          0.513
+        ]
+      }
+    },
+    "groq": {
+      "0.5": {
+        "per_theme_f1": {
+          "islam_threat": 0.167,
+          "malay_unity": 0.775,
+          "cost_living": 0.1,
+          "corruption": 0.083,
+          "govt_performance": 0.25
+        },
+        "macro_f1": 0.275,
+        "ci95": [
+          0.185,
+          0.356
+        ]
+      },
+      "0.3": {
+        "per_theme_f1": {
+          "islam_threat": 0.24,
+          "malay_unity": 0.775,
+          "cost_living": 0.091,
+          "corruption": 0.083,
+          "govt_performance": 0.261
+        },
+        "macro_f1": 0.29,
+        "ci95": [
+          0.201,
+          0.374
+        ]
+      },
+      "average_precision": {
+        "per_theme": {
+          "islam_threat": 0.184,
+          "malay_unity": 0.722,
+          "cost_living": 0.04,
+          "corruption": 0.096,
+          "govt_performance": 0.216
+        },
+        "macro": 0.252,
+        "ci95": [
+          0.194,
+          0.374
+        ]
+      }
+    },
+    "always_yes": {
+      "0.5": {
+        "per_theme_f1": {
+          "islam_threat": 0.097,
+          "malay_unity": 0.79,
+          "cost_living": 0.059,
+          "corruption": 0.168,
+          "govt_performance": 0.115
+        },
+        "macro_f1": 0.246,
+        "ci95": [
+          0.207,
+          0.295
+        ]
+      },
+      "0.3": {
+        "per_theme_f1": {
+          "islam_threat": 0.097,
+          "malay_unity": 0.79,
+          "cost_living": 0.059,
+          "corruption": 0.168,
+          "govt_performance": 0.115
+        },
+        "macro_f1": 0.246,
+        "ci95": [
+          0.207,
+          0.295
+        ]
+      },
+      "average_precision": {
+        "per_theme": {
+          "islam_threat": 0.051,
+          "malay_unity": 0.653,
+          "cost_living": 0.031,
+          "corruption": 0.092,
+          "govt_performance": 0.061
+        },
+        "macro": 0.178,
+        "ci95": [
+          0.151,
+          0.214
+        ]
+      }
+    }
+  }
+}
