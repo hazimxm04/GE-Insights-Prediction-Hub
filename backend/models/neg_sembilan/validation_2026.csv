@@ -1,37 +1,37 @@
 seat,winner_coalition_a,winner_coalition_b,predicted_non_bn,actual_non_bn,probability,correct,is_ood,ood_score
-N.01 Chennah,PH,BN,1,0,0.9203,False,True,88.686
-N.02 Pertang,BN,BN,0,0,0.1385,True,True,63.768
-N.03 Sungai Lui,BN,BN,0,0,0.0263,True,True,63.133
-N.04 Klawang,PH,PN,1,0,0.5679,False,False,34.846
-N.05 Serting,PN,PN,0,0,0.1212,True,True,92.812
-N.06 Palong,BN,BN,0,0,0.0293,True,True,95.614
-N.07 Jeram Padang,BN,BN,0,0,0.0839,True,True,74.321
-N.08 Bahau,PH,PH,1,1,0.9565,True,True,98.289
-N.09 Lenggeng,BN,BN,0,0,0.2242,True,False,29.077
-N.10 Nilai,PH,PH,1,1,0.9276,True,True,67.59
-N.11 Lobak,PH,PH,1,1,0.9622,True,True,92.304
-N.12 Temiang,PH,PH,1,1,0.953,True,False,40.212
-N.13 Sikamat,PH,PN,0,0,0.4803,True,False,44.359
-N.14 Ampangan,PH,PN,0,0,0.0696,True,True,48.252
-N.15 Juasseh,BN,BN,0,0,0.0136,True,True,47.616
-N.16 Seri Menanti,BN,BN,0,0,0.0264,True,True,65.166
-N.17 Senaling,BN,BN,0,0,0.0173,True,False,35.923
-N.18 Pilah,PH,BN,1,0,0.5031,False,True,57.708
-N.19 Johol,BN,BN,0,0,0.1044,True,True,57.421
-N.20 Labu,PN,BN,0,0,0.4929,True,True,52.201
-N.21 Bukit Kepayang,PH,PH,1,1,0.966,True,True,221.211
-N.22 Rahang,PH,PH,1,1,0.9496,True,True,114.066
-N.23 Mambau,PH,PH,1,1,0.9638,True,True,69.255
-N.24 Seremban Jaya,PH,PH,1,1,0.9656,True,True,86.402
-N.25 Paroi,PN,PN,0,0,0.3997,True,True,71.736
-N.26 Chembong,BN,BN,0,0,0.0678,True,True,58.884
-N.27 Rantau,BN,BN,1,0,0.5673,False,True,1030.99
-N.28 Kota,BN,BN,0,0,0.0179,True,False,44.258
-N.29 Chuah,PH,PH,1,1,0.9627,True,True,91.99
-N.30 Lukut,PH,PH,1,1,0.9656,True,True,93.196
-N.31 Bagan Pinang,PN,PN,0,0,0.4025,True,True,77.511
-N.32 Linggi,BN,BN,0,0,0.2093,True,False,40.765
-N.33 Sri Tanjung,PH,PH,1,1,0.9524,True,True,104.948
-N.34 Gemas,PN,PN,0,0,0.1178,True,True,48.014
-N.35 Gemencheh,BN,BN,0,0,0.2886,True,True,70.983
-N.36 Repah,PH,BN,1,0,0.9536,False,True,101.328
+N.01 Chennah,PH,BN,1,0,0.9267,False,True,88.383
+N.02 Pertang,BN,BN,0,0,0.1312,True,True,63.447
+N.03 Sungai Lui,BN,BN,0,0,0.0257,True,True,62.942
+N.04 Klawang,PH,PN,1,0,0.5705,False,False,34.008
+N.05 Serting,PN,PN,0,0,0.1189,True,True,93.109
+N.06 Palong,BN,BN,0,0,0.0301,True,True,95.749
+N.07 Jeram Padang,BN,BN,0,0,0.0874,True,True,73.586
+N.08 Bahau,PH,PH,1,1,0.9657,True,True,96.402
+N.09 Lenggeng,BN,BN,0,0,0.2582,True,False,29.144
+N.10 Nilai,PH,PH,1,1,0.9273,True,True,67.149
+N.11 Lobak,PH,PH,1,1,0.9707,True,True,91.037
+N.12 Temiang,PH,PH,1,1,0.9605,True,False,39.49
+N.13 Sikamat,PH,PN,0,0,0.4885,True,False,44.22
+N.14 Ampangan,PH,PN,0,0,0.0732,True,True,47.841
+N.15 Juasseh,BN,BN,0,0,0.0126,True,True,46.674
+N.16 Seri Menanti,BN,BN,0,0,0.0284,True,True,64.057
+N.17 Senaling,BN,BN,0,0,0.019,True,False,34.986
+N.18 Pilah,PH,BN,1,0,0.5077,False,True,56.764
+N.19 Johol,BN,BN,0,0,0.0924,True,True,56.817
+N.20 Labu,PN,BN,0,0,0.3063,True,True,51.907
+N.21 Bukit Kepayang,PH,PH,1,1,0.9727,True,True,218.643
+N.22 Rahang,PH,PH,1,1,0.9601,True,True,112.629
+N.23 Mambau,PH,PH,1,1,0.9723,True,True,68.1
+N.24 Seremban Jaya,PH,PH,1,1,0.9723,True,True,85.067
+N.25 Paroi,PN,PN,0,0,0.297,True,True,71.61
+N.26 Chembong,BN,BN,0,0,0.066,True,True,58.393
+N.27 Rantau,BN,BN,1,0,0.6292,False,True,1019.177
+N.28 Kota,BN,BN,0,0,0.0211,True,False,43.952
+N.29 Chuah,PH,PH,1,1,0.9697,True,True,89.865
+N.30 Lukut,PH,PH,1,1,0.9723,True,True,91.433
+N.31 Bagan Pinang,PN,PN,0,0,0.3015,True,True,76.959
+N.32 Linggi,BN,BN,0,0,0.1667,True,False,40.348
+N.33 Sri Tanjung,PH,PH,1,1,0.9602,True,True,103.0
+N.34 Gemas,PN,PN,0,0,0.1189,True,True,48.087
+N.35 Gemencheh,BN,BN,0,0,0.3014,True,True,69.844
+N.36 Repah,PH,BN,1,0,0.9609,False,True,99.427

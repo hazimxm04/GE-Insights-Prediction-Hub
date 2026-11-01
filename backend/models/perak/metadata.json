@@ -86,11 +86,11 @@
     "older_malay_pct": 0.0836,
     "majority_change": 0.0685,
     "log_voters": 0.055,
-    "majority_perc_change": 0.0386,
+    "majority_perc_change": 0.0394,
     "incumbent_held": 0.0353,
     "median_age": 0.0287,
     "indian_pct": 0.0186,
-    "turnout_change": 0.0175,
+    "turnout_change": 0.0167,
     "youth_pct": 0.0154,
     "n_candidates_b": 0.0057,
     "tension_x_mixed": 0.0

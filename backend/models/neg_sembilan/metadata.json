@@ -27,8 +27,8 @@
     "seats": 35,
     "correct": 32,
     "accuracy": 0.9143,
-    "brier": 0.0695,
-    "auc": 0.967,
+    "brier": 0.0586,
+    "auc": 0.984,
     "baseline_never_opposition": 18,
     "baseline_same_as_last": 32
   },
@@ -61,8 +61,8 @@
       "precision": 0.9787,
       "recall": 0.902,
       "f1": 0.9388,
-      "auc": 0.995,
-      "brier": 0.0425
+      "auc": 0.9964,
+      "brier": 0.0416
     },
     "xgboost": {
       "accuracy": 1.0,
@@ -70,29 +70,29 @@
       "recall": 1.0,
       "f1": 1.0,
       "auc": 1.0,
-      "brier": 0.0137
+      "brier": 0.0139
     },
     "ensemble": {
-      "accuracy": 0.9906,
-      "auc": 0.9996,
-      "brier": 0.0255
+      "accuracy": 0.9811,
+      "auc": 1.0,
+      "brier": 0.0251
     }
   },
   "feature_importance": {
-    "young_chinese_pct": 0.2364,
-    "malay_pct": 0.1762,
-    "chinese_pct": 0.1546,
-    "young_malay_pct": 0.1185,
-    "older_malay_pct": 0.096,
-    "incumbent_held": 0.0612,
-    "majority_perc_change": 0.0334,
-    "majority_change": 0.0311,
-    "turnout_change": 0.0252,
-    "indian_pct": 0.0248,
-    "youth_pct": 0.0163,
-    "log_voters": 0.0158,
-    "median_age": 0.009,
-    "n_candidates_b": 0.0014,
+    "young_chinese_pct": 0.2337,
+    "malay_pct": 0.1767,
+    "chinese_pct": 0.1555,
+    "young_malay_pct": 0.1181,
+    "older_malay_pct": 0.0953,
+    "incumbent_held": 0.0609,
+    "turnout_change": 0.0338,
+    "majority_perc_change": 0.0317,
+    "majority_change": 0.0291,
+    "indian_pct": 0.0245,
+    "youth_pct": 0.0165,
+    "log_voters": 0.0143,
+    "median_age": 0.0085,
+    "n_candidates_b": 0.0015,
     "tension_x_mixed": 0.0
   },
   "ood": {

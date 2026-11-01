@@ -1,57 +1,57 @@
 seat,winner_coalition_a,winner_coalition_b,predicted_non_bn,actual_non_bn,probability,correct,is_ood,ood_score
-N.01 Buloh Kasap,BN,BN,0,0,0.0993,True,True,78.615
-N.02 Jementah,PH,BN,1,0,0.6676,False,True,95.233
-N.03 Pemanis,BN,BN,0,0,0.107,True,False,38.517
-N.04 Kemelah,BN,BN,0,0,0.2056,True,False,44.691
-N.05 Tenang,BN,BN,0,0,0.1895,True,False,56.929
-N.06 Bekok,BN,BN,1,0,0.6159,False,False,61.39
-N.07 Bukit Kepong,PN,BN,0,0,0.0742,True,False,31.555
-N.08 Bukit Pasir,BN,BN,0,0,0.0901,True,False,65.955
-N.09 Gambir,BN,BN,0,0,0.1027,True,False,35.813
-N.10 Tangkak,PH,BN,1,0,0.6846,False,True,86.722
-N.11 Serom,BN,BN,0,0,0.0793,True,False,44.882
-N.12 Bentayan,PH,PH,1,1,0.6773,True,True,144.27
-N.13 Simpang Jeram,PH,PH,1,1,0.5423,True,True,90.715
-N.14 Bukit Naning,BN,BN,0,0,0.078,True,False,44.279
-N.15 Maharani,PN,BN,0,0,0.1577,True,True,79.181
-N.16 Sungai Balang,BN,BN,0,0,0.0482,True,False,46.84
-N.17 Semerah,BN,BN,0,0,0.0828,True,False,57.737
-N.18 Sri Medan,BN,BN,0,0,0.0321,True,False,33.374
-N.19 Yong Peng,BN,BN,1,0,0.6675,False,False,50.842
-N.20 Semarang,BN,BN,0,0,0.024,True,False,36.662
-N.21 Parit Yaani,BN,BN,0,0,0.2975,True,False,58.44
-N.22 Parit Raja,BN,BN,0,0,0.0415,True,False,61.448
-N.23 Penggaram,PH,PH,1,1,0.6839,True,True,169.331
-N.24 Senggarang,BN,BN,0,0,0.1068,True,False,49.442
-N.25 Rengit,BN,BN,0,0,0.033,True,False,42.13
-N.26 Machap,BN,BN,0,0,0.0659,True,False,65.304
-N.27 Layang-Layang,BN,BN,0,0,0.0777,True,False,65.819
-N.28 Mengkibol,PH,PH,1,1,0.6777,True,True,171.034
-N.29 Mahkota,BN,BN,0,0,0.1204,True,False,65.923
-N.30 Paloh,BN,BN,0,0,0.2086,True,False,41.72
-N.31 Kahang,BN,BN,0,0,0.0476,True,False,59.711
-N.32 Endau,PN,BN,0,0,0.0226,True,False,71.25
-N.33 Tenggaroh,BN,BN,0,0,0.0385,True,False,63.519
-N.34 Panti,BN,BN,0,0,0.0383,True,False,61.781
-N.35 Pasir Raja,BN,BN,0,0,0.0439,True,False,59.719
-N.36 Sedili,BN,BN,0,0,0.0277,True,False,42.328
-N.37 Johor Lama,BN,BN,0,0,0.0429,True,False,51.218
-N.38 Penawar,BN,BN,0,0,0.03,True,True,98.273
-N.39 Tanjung Surat,BN,BN,0,0,0.0257,True,True,71.368
-N.40 Tiram,BN,BN,0,0,0.1005,True,True,170.157
-N.41 Puteri Wangsa,ALONE,PH,0,1,0.4959,False,True,428.127
-N.42 Johor Jaya,PH,BN,1,0,0.6485,False,True,304.609
-N.43 Permas,BN,BN,0,0,0.1148,True,True,133.088
-N.44 Larkin,BN,BN,0,0,0.1373,True,True,99.915
-N.45 Stulang,PH,PH,1,1,0.631,True,True,191.968
-N.46 Perling,PH,BN,1,0,0.6817,False,True,413.951
-N.47 Kempas,BN,BN,0,0,0.1046,True,True,137.16
-N.48 Skudai,PH,PH,1,1,0.6707,True,True,619.393
-N.49 Kota Iskandar,BN,BN,0,0,0.205,True,True,190.083
-N.50 Bukit Permai,BN,BN,0,0,0.1325,True,False,61.022
-N.51 Bukit Batu,PH,BN,1,0,0.5907,False,True,134.782
-N.52 Senai,PH,PH,1,1,0.6752,True,True,220.197
-N.53 Benut,BN,BN,0,0,0.0286,True,False,39.404
-N.54 Pulai Sebatang,BN,BN,0,0,0.0908,True,False,52.486
-N.55 Pekan Nanas,BN,BN,0,0,0.2697,True,False,38.782
-N.56 Kukup,BN,BN,0,0,0.1458,True,True,86.034
+N.01 Buloh Kasap,BN,BN,0,0,0.0981,True,True,78.57
+N.02 Jementah,PH,BN,1,0,0.6742,False,True,95.155
+N.03 Pemanis,BN,BN,0,0,0.108,True,False,38.545
+N.04 Kemelah,BN,BN,0,0,0.2082,True,False,44.745
+N.05 Tenang,BN,BN,0,0,0.1918,True,False,56.935
+N.06 Bekok,BN,BN,1,0,0.6187,False,False,61.404
+N.07 Bukit Kepong,PN,BN,0,0,0.0744,True,False,31.594
+N.08 Bukit Pasir,BN,BN,0,0,0.091,True,False,65.956
+N.09 Gambir,BN,BN,0,0,0.1045,True,False,35.842
+N.10 Tangkak,PH,BN,1,0,0.688,False,True,86.677
+N.11 Serom,BN,BN,0,0,0.0803,True,False,44.927
+N.12 Bentayan,PH,PH,1,1,0.6814,True,True,144.219
+N.13 Simpang Jeram,PH,PH,1,1,0.5513,True,True,90.669
+N.14 Bukit Naning,BN,BN,0,0,0.0799,True,False,44.27
+N.15 Maharani,PN,BN,0,0,0.1579,True,True,79.176
+N.16 Sungai Balang,BN,BN,0,0,0.048,True,False,46.83
+N.17 Semerah,BN,BN,0,0,0.0835,True,False,57.8
+N.18 Sri Medan,BN,BN,0,0,0.0319,True,False,33.383
+N.19 Yong Peng,BN,BN,1,0,0.6703,False,False,50.888
+N.20 Semarang,BN,BN,0,0,0.0237,True,False,36.662
+N.21 Parit Yaani,BN,BN,0,0,0.3011,True,False,58.459
+N.22 Parit Raja,BN,BN,0,0,0.042,True,False,61.483
+N.23 Penggaram,PH,PH,1,1,0.6891,True,True,169.1
+N.24 Senggarang,BN,BN,0,0,0.1068,True,False,49.483
+N.25 Rengit,BN,BN,0,0,0.0333,True,False,42.148
+N.26 Machap,BN,BN,0,0,0.0652,True,False,65.325
+N.27 Layang-Layang,BN,BN,0,0,0.077,True,False,65.768
+N.28 Mengkibol,PH,PH,1,1,0.6811,True,True,170.747
+N.29 Mahkota,BN,BN,0,0,0.1222,True,False,66.139
+N.30 Paloh,BN,BN,0,0,0.2082,True,False,41.709
+N.31 Kahang,BN,BN,0,0,0.0471,True,False,59.7
+N.32 Endau,PN,BN,0,0,0.0217,True,False,71.265
+N.33 Tenggaroh,BN,BN,0,0,0.0392,True,False,63.507
+N.34 Panti,BN,BN,0,0,0.0389,True,False,61.845
+N.35 Pasir Raja,BN,BN,0,0,0.0431,True,False,59.708
+N.36 Sedili,BN,BN,0,0,0.0282,True,False,42.338
+N.37 Johor Lama,BN,BN,0,0,0.0438,True,False,51.23
+N.38 Penawar,BN,BN,0,0,0.03,True,True,98.309
+N.39 Tanjung Surat,BN,BN,0,0,0.0254,True,True,71.349
+N.40 Tiram,BN,BN,0,0,0.1004,True,True,170.158
+N.41 Puteri Wangsa,ALONE,PH,0,1,0.4988,False,True,427.709
+N.42 Johor Jaya,PH,BN,1,0,0.6558,False,True,304.151
+N.43 Permas,BN,BN,0,0,0.1142,True,True,133.186
+N.44 Larkin,BN,BN,0,0,0.1392,True,True,99.922
+N.45 Stulang,PH,PH,1,1,0.6351,True,True,191.747
+N.46 Perling,PH,BN,1,0,0.6863,False,True,413.122
+N.47 Kempas,BN,BN,0,0,0.1045,True,True,137.13
+N.48 Skudai,PH,PH,1,1,0.6741,True,True,618.191
+N.49 Kota Iskandar,BN,BN,0,0,0.2047,True,True,189.844
+N.50 Bukit Permai,BN,BN,0,0,0.1329,True,False,61.143
+N.51 Bukit Batu,PH,BN,1,0,0.5979,False,True,134.615
+N.52 Senai,PH,PH,1,1,0.6783,True,True,219.793
+N.53 Benut,BN,BN,0,0,0.0283,True,False,39.399
+N.54 Pulai Sebatang,BN,BN,0,0,0.0917,True,False,52.639
+N.55 Pekan Nanas,BN,BN,0,0,0.2761,True,False,38.839
+N.56 Kukup,BN,BN,0,0,0.1458,True,True,86.081
