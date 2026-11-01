@@ -42,6 +42,10 @@ from pathlib import Path
 from dotenv import load_dotenv
 from groq import Groq
 
+ROOT = Path(__file__).resolve().parents[2]
+sys.path.insert(0, str(ROOT))
+from sentiment.scoring.groq_settings import groq_model, completion_options
+
 # ── Load environment ───────────────────────────────────────────────
 
 env_paths = [
@@ -69,7 +73,7 @@ if not GROQ_API_KEY:
     )
 
 client = Groq(api_key=GROQ_API_KEY)
-MODEL  = "llama-3.1-8b-instant"
+MODEL  = groq_model()          # llama-3.1-8b-instant was retired by Groq; see groq_settings.py
 
 print(f"Groq ready - model: {MODEL}")
 print(f"Free tier: 30 req/min, 14,400 req/day\n")
@@ -136,7 +140,7 @@ Return ONLY these 9 lines with numbers, nothing else."""
         response = client.chat.completions.create(
             model=MODEL,
             messages=[{"role": "user", "content": prompt}],
-            max_tokens=100,
+            **completion_options(MODEL, 100),
             temperature=0.2,
             timeout=15,
         )
