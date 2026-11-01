@@ -4,6 +4,8 @@ A multi-phase Malaysian state election intelligence system: classical ML,
 sentiment analysis, RAG, and MLOps automation in one connected pipeline.
 Validated against actual 2026 state election results.
 
+Release: `v1.0` · Frozen forecasts (pre-registered, checksummed): tag `forecasts-2026-10-30`
+
 ---
 
 ## Results (verified against real 2026 election outcomes)
@@ -135,6 +137,58 @@ with real seat-level values and a fair held-out test before any claim.
 
 ---
 
+## Frozen forecasts (Selangor, Melaka, Perak)
+
+These three states have not held their next election yet. On 2026-10-30 the model's forecasts were saved, with
+a checksum of the model and data files and the git commit of the code that made them, so that the score is a real
+out-of-sample test once the results are in. Nobody (including me) can adjust the predictions afterwards without
+the checks failing.
+
+| State | Seats | Forecast made after | Model predicts opposition wins | "Same as last time" says | Flagged out-of-distribution |
+|---|---|---|---|---|---|
+| Selangor | 56 | 2023 | 32 | 32 | 71.4% |
+| Melaka | 28 | 2021 | 4 | 5 | 10.7% |
+| Perak | 59 | 2022 | 24 | 24 | 11.9% |
+
+- Files: `forecasts/<state>/2026-10-30/forecast.csv` (per-seat probability, call, OOD flag and the two simple-rule
+  baselines) and `manifest.json` (date, code commit, SHA-256 of the forecast, model and data files).
+- The timestamp is the GitHub tag `forecasts-2026-10-30`, which cannot be edited afterwards.
+- Check that nothing changed: `python scripts/freeze_forecasts.py --verify --check-models` (CI runs the same check).
+- After a state votes: refresh the data, then `python scripts/score_forecast.py <state>`. It compares the model with
+  "never opposition" and "same as last time" on the same seats. A dry run of this script on Johor reproduces the
+  README numbers above exactly (48/56 vs 48 and 50).
+- A new forecast goes in a new dated folder; a frozen folder is never overwritten.
+- Known weakness, recorded as it was: the confidence label is `LOW` for all 143 seats of the three states, because the
+  OOD scores sit on a different scale from the thresholds used for the label (see limitations).
+
+---
+
+## Headline theme classifier (DistilBERT vs TF-IDF vs Groq zero-shot)
+
+Question: which method should tag news headlines with five themes (islam_threat, malay_unity, cost_living,
+corruption, govt_performance)? 352 hand-labelled headlines, 5-fold cross-validation, every headline scored by a model
+that never trained on it. Full write-up: [docs/classifier_comparison.md](docs/classifier_comparison.md).
+
+| Method | Macro-F1 at 0.5 | Macro-F1 at 0.3 | Average precision (macro) |
+|---|---|---|---|
+| TF-IDF + logistic regression | 0.479 | 0.374 | 0.507 |
+| DistilBERT (fine-tuned) | **0.542** | **0.510** | **0.600** |
+| Groq zero-shot (`openai/gpt-oss-20b`) | 0.446 | 0.347 | 0.527 |
+
+- DistilBERT beats Groq on macro-F1 at both thresholds (paired difference +0.098 [+0.018, +0.179] and
+  +0.162 [+0.101, +0.223]); the gain comes from malay_unity, cost_living and corruption.
+- On average precision the intervals overlap ([0.54, 0.66] vs [0.47, 0.60]), so ranking quality alone does not separate them.
+- Groq over-flags (corruption on 19% of headlines when the true share is 8%).
+- For malay_unity a TF-IDF model is as good as DistilBERT (0.912 vs 0.896).
+- **No method works for govt_performance (14 positives) and islam_threat (18) is weak.** There are too few examples to
+  conclude anything on those two themes.
+- These theme scores are not used by the current election models (held at 0), so this choice changes no forecast.
+  Groq stays the running scorer until DistilBERT is wired into the pipeline.
+- The old Groq baseline model (`llama-3.1-8b-instant`) was retired by Groq (404), so the comparison uses
+  `openai/gpt-oss-20b`; the model name is now configurable (`sentiment/scoring/groq_settings.py`).
+
+---
+
 ## Architecture
 
 ```
@@ -229,11 +283,12 @@ when predicting). Re-enabling them needs a retrain with real seat-level values:
 |---|---|
 | ML models | scikit-learn (Random Forest, CalibratedClassifierCV, EllipticEnvelope), XGBoost |
 | Hyperparameter search | Time-ordered grid search scored by Brier score (the real 2026 results are never used) |
-| LLM / sentiment | Groq API (llama-3.1-8b-instant) |
+| LLM / sentiment | Groq API (`openai/gpt-oss-20b`, configurable with `GROQ_MODEL`) |
+| Text classifier | DistilBERT fine-tuning (Hugging Face transformers), TF-IDF + logistic regression baseline |
 | Vector store / RAG | ChromaDB, sentence-transformers |
 | Deep learning (economic forecast) | PyTorch (LSTM) |
 | Data | electiondata.my, yfinance |
-| Testing | pytest-style regression + smoke tests |
+| Testing | pytest (leakage, data quality, training, predictor, frozen-forecast and scoring tests) |
 | CI/CD | GitHub Actions (test suite on every push; scheduled monthly retraining workflow) |
 | Scheduling (local) | APScheduler |
 
@@ -255,6 +310,13 @@ Run locally: `python -m pytest scripts/tests tests -k "not end_to_end"`
   the promotion gate compares held-out scores and keeps the better model.
 - `test_predictor_inputs.py`: the live predictor builds features and base rates from the same code as training, uses
   nothing after the last known election, and matches `scripts/validation.py` on real data.
+
+- `test_tuning.py`: tuning folds are time-ordered and never contain the real 2026 elections.
+- `test_freeze_forecasts.py`: every frozen forecast still matches its checksum; a frozen folder cannot be overwritten;
+  states that have already voted are refused; checksums ignore Windows line endings.
+- `test_score_forecast.py`: scoring counts match a hand-made example, seats are matched by number, an edited frozen
+  forecast or a missing result is refused.
+- `test_groq_settings.py`: the sentiment scorer is not tied to a retired model and reasoning models get enough tokens.
 
 CI runs `scripts/tests` and `tests` on pushes to `main` and `fix/**` branches and on pull requests into `main`.
 
@@ -289,6 +351,8 @@ scripts/
   state_data.py            -- one shared data loader
   check_state_years.py     -- prints years / seat counts per state
   tune_hyperparams.py      -- time-ordered settings comparison (current settings kept: gaps were within noise)
+  freeze_forecasts.py      -- save a dated, checksummed forecast for states that have not voted; --verify checks it
+  score_forecast.py        -- score a frozen forecast against the real result, next to the simple rules
   tests/                   -- leakage, data-quality, training and predictor tests, run via CI
 
 backend/
@@ -303,6 +367,12 @@ backend/
 sentiment/
   scrapers/news_scraper.py         -- RSS scraping, 5 sources, per-source lean disclosed
   scoring/sentiment_scorer.py      -- Groq scoring, national narrative themes
+  scoring/groq_settings.py         -- which Groq model to call and how (token limit for reasoning models)
+
+forecasts/<state>/<date>/          -- frozen forecasts: forecast.csv + manifest.json (never edited)
+
+finetune/                          -- headline classifier: build_pool.py, score_pool_groq.py, cross_validate.py, ...
+eval/                              -- hand-labelled headlines, pooled set, cross-validation results
 
 economic/
   models/lstm_model.py              -- PyTorch LSTM, economic pressure score
@@ -326,6 +396,8 @@ mlops/
   scheduled-training.yml    -- monthly: refresh data, test, retrain, validate, open a PR
 
 docs/
+  leakage_fix.md            -- what leaked, how it was found, how the fix is tested
+  classifier_comparison.md  -- DistilBERT vs TF-IDF vs Groq zero-shot on 352 labelled headlines
   multiclass_analysis.md    -- full investigation log: binary vs. 3-class target,
                                 sentiment-feature leakage analysis, BN-PN coalition
                                 finding, known issues and future work
@@ -339,13 +411,15 @@ data/
 
 ## Status and roadmap
 
-Done: leak-free features, time-ordered evaluation against baselines, held-out promotion gate, tests and CI,
-time-ordered tuning, one data layer driven by the state registry.
-
-Next: release v1 and freeze dated forecasts (so they can be checked against the real result later); decide
-whether a headline-theme classifier is worth using (DistilBERT vs the Groq zero-shot baseline, on a hand-labelled
-set); LLM evaluation and agent work; per-coalition targets (BN / PH / PN) and 1-vs-1 versus multi-corner contests;
-more states; finish moving the API and chatbot onto the same state list.
+| Phase | Status |
+|---|---|
+| Leakage fix, honest evaluation, held-out promotion gate, tests and CI, time-ordered tuning, one data layer | Done |
+| Release `v1.0` | Done |
+| Frozen forecasts and scoring script | Done (`forecasts-2026-10-30`) |
+| Headline classifier decision | Done (DistilBERT better on three themes; two themes unresolved) |
+| Chatbot answer check (do answers quote the current numbers?) | Next |
+| Per-coalition target (BN / PH / PN) and 1-vs-1 versus multi-corner contests | Planned; an earlier 3-class attempt failed for data reasons |
+| More states; API, chatbot and dashboard moved onto the same state list | Planned |
 
 ---
 
@@ -364,9 +438,13 @@ more states; finish moving the API and chatbot onto the same state list.
   still reads older column names.
 - **No public demo at the moment:** run the API locally with `uvicorn backend.app.main:app`.
 - **Binary target only** (Harapan vs BN/PN); 1-vs-1 versus multi-corner contests are not modelled yet.
-- Only Johor and Neg Sembilan have held their 2026 elections, so
-  those are the only two states with a real-election score.
-  Selangor, Melaka, and Perak produce live forecasts.
+- Only Johor and Neg Sembilan have held their 2026 elections, so those are the only two states with a real-election
+  score. Selangor, Melaka and Perak have frozen forecasts that will be scored when they vote.
+- **The confidence label is not informative yet:** all 143 frozen forecasts are labelled `LOW`, because the OOD scores
+  (from 7.9 up to 731.9, medians 29 to 118) are on a different scale from the thresholds (1.0 and 2.5). It needs
+  recalibrating.
+- **Theme classifier:** too few positives for govt_performance (14) and islam_threat (18) to judge any method.
+- **React dashboard (`frontend/`) is not connected:** it calls older `/api/...` routes that the current API does not have.
 - BN-PN coalition dynamics are election- and state-specific (see Key
   Finding above) — not yet modeled.
 - Sentiment-scoring pipeline (`sentiment_scorer.py`, via Groq)
@@ -391,7 +469,7 @@ cd GE-Insights-Prediction-Hub
 
 pip install -r requirements.txt
 
-# Add your Groq API key to backend/.env
+# Add your Groq API key to backend/.env (never commit it)
 # GROQ_API_KEY=your_key_here
 
 # Download election data (local copies; add --refresh after a new election)
@@ -408,6 +486,16 @@ python scripts/validation.py
 
 # Compare against simple baselines, all states
 python scripts/evaluate_holdout.py
+
+# Frozen forecasts: check they are unchanged, and score one after the state has voted
+python scripts/freeze_forecasts.py --verify --check-models
+python scripts/score_forecast.py selangor
+
+# Build the chatbot knowledge base (generated, not committed)
+python chatbot/knowledge_base/builder.py
+
+# Run the API locally
+uvicorn backend.app.main:app --port 8000
 ```
 
 ---
