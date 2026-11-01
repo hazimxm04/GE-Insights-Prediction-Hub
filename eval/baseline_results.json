@@ -1,0 +1,44 @@
+{
+  "model": "groq_baseline",
+  "model_name": "qwen/qwen3.8-27b via Groq API",
+  "threshold": 0.3,
+  "n_labeled": 98,
+  "macro_f1": 0.29,
+  "per_theme": {
+    "islam_threat": {
+      "precision": 0.15,
+      "recall": 0.6,
+      "f1": 0.24,
+      "support": 5,
+      "threshold": 0.3
+    },
+    "malay_unity": {
+      "precision": 0.705,
+      "recall": 0.859,
+      "f1": 0.775,
+      "support": 64,
+      "threshold": 0.3
+    },
+    "cost_living": {
+      "precision": 0.053,
+      "recall": 0.333,
+      "f1": 0.091,
+      "support": 3,
+      "threshold": 0.3
+    },
+    "corruption": {
+      "precision": 0.067,
+      "recall": 0.111,
+      "f1": 0.083,
+      "support": 9,
+      "threshold": 0.3
+    },
+    "govt_performance": {
+      "precision": 0.176,
+      "recall": 0.5,
+      "f1": 0.261,
+      "support": 6,
+      "threshold": 0.3
+    }
+  }
+}

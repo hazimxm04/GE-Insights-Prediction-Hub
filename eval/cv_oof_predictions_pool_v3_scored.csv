@@ -1,0 +1,353 @@
+﻿title,true_islam_threat,tfidf_lr_islam_threat,distilbert_islam_threat,groq_islam_threat,true_malay_unity,tfidf_lr_malay_unity,distilbert_malay_unity,groq_malay_unity,true_cost_living,tfidf_lr_cost_living,distilbert_cost_living,groq_cost_living,true_corruption,tfidf_lr_corruption,distilbert_corruption,groq_corruption,true_govt_performance,tfidf_lr_govt_performance,distilbert_govt_performance,groq_govt_performance
+BN-PN pact? Zahid mum on Umno seats in N Sembilan; Bersatu left hanging by PAS - Malaysiakini,0,0.1289,0.1503,0.3,1,0.8777,0.9335,0.6,0,0.1005,0.0607,0.1,0,0.1468,0.0543,0.5,0,0.2665,0.2063,0.0
+"Bersatu here to stay, says Azmin - Free Malaysia Today",0,0.2824,0.0837,0.0,1,0.3784,0.338,0.6,0,0.1722,0.0556,0.0,0,0.2184,0.0411,0.0,0,0.3099,0.1228,0.2
+"BN to contest 25 seats in N Sembilan, signals electoral pact with PN - Malaysiakini",0,0.1633,0.0913,0.2,1,0.7062,0.9233,0.7,0,0.1699,0.0548,0.3,0,0.2086,0.0639,0.4,0,0.244,0.1232,0.3
+"Talks with BN on Melaka seats ongoing, says Hadi - Free Malaysia Today",0,0.2516,0.056,0.0,1,0.6363,0.7109,0.6,0,0.1493,0.0426,0.2,0,0.1476,0.048,0.1,0,0.1433,0.0628,0.0
+"BN-PN poised to take Negeri Sembilan, says Kian Ming - Free Malaysia Today",0,0.2001,0.1116,0.1,1,0.8247,0.9402,0.7,0,0.1262,0.0732,0.5,0,0.135,0.061,0.6,0,0.2359,0.2245,0.0
+Cops probing Labu candidate over alleged voter bribery - Free Malaysia Today,0,0.2467,0.0761,0.0,0,0.2804,0.1293,0.0,0,0.1912,0.0798,0.0,1,0.4565,0.3926,0.8,0,0.115,0.1249,0.0
+"BN working with PN to send PH a signal, says Khairy - Free Malaysia Today",0,0.2313,0.0698,0.1,1,0.8155,0.7066,0.7,0,0.1089,0.0542,0.4,0,0.1022,0.0595,0.5,0,0.179,0.0858,0.3
+"BN-PN pact could shake PH’s grip on Selangor, say analysts - Free Malaysia Today",0,0.1308,0.1432,0.1,1,0.7547,0.9274,0.6,0,0.1171,0.0689,0.2,0,0.1164,0.0735,0.3,0,0.4059,0.193,0.2
+"MCA returns to Negeri Sembilan assembly, MIC still shut out - Free Malaysia Today",0,0.3618,0.0481,0.1,0,0.4675,0.2831,0.4,0,0.1616,0.0558,0.3,0,0.1742,0.0424,0.2,0,0.144,0.0529,0.1
+"Umno, PAS youth wings hope alliance will extend to GE16 - Free Malaysia Today",0,0.3499,0.0935,0.3,1,0.7668,0.8665,0.8,0,0.146,0.0567,0.2,0,0.2873,0.0721,0.2,0,0.133,0.071,0.3
+Hadi reveals why PN let Umno lead in Johor race - Free Malaysia Today,0,0.2513,0.0808,0.0,1,0.4925,0.678,0.7,0,0.122,0.0465,0.1,0,0.2155,0.0597,0.2,0,0.2529,0.0736,0.3
+"BN’s support for PN in 11 Negeri Sembilan seats part of ‘political reality’, says Zahid - Free Malaysia Today",0,0.1166,0.085,0.0,1,0.6797,0.9204,0.7,0,0.1056,0.0502,0.0,0,0.1531,0.055,0.0,0,0.1331,0.132,0.0
+"BN open to Melaka seat talks and swaps, says Zahid - Free Malaysia Today",0,0.2546,0.0573,0.1,0,0.5704,0.4536,0.6,0,0.1627,0.0458,0.2,0,0.1653,0.0403,0.3,0,0.1546,0.0525,0.0
+"MCA ‘biggest loser’ in BN-PN Negeri Sembilan pact, says Loke - Free Malaysia Today",0,0.2813,0.0879,0.0,1,0.7748,0.9206,0.3,0,0.0794,0.0521,0.0,0,0.1152,0.0527,0.2,0,0.2432,0.2207,0.3
+BN win in Johor won’t necessarily trigger national resurgence - Free Malaysia Today,0,0.2404,0.0656,0.2,0,0.5467,0.8844,0.6,0,0.1769,0.047,0.3,0,0.186,0.047,0.4,0,0.16,0.1527,0.5
+"Where’s BN-PN’s ‘Malay unity’ rhetoric for Melaka, mocks Puad - Free Malaysia Today",0,0.2925,0.2212,0.1,1,0.7766,0.9232,0.9,0,0.0871,0.0716,0.2,0,0.1182,0.0622,0.3,0,0.2217,0.1534,0.1
+"OFFICIAL: BN wins 18 seats, PH 11, PN 7 - Free Malaysia Today",0,0.1797,0.0595,0.0,1,0.6982,0.5833,0.3,0,0.102,0.051,0.0,0,0.1144,0.0587,0.0,0,0.1766,0.0823,0.0
+The 7 seats to watch in the Negeri Sembilan election - Free Malaysia Today,0,0.1365,0.0626,0.0,0,0.2926,0.2008,0.3,0,0.1339,0.0686,0.4,0,0.1262,0.0859,0.2,0,0.1335,0.0682,0.1
+"Felda seats could force Umno-PAS talks, says Puad - Free Malaysia Today",0,0.3723,0.1522,0.1,1,0.7914,0.9218,0.6,0,0.0958,0.0649,0.2,0,0.1266,0.0688,0.3,0,0.1131,0.1637,0.2
+BN-PN cooperation gets thumbs up from grassroots members - Free Malaysia Today,0,0.2689,0.1521,0.1,1,0.8477,0.9261,0.9,0,0.2151,0.0708,0.4,0,0.1093,0.0675,0.2,0,0.1702,0.1875,0.5
+"PN agrees Negeri Sembilan MB’s post for BN if pact wins polls, says Jalaluddin - Free Malaysia Today",0,0.1463,0.0668,0.0,1,0.6262,0.8776,0.7,0,0.0892,0.0458,0.0,0,0.1431,0.0465,0.0,0,0.252,0.2102,0.0
+"BN, PN to merge manifestos for Negeri Sembilan polls, says Annuar - Free Malaysia Today",0,0.1677,0.1019,0.0,1,0.7631,0.9255,0.5,0,0.0763,0.0512,0.3,0,0.1185,0.0517,0.4,0,0.1731,0.2089,0.2
+Ilham Centre projects BN-PN win in Negeri Sembilan polls - Free Malaysia Today,0,0.127,0.0983,0.1,1,0.8266,0.9163,0.8,0,0.0704,0.0631,0.6,0,0.073,0.0782,0.5,0,0.08,0.1146,0.4
+PH in touch with BN on seat talks for Melaka polls - Free Malaysia Today,0,0.148,0.0525,0.0,0,0.6592,0.5646,0.4,0,0.1225,0.039,0.0,0,0.1601,0.0396,0.0,0,0.0982,0.0606,0.1
+"PAS in talks with BN for Negeri polls, says Bersatu man - Free Malaysia Today",0,0.2037,0.1066,0.0,1,0.727,0.8827,0.4,0,0.0865,0.0588,0.0,0,0.1217,0.0607,0.0,0,0.0944,0.1128,0.0
+"Umno-PAS clash can be delayed, not avoided, says analyst - Free Malaysia Today",0,0.2773,0.0651,0.6,1,0.798,0.816,0.5,0,0.1499,0.0474,0.1,0,0.1512,0.0724,0.2,0,0.1487,0.0668,0.2
+"Impossible for PN to fulfil Bersatu’s Negeri Sembilan demands, says Annuar - Free Malaysia Today",0,0.2138,0.0448,0.2,1,0.6026,0.6341,0.7,0,0.1243,0.0419,0.3,0,0.1206,0.0358,0.4,0,0.1842,0.076,0.5
+Bersatu leader challenges Umno to pull support for Selangor govt - Free Malaysia Today,0,0.4139,0.0819,0.1,1,0.5175,0.8095,0.3,0,0.1784,0.0453,0.2,0,0.1888,0.0353,0.4,0,0.1796,0.1007,0.6
+"No BN-PAS seat deal in Negeri Sembilan, says Zahid - Free Malaysia Today",0,0.1674,0.0782,0.0,1,0.7635,0.8481,0.4,0,0.0867,0.0506,0.0,0,0.1307,0.0381,0.0,0,0.1115,0.0847,0.0
+"BN-PN pact in Melaka may look different, says Hadi - Free Malaysia Today",0,0.1741,0.1203,0.2,1,0.8655,0.9518,0.7,0,0.1166,0.0713,0.5,0,0.1388,0.0799,0.6,0,0.1305,0.1664,0.5
+"Sincerity, vision key to lasting PAS-Umno pact, says Tuan Ibrahim - Free Malaysia Today",0,0.3119,0.1384,0.0,1,0.7837,0.9145,0.6,0,0.1824,0.0607,0.0,0,0.1565,0.0796,0.0,0,0.1319,0.1042,0.0
+Muhyiddin slams Khaled for saying Bersatu ‘meddling’ in election - Free Malaysia Today,0,0.2466,0.0699,0.0,0,0.4021,0.1939,0.0,0,0.1037,0.0625,0.0,0,0.1551,0.0851,0.0,0,0.131,0.0887,0.0
+"Harapan Youth demands BN ministers, deputies quit over PN alliance - Malaysiakini",0,0.2237,0.1263,0.0,1,0.6004,0.8761,0.3,0,0.1716,0.0546,0.0,1,0.2871,0.0484,0.0,1,0.4713,0.2258,0.2
+"Johor election defeat hastens PN’s downfall, say analysts - Free Malaysia Today",0,0.1794,0.045,0.0,0,0.5197,0.4471,0.6,0,0.1861,0.0443,0.2,0,0.1491,0.0491,0.5,1,0.0898,0.0531,0.0
+"BN-PN pact not about race, says Ahmad Samsuri - Free Malaysia Today",0,0.2265,0.1589,0.2,1,0.8239,0.9449,0.6,0,0.1235,0.0583,0.3,0,0.1757,0.0628,0.4,0,0.2336,0.2384,0.5
+"Conflicting messages show cracks in BN-PN alliance, say analysts - Free Malaysia Today",0,0.1985,0.1811,0.1,1,0.7607,0.9489,0.6,0,0.1642,0.0749,0.4,0,0.157,0.068,0.5,0,0.5268,0.3033,0.0
+"PAS acting like bullies towards Bersatu, says Muhyiddin’s ex-aide - Free Malaysia Today",0,0.3992,0.0643,0.3,1,0.6174,0.2505,0.4,0,0.1569,0.0518,0.1,0,0.1532,0.0625,0.2,0,0.1282,0.0509,0.1
+"COMMENT | BN-PN likely to form N Sembilan govt, but some seats can narrow margin of victory - Malaysiakini",0,0.0856,0.0967,0.0,1,0.6801,0.94,0.5,0,0.1987,0.0589,0.0,0,0.2165,0.0682,0.0,1,0.3761,0.1615,0.0
+"Don’t rely on past polls for BN-PN seat formula, says Kedah Umno - Free Malaysia Today",0,0.1697,0.102,0.0,1,0.9153,0.9423,0.6,0,0.0909,0.0633,0.1,0,0.1163,0.0656,0.2,0,0.1272,0.1376,0.0
+Muhyiddin predicts Umno-PAS clash in northern states - Free Malaysia Today,1,0.2244,0.0803,0.1,1,0.8064,0.8561,0.5,0,0.1739,0.0548,0.4,0,0.1767,0.0624,0.3,0,0.0663,0.0668,0.0
+"Melaka seat talks crucial for BN-PN pact, says analyst - Free Malaysia Today",0,0.1351,0.098,0.0,1,0.8341,0.9377,0.6,0,0.1079,0.0614,0.1,0,0.118,0.0544,0.2,0,0.2168,0.2281,0.3
+"Pengundi muda PN tak sedar PAS Bersatu berbalah, kata Ilham Centre - Free Malaysia Today",0,0.2957,0.0885,0.3,1,0.7563,0.7713,0.4,0,0.3013,0.0624,0.1,0,0.1304,0.0362,0.2,0,0.129,0.0662,0.1
+"BN-PN pact fraying at the seams, says Amirudin - Free Malaysia Today",0,0.1711,0.1338,0.0,1,0.8871,0.9395,0.7,0,0.1324,0.0795,0.0,0,0.1172,0.1101,0.0,0,0.3518,0.2083,0.0
+"BN keeping solo option open in Melaka, says analyst - Free Malaysia Today",0,0.1743,0.0503,0.1,0,0.5762,0.2749,0.5,0,0.1111,0.0473,0.2,0,0.1494,0.0513,0.4,0,0.1128,0.1403,0.1
+"PN’s young voters unaware of PAS-Bersatu feud, says think tank - Free Malaysia Today",0,0.2145,0.0905,0.0,1,0.5869,0.8812,0.3,0,0.1725,0.0418,0.0,0,0.1633,0.0476,0.0,0,0.1877,0.1046,0.0
+Negeri Sembilan victory marks BN’s political comeback after 2018 rout - Free Malaysia Today,0,0.1931,0.0478,0.1,1,0.5396,0.4957,0.7,0,0.1097,0.0476,0.2,0,0.1335,0.0463,0.3,0,0.1145,0.0493,0.6
+Do the unthinkable: 6 ways to prevent a BN-PN takeover - Free Malaysia Today,0,0.1948,0.0775,0.2,1,0.9142,0.9073,0.6,0,0.1321,0.061,0.4,0,0.0989,0.0959,0.5,0,0.1586,0.1219,0.3
+"BN-PN secures two-thirds, no Indian in state govt, opposition without Malay - Malaysiakini",0,0.2234,0.1443,0.1,1,0.7239,0.9417,0.9,0,0.1543,0.0655,0.2,0,0.2224,0.0634,0.3,0,0.3982,0.3577,0.7
+Melaka BN opens door to 'BN Plus' talks after Negeri Sembilan poll success - Newswav,0,0.1216,0.0679,0.1,0,0.6231,0.8332,0.6,0,0.1512,0.0444,0.2,0,0.1794,0.0442,0.3,0,0.3103,0.1638,0.5
+BN-PN alliance makes final push in Pilah as Negeri Sembilan votes - The Malaysian Reserve,0,0.1123,0.1059,0.0,1,0.7038,0.937,0.8,0,0.1973,0.0563,0.0,0,0.2193,0.0594,0.0,0,0.5566,0.236,0.0
+Melaka set to test BN-PN alliance as analysts predict coalition can retain dominance - scoop.my,0,0.1802,0.0917,0.2,1,0.7094,0.9292,0.8,0,0.1718,0.0566,0.3,0,0.2343,0.0625,0.4,0,0.5129,0.2637,0.6
+What BN-PN Must Do In PAS-Led States To Keep The Alliance Intact - TRP | The Rakyat Post,0,0.2401,0.1484,0.0,1,0.7382,0.9397,0.5,0,0.233,0.0691,0.0,0,0.189,0.0576,0.0,0,0.1781,0.1965,0.0
+PRNNS: Loke: 'We must win all 11 seats to help PH form state government' - The Vibes,0,0.2412,0.0468,0.0,0,0.3495,0.2531,0.0,0,0.213,0.0512,0.0,0,0.2401,0.0504,0.0,0,0.1914,0.1615,0.0
+Can Malaysia’s PAS deliver the votes in Negeri Sembilan despite Johor wipeout? - South China Morning Post,0,0.1477,0.0542,0.4,0,0.3375,0.1657,0.5,0,0.1583,0.06,0.2,0,0.1914,0.0575,0.3,0,0.256,0.1546,0.1
+PRN Johor: (Unofficial) Maszlee leads in Puteri Wangsa - The Vibes,0,0.1354,0.0552,0.0,0,0.2201,0.2034,0.0,0,0.2241,0.0553,0.0,0,0.2579,0.0624,0.0,0,0.2092,0.1446,0.0
+Negeri Sembilan election landscape remains unpredictable amid shifting alliances – Analysts - The Malaysian Reserve,0,0.1361,0.0682,0.0,0,0.2251,0.1145,0.0,0,0.2556,0.0704,0.0,0,0.1159,0.0666,0.0,0,0.1923,0.0717,0.0
+Negeri Sembilan election: Indian voters could be key to whether Anwar’s PH retains the state - The Straits Times,0,0.141,0.0661,0.0,0,0.1758,0.1236,0.0,0,0.1457,0.0679,0.0,0,0.1898,0.0679,0.0,0,0.18,0.0638,0.0
+Negeri Sembilan Polls: Seven Election Offence Investigation Papers Opened - BusinessToday Malaysia,0,0.1166,0.0661,0.1,0,0.2732,0.1091,0.4,0,0.247,0.0686,0.2,1,0.1308,0.0869,0.6,0,0.1087,0.0778,0.0
+"Negeri Sembilan election tests Anwar as race, royal feud dominate - The Straits Times",0,0.1167,0.0663,0.2,0,0.209,0.0811,0.6,0,0.1551,0.0715,0.1,0,0.2334,0.1314,0.3,0,0.2685,0.1634,0.2
+"No seats, no allies: Bersatu faces bleak future after Negeri Sembilan rout - Newswav",0,0.1298,0.0548,0.1,0,0.4529,0.3577,0.3,0,0.1482,0.0586,0.2,0,0.2597,0.0657,0.4,0,0.1766,0.0824,0.0
+"Negeri Sembilan polls: BN-PN wins supermajority of 25 seats, as Anwar’s PH suffers another setback - CNA",0,0.1306,0.0878,0.1,1,0.6807,0.8801,0.7,0,0.1036,0.0557,0.5,0,0.1248,0.0609,0.6,0,0.248,0.1579,0.0
+"Negeri Sembilan polls: BN not contesting all 36 seats, as it eyes pact with ‘trusted friend’ - CNA",0,0.1861,0.0676,0.0,1,0.569,0.8405,0.0,0,0.1309,0.0427,0.0,0,0.1984,0.0382,0.0,0,0.1824,0.1154,0.0
+"Tomorrow declared public holiday in Negeri Sembilan, says MB - Borneo Post",0,0.1293,0.0442,0.0,0,0.4068,0.3181,0.3,0,0.1373,0.0507,0.0,0,0.2231,0.0636,0.0,0,0.1976,0.1569,0.2
+"After Negeri Sembilan success, BN Melaka opens door to wider cooperation ahead of state polls - Newswav",0,0.1396,0.0482,0.0,1,0.3563,0.4793,0.8,0,0.1333,0.0431,0.0,0,0.1052,0.0445,0.0,0,0.168,0.0513,0.7
+Negeri Sembilan polls: Anwar’s Pakatan Harapan faces electoral test amid rivals’ Malay-Muslim unity narrative - CNA,0,0.6482,0.7411,0.4,0,0.4251,0.5733,0.8,0,0.1711,0.0744,0.2,0,0.1906,0.0706,0.5,0,0.3586,0.0844,0.3
+"BN-PN secures two-thirds majority to form new Negeri Sembilan govt, says Ahmad Zahid - The Malaysian Reserve",0,0.0908,0.1158,0.0,1,0.7013,0.9509,0.9,0,0.1649,0.0696,0.1,0,0.1737,0.0785,0.2,0,0.3398,0.1784,0.8
+Malaysia’s Anwar suffers another election loss to BN in Negeri Sembilan - South China Morning Post,0,0.1395,0.0678,0.0,0,0.3075,0.6743,0.0,0,0.1558,0.0469,0.0,0,0.1569,0.0521,0.0,0,0.1852,0.1316,0.0
+"Anwar’s PH loses Negeri Sembilan, as BN claims win together with ally PN - The Straits Times",0,0.1061,0.0623,0.1,1,0.4818,0.8418,0.5,0,0.1295,0.0405,0.2,0,0.1409,0.0472,0.4,0,0.2311,0.0892,0.0
+Negeri Sembilan votes today: 10 seats to watch in pivotal state election - Yahoo,0,0.1335,0.063,0.1,0,0.2496,0.0669,0.4,0,0.1401,0.0735,0.3,0,0.2272,0.0961,0.2,0,0.1934,0.0716,0.3
+"Negeri Sembilan polls: As BN-PN rides Malay-Muslim support to win big, what's next for them and Malaysian politics? - CNA",1,0.2996,0.1133,0.3,1,0.662,0.9443,0.9,0,0.1169,0.06,0.5,0,0.1627,0.0669,0.6,0,0.1872,0.1519,0.0
+Johor polls result raises stakes for Anwar in upcoming Negeri Sembilan election - CNA,0,0.1424,0.0498,0.0,0,0.2239,0.108,0.6,0,0.1099,0.053,0.2,0,0.1511,0.076,0.5,0,0.1858,0.0598,0.0
+Can BN and PN strike a deal before the ‘blue wave’ crashes? - Focus Malaysia,0,0.167,0.0973,0.0,1,0.5937,0.9229,0.8,0,0.2546,0.0532,0.0,0,0.2662,0.0587,0.0,0,0.3222,0.2192,0.0
+Malaysia Edition: Anwar finally enters the fray in Negeri Sembilan - The Straits Times,0,0.1022,0.0614,0.1,0,0.2921,0.1905,0.4,0,0.1522,0.0606,0.3,0,0.2272,0.059,0.4,0,0.2371,0.0525,0.3
+"BN-PN victory carries responsibility to strengthen Negeri Sembilan, says Jalaluddin - The Malaysian Reserve",0,0.1232,0.0823,0.1,1,0.7085,0.9119,0.7,0,0.1637,0.0594,0.2,0,0.1137,0.0778,0.1,1,0.2711,0.1211,0.6
+PH ready to face possible BN-PN cooperation in Negeri Sembilan polls — Loke - The Edge Malaysia,0,0.0452,0.093,0.1,1,0.7412,0.9342,0.6,0,0.1079,0.0613,0.2,0,0.1291,0.0654,0.5,0,0.1938,0.1237,0.0
+"Special Report: Man in the spotlight: Anthony Loke on elections, ‘frenemies’ in politics and transport matters - The Edge Malaysia",0,0.2277,0.0745,0.0,0,0.2546,0.1322,0.0,0,0.2132,0.0694,0.0,0,0.3092,0.0821,0.0,0,0.2454,0.0868,0.0
+A test of Malaysia’s new political equation as BN teams up with PN against PH with Bersatu likely a spoiler - The Edge Malaysia,0,0.1843,0.0785,0.0,1,0.6086,0.8927,0.6,0,0.1809,0.0508,0.0,0,0.2136,0.0723,0.0,0,0.2459,0.1012,0.0
+"BN wins bigger majority in 2026 Johor polls; wipeout for PN, Bersama and Muda - The Edge Malaysia",0,0.1256,0.0556,0.0,0,0.5086,0.792,0.3,0,0.151,0.051,0.0,0,0.2894,0.0592,0.0,0,0.1705,0.0664,0.7
+"PH concedes defeat in Negeri Sembilan with 11 seats, blames identity politics - The Edge Malaysia",0,0.3227,0.052,0.0,1,0.374,0.2764,0.0,0,0.1316,0.0474,0.0,0,0.1867,0.0518,0.0,0,0.1523,0.0563,0.0
+N Sembilan state election live report: Official: BN-PN wins two-thirds majority in N Sembilan - The Edge Malaysia,0,0.1141,0.0704,0.0,1,0.5435,0.7763,0.8,0,0.1685,0.052,0.0,0,0.2355,0.0523,0.0,0,0.2252,0.1769,0.0
+Zahid confident ‘blue and dark blue wave’ will spread to Melaka as BN-PN declares victory in Negeri Sembilan - The Edge Malaysia,0,0.135,0.1279,0.0,1,0.7939,0.935,0.9,0,0.1454,0.0522,0.0,0,0.1708,0.057,0.0,0,0.2257,0.2012,0.7
+"Puad claims Zahid is ‘PM in waiting’, Umno-PAS share short-term goal - The Edge Malaysia",0,0.2457,0.1263,0.1,1,0.5687,0.8834,0.3,0,0.2365,0.0531,0.0,0,0.4836,0.0586,0.2,0,0.274,0.22,0.1
+Loke: MCA’s absence in three traditional seats gives DAP advantage in Negeri Sembilan polls - The Edge Malaysia,0,0.2777,0.0693,0.0,0,0.3118,0.6313,0.3,0,0.1491,0.0463,0.1,0,0.2878,0.0525,0.2,0,0.1867,0.125,0.3
+"OPINION: Pakatan Harapan should go back to its reform roots, even if it is too late to fight against BN-PN wave — Ong Kian Ming - The Edge Malaysia",0,0.1005,0.1016,0.0,1,0.5811,0.9406,0.0,0,0.2113,0.0582,0.0,0,0.33,0.0646,0.0,0,0.2741,0.1541,0.0
+Negeri Sembilan election sees 37pc voter turnout by noon - Malay Mail,0,0.2024,0.0754,0.0,0,0.2461,0.1029,0.0,0,0.1492,0.0762,0.0,0,0.3031,0.1342,0.0,0,0.1437,0.0813,0.0
+Zahid: BN and Perikatan will partner to establish Negeri Sembilan administration - Malay Mail,0,0.2453,0.0758,0.0,1,0.5729,0.9007,0.6,0,0.1544,0.0534,0.0,0,0.298,0.0494,0.0,0,0.1865,0.1496,0.0
+"PAS accepts Umno lead, declaring Malay‑Muslim leadership must drive Negeri Sembilan government - Malay Mail",1,0.4652,0.0792,0.0,1,0.5008,0.8737,0.8,0,0.1554,0.0399,0.0,0,0.2071,0.0469,0.0,0,0.1764,0.1022,0.0
+"Muhyiddin: Perikatan has shut Bersatu out, Umno alliance ‘not genuine Malay unity’ - Malay Mail",0,0.4906,0.5812,0.0,1,0.5591,0.9169,1.0,0,0.2469,0.061,0.0,0,0.3534,0.0764,0.0,0,0.1507,0.1433,0.0
+"Pakatan leads N. Sembilan forecast, but BN’s trust advantage keeps election race open, says Vodus survey - Malay Mail",0,0.2752,0.0601,0.0,0,0.366,0.8097,0.5,0,0.2074,0.044,0.0,0,0.3449,0.0429,0.0,0,0.246,0.2016,0.3
+"(Unofficial) Negeri Sembilan polls: ‘PBN’ to form state govt, sets sights on Melaka next - Malay Mail",0,0.2328,0.0403,0.0,1,0.3464,0.3888,1.0,0,0.1425,0.0396,0.0,0,0.2372,0.0419,0.0,0,0.2547,0.073,0.0
+Negeri Sembilan faces prospect of greater influence under Hadi rather than immediate PAS takeover — Phar Kim Beng - Malay Mail,0,0.3288,0.0576,0.5,0,0.576,0.7404,0.4,0,0.1249,0.0437,0.0,0,0.1427,0.0634,0.0,0,0.2127,0.0593,0.3
+Mohamad Hasan says non-Malays have ‘no reason to be unduly worried’ by BN-Perikatan pact in Negeri Sembilan - Malay Mail,0,0.1759,0.5963,0.0,1,0.5135,0.9062,0.6,0,0.143,0.0567,0.0,0,0.3031,0.0779,0.0,0,0.1898,0.1435,0.0
+Negri Sembilan polls: Full list of candidates for 36 seats - NST Online,0,0.2132,0.0627,0.0,0,0.2381,0.1247,0.0,0,0.2044,0.0734,0.0,0,0.267,0.1112,0.0,0,0.3734,0.094,0.0
+Negri Sembilan polls: Ong Kian Ming predicts BN-PN win up to 25 seat - NST Online,0,0.1882,0.068,0.0,1,0.6124,0.8819,1.0,0,0.1614,0.0529,0.0,0,0.1995,0.0731,0.0,0,0.3157,0.1472,0.0
+Negri polls: Abdul Hadi instructs PAS members to vote for BN - The Star,0,0.1918,0.0927,0.0,1,0.4922,0.8772,0.7,0,0.285,0.0512,0.0,0,0.1657,0.067,0.0,0,0.1991,0.0842,0.0
+Negri polls: Voter turnout reaches 59.03pct as at 3pm - NST Online,0,0.2392,0.1073,0.0,0,0.2059,0.0571,0.0,0,0.2476,0.2021,0.0,0,0.3636,0.1207,0.0,0,0.354,0.0852,0.0
+"PN-BN pact puts Negri Sembilan people's interests above differences, says Samsuri - NST Online",0,0.1715,0.1033,0.1,0,0.6935,0.9346,0.7,0,0.1849,0.0554,0.2,0,0.3462,0.0628,0.1,1,0.2489,0.1431,0.6
+"BN to finalise Johor, Negeri Sembilan seat allocations next week - Sinar Daily",0,0.0896,0.0497,0.0,0,0.5039,0.1263,0.0,0,0.1391,0.08,0.0,0,0.1671,0.0614,0.0,0,0.2361,0.0638,0.0
+PH to unveil ‘manifesto for continuity’ in Negeri Sembilan tomorrow - Free Malaysia Today,0,0.1865,0.0651,0.1,0,0.408,0.3261,0.7,0,0.1233,0.0457,0.6,0,0.1626,0.0361,0.5,0,0.0937,0.0558,0.7
+"Bersatu won’t back down from PAS clashes in Negeri Sembilan if Perikatan seat talks fail, says Muhyiddin - Malay Mail",0,0.2552,0.0522,0.6,0,0.5795,0.3951,0.5,0,0.1654,0.0403,0.0,0,0.237,0.0501,0.0,0,0.1249,0.1389,0.0
+"Jalaluddin denies planning to oust Negeri Sembilan MB, remove ruler - Free Malaysia Today",0,0.2508,0.0622,0.0,0,0.3967,0.283,0.5,0,0.1784,0.0415,0.2,0,0.194,0.0608,0.4,0,0.2056,0.0551,0.3
+Pas-BN in Negeri Sembilan: Strategic alliance or political manoeuvre? - Sinar Daily,0,0.1561,0.0706,0.0,1,0.5746,0.8073,0.0,0,0.1087,0.0497,0.0,0,0.1642,0.0528,0.0,0,0.1693,0.0632,0.0
+Special Issue on Negeri Sembilan State Election 2026 – 4 August 2026 - iseas.edu.sg,0,0.1587,0.0552,0.0,0,0.2338,0.1238,0.0,0,0.1485,0.0638,0.0,0,0.2152,0.0799,0.0,0,0.3256,0.1639,0.0
+"Negeri Sembilan polls: Four days left, candidates step up final campaign push - The Edge Malaysia",0,0.1245,0.0501,0.0,0,0.3557,0.1741,0.0,0,0.1845,0.0485,0.0,0,0.3564,0.0563,0.0,0,0.1811,0.0558,0.0
+"Negeri Sembilan polls in numbers: 103 candidates confirmed, 21 seats head into three-way fights - Malay Mail",0,0.2547,0.0673,0.1,0,0.3802,0.1134,0.3,0,0.1431,0.072,0.4,0,0.3585,0.1351,0.5,0,0.126,0.0745,0.2
+Open to negotiations: Melaka MB says willing to discuss cooperation with any party for the coming state polls - Newswav,0,0.3498,0.0564,0.0,0,0.3348,0.2195,0.3,0,0.1826,0.0436,0.0,0,0.1745,0.0638,0.0,0,0.1397,0.153,0.0
+"Real test for BN-PN lies in PAS states, says analyst - Free Malaysia Today",0,0.2434,0.127,0.6,1,0.8677,0.9424,0.8,0,0.1107,0.0586,0.0,0,0.1305,0.0666,0.0,0,0.2091,0.24,0.0
+"MCA, MIC benefit when Umno is strong, says analyst - Free Malaysia Today",0,0.2992,0.082,0.0,1,0.6038,0.8949,0.3,0,0.1897,0.0468,0.0,0,0.1885,0.0487,0.0,0,0.2128,0.1092,0.0
+DAP's Anthony Loke loses Chennah in major Negeri Sembilan upset - The Edge Malaysia,0,0.2949,0.0657,0.0,0,0.2542,0.2599,0.2,0,0.2024,0.0719,0.0,0,0.2917,0.0777,0.0,0,0.2726,0.0851,0.0
+"Negeri Sembilan electoral battle begins after 103 candidates confirmed; BN, PN to campaign for each other - CNA",0,0.177,0.0522,0.0,1,0.6071,0.6195,0.2,0,0.1297,0.0423,0.0,0,0.1434,0.0491,0.0,0,0.2288,0.0567,0.0
+Hamzah calls for give-and-take in Melaka seat talks - Free Malaysia Today,0,0.2144,0.0583,0.0,1,0.3696,0.1574,0.3,0,0.1489,0.0667,0.0,0,0.2298,0.0586,0.0,0,0.0768,0.0569,0.0
+"PH targeting 22 seats, BN-PN eyeing 20-plus in Negeri Sembilan - Free Malaysia Today",0,0.097,0.0738,0.0,1,0.8156,0.7862,0.0,0,0.0541,0.0519,0.0,0,0.0711,0.055,0.0,0,0.1219,0.0985,0.0
+Seismic shift in Malaysian politics as BN-Perikatan ousts Pakatan heavyweights in Negeri Sembilan poll - Malay Mail,0,0.1319,0.0726,0.3,1,0.4651,0.8751,0.9,0,0.1293,0.0473,0.5,0,0.1724,0.0491,0.6,0,0.1708,0.091,0.0
+"N Sembilan polls: PAS in talks with Umno, can Johor results be replicated? - Malaysiakini",0,0.1773,0.056,0.3,1,0.6311,0.721,0.6,0,0.1173,0.0411,0.4,0,0.2115,0.0511,0.5,0,0.1718,0.0586,0.3
+"Onn Hafiz factor and PAS backing led to BN victory, say analysts - Free Malaysia Today",0,0.2222,0.1113,0.0,1,0.6901,0.9296,0.3,0,0.1806,0.0627,0.0,0,0.1801,0.0991,0.0,0,0.1392,0.1554,0.0
+Negeri Sembilan Election: Let Majority Decide – Anthony Loke - TRP | The Rakyat Post,0,0.0957,0.0453,0.1,0,0.316,0.1965,0.4,0,0.1694,0.0417,0.6,0,0.1786,0.0531,0.5,0,0.222,0.0702,0.3
+"""Bersatu will be buried"" warns MP as Terengganu chief quits - Newswav",0,0.2472,0.0603,0.2,0,0.3028,0.16,0.6,0,0.212,0.0688,0.1,0,0.3386,0.0681,0.5,0,0.1545,0.0613,0.2
+51.58% voter turnout in Negeri Sembilan polls as of 2pm - Free Malaysia Today,0,0.11,0.0655,0.0,0,0.3449,0.0759,0.0,0,0.1149,0.0779,0.0,0,0.1855,0.0745,0.0,0,0.0863,0.0754,0.0
+"BN-PN ‘cooperation’ a stab in the back, says Amanah leader - The Vibes",0,0.2518,0.2135,0.0,1,0.6211,0.924,0.3,0,0.1747,0.0859,0.0,0,0.161,0.1657,0.0,0,0.2425,0.4207,0.0
+Who really won in Negeri Sembilan? - Free Malaysia Today,0,0.153,0.0554,0.0,0,0.3848,0.1903,0.0,0,0.1172,0.0612,0.0,0,0.12,0.0573,0.0,0,0.0715,0.0507,0.0
+"Siapa lebih Islami, MCA atau DAP? - Free Malaysia Today",1,0.3648,0.1322,0.9,0,0.39,0.6303,0.8,0,0.1839,0.0413,0.2,0,0.1773,0.0476,0.3,0,0.2085,0.1445,0.1
+BN-PN tie-up may carry on into Melaka polls - Free Malaysia Today,0,0.2038,0.0856,0.0,1,0.6855,0.9113,0.9,0,0.1338,0.05,0.2,0,0.1305,0.05,0.3,0,0.1645,0.2057,0.4
+Negeri Sembilan Election: Four key seats that could decide the state’s future - The Straits Times,0,0.0921,0.0559,0.0,0,0.1639,0.084,0.0,0,0.1515,0.0655,0.0,0,0.1746,0.0745,0.0,0,0.2049,0.0677,0.0
+Will PAS be as generous with seats in Melaka? - Free Malaysia Today,0,0.2992,0.0676,0.4,0,0.5881,0.2544,0.6,0,0.118,0.054,0.1,0,0.1909,0.046,0.2,0,0.0649,0.0441,0.3
+Occasional Holiday declared by Negeri Sembilan state govt not mandatory for private sector — Labour Dept - The Edge Malaysia,0,0.1632,0.1229,0.0,0,0.3401,0.0599,0.1,0,0.2131,0.2242,0.0,0,0.2263,0.4647,0.0,0,0.2408,0.1369,0.1
+Key seats to watch as ‘frenemies’ battle for control - The Edge Malaysia,0,0.1108,0.0504,0.0,0,0.2685,0.2239,0.0,0,0.3243,0.0464,0.0,0,0.2201,0.0535,0.0,0,0.2211,0.0673,0.0
+PRN Johor: (Unofficial) PH races ahead in closely watched Skudai as unofficial results come in - The Vibes,0,0.1279,0.0692,0.0,0,0.1978,0.1308,0.0,0,0.1819,0.0712,0.0,0,0.1794,0.0826,0.0,0,0.1328,0.0761,0.0
+Biggest winners and losers in the Negeri Sembilan polls - Free Malaysia Today,0,0.1128,0.0553,0.0,0,0.4133,0.1044,0.0,0,0.1211,0.0624,0.0,0,0.1642,0.0632,0.0,0,0.1269,0.0598,0.0
+"Six surveys, six different results: Anwar tells Pakatan to focus on campaigning in Negeri Sembilan, not predictions - Malay Mail",0,0.2482,0.0948,0.4,0,0.3431,0.0995,0.5,0,0.1974,0.0748,0.3,0,0.1885,0.0673,0.4,0,0.1182,0.0494,0.0
+What Negeri Sembilan loss means for Malaysian PM Anwar’s political strategy - South China Morning Post,0,0.1137,0.0626,0.3,0,0.2267,0.073,0.4,0,0.1569,0.0655,0.5,0,0.1707,0.0768,0.6,0,0.3158,0.0861,0.7
+PAS tunggu Muhyiddin bentuk gabungan baharu selepas PRN - Free Malaysia Today,0,0.4711,0.084,0.2,1,0.5129,0.6041,0.3,0,0.1417,0.0453,0.0,0,0.156,0.0388,0.1,0,0.0893,0.1253,0.0
+Will the Negeri Sembilan state polls be Bersatu’s toughest test yet? - The Straits Times,0,0.125,0.059,0.1,0,0.2837,0.1122,0.3,0,0.1219,0.0698,0.2,0,0.2729,0.0598,0.2,0,0.2075,0.0532,0.3
+"PH losing in Negeri Sembilan could affect unity govt’s survival, says Loke - Free Malaysia Today",0,0.2004,0.0753,0.0,0,0.4815,0.7672,0.5,0,0.0826,0.0514,0.4,0,0.1066,0.0496,0.3,0,0.2644,0.0944,0.0
+Kuala Pilah PKR slams ‘saboteur’ claims after ‘defamatory’ banners - Free Malaysia Today,0,0.2603,0.1361,0.1,0,0.4587,0.0824,0.4,0,0.2281,0.0945,0.1,0,0.2374,0.7008,0.5,0,0.1385,0.1312,0.2
+"BN-PN blue wave can sweep 122 seats in GE16, says think tank - Free Malaysia Today",0,0.1858,0.0889,0.0,1,0.7282,0.921,0.8,0,0.1325,0.0518,0.0,0,0.1925,0.0513,0.0,0,0.2085,0.2254,0.0
+Is there room left for PN if BN defends all 21 Melaka seats? - Sinar Daily,0,0.1562,0.0544,0.0,0,0.4969,0.7936,0.3,0,0.1551,0.0424,0.1,0,0.225,0.0384,0.2,0,0.2123,0.0909,0.1
+PRN Johor: (Unofficial) PH close to victory in 8 seats - The Vibes,0,0.1379,0.0553,0.0,0,0.3504,0.2187,0.0,0,0.2116,0.0541,0.0,0,0.1908,0.0502,0.0,0,0.2349,0.048,0.0
+Bribery In Elections Must Be Rejected - Ahmad Zahid - Bernama,0,0.2407,0.1974,0.0,0,0.3084,0.142,0.5,0,0.221,0.1702,0.0,1,0.4263,0.6868,1.0,0,0.1817,0.2863,0.5
+"Opinion: PH, DAP leaders in continued denial over Johor election results — Ong Kian Ming - The Edge Malaysia",0,0.2028,0.0568,0.1,0,0.2852,0.1222,0.6,0,0.1863,0.048,0.2,0,0.3497,0.0782,0.7,0,0.2103,0.0538,0.0
+"The Night Before Negeri Sembilan Voted, BN Was Already Open To Its Next Deal With PN - TRP | The Rakyat Post",0,0.1873,0.0792,0.0,1,0.5626,0.8317,0.6,0,0.163,0.0535,0.0,0,0.2357,0.0572,0.0,0,0.2111,0.1105,0.0
+Johor state election: Five key battles to watch for political shifts - The Straits Times,0,0.1558,0.07,0.0,0,0.1603,0.0899,0.0,0,0.1797,0.0901,0.0,0,0.2512,0.1318,0.0,0,0.18,0.0855,0.0
+"BN-PN cooperation only to avoid vote splits, says Wee - Free Malaysia Today",0,0.2738,0.1407,0.0,1,0.8364,0.9398,0.7,0,0.1569,0.067,0.0,0,0.2099,0.0546,0.0,0,0.2121,0.1881,0.0
+Negeri Sembilan polls — race that hinges on race - Free Malaysia Today,0,0.183,0.079,0.0,0,0.4,0.1076,0.0,0,0.1168,0.0649,0.0,0,0.1903,0.0647,0.0,0,0.1082,0.0504,0.0
+MCA Youth sec-gen told to skip Negeri Sembilan campaign - Free Malaysia Today,0,0.2228,0.0532,0.0,0,0.4549,0.1203,0.3,0,0.1463,0.0438,0.1,0,0.2351,0.1077,0.2,0,0.1822,0.0706,0.1
+Gerakan eyes 4 seats in Negeri Sembilan - Free Malaysia Today,0,0.1411,0.0517,0.0,0,0.4271,0.2203,0.0,0,0.1143,0.0525,0.0,0,0.1373,0.0472,0.0,0,0.1046,0.0522,0.0
+"PN likely to demand equal share of seats in Melaka polls, says analyst - Free Malaysia Today",0,0.1241,0.0647,0.1,0,0.5588,0.3962,0.6,0,0.1321,0.0573,0.2,0,0.1442,0.0631,0.3,0,0.2972,0.0678,0.4
+Tok Mat confirms BN to work with ‘trusted’ partner - Free Malaysia Today,0,0.2903,0.0854,0.2,1,0.6268,0.1945,0.7,0,0.2043,0.0759,0.3,0,0.2486,0.0843,0.5,0,0.1522,0.1016,0.4
+"PN’s supporting-role strategy expands influence, limits polls fallout, say analysts - Free Malaysia Today",0,0.2035,0.0564,0.3,0,0.573,0.3895,0.6,0,0.1976,0.0516,0.5,0,0.173,0.0454,0.4,0,0.1028,0.063,0.5
+Biggest winners and losers in the Johor polls - Free Malaysia Today,0,0.1772,0.0638,0.0,0,0.337,0.1361,0.0,0,0.1631,0.0815,0.0,0,0.2094,0.1054,0.0,0,0.1527,0.0732,0.0
+Is Bersatu running out of reasons to exist? - Sinar Daily,0,0.1756,0.0889,0.1,0,0.3881,0.1043,0.6,0,0.2834,0.1026,0.5,0,0.2675,0.1634,0.7,0,0.1818,0.1751,0.0
+"Young Negeri Sembilan voters prefer parties over candidates, says think tank - Free Malaysia Today",0,0.2248,0.2018,0.2,0,0.4198,0.1689,0.3,0,0.1504,0.0783,0.4,0,0.2588,0.0474,0.3,0,0.2539,0.0483,0.1
+Umno warns against ‘third parties’ disrupting alliances - Free Malaysia Today,0,0.3381,0.1349,0.1,0,0.4795,0.8802,0.6,0,0.1714,0.038,0.1,0,0.3045,0.0441,0.2,0,0.1174,0.1598,0.1
+"Three strikes, DAP’s out? Loss in Malaysia’s third state poll rattles coalition - South China Morning Post",0,0.2745,0.06,0.1,0,0.227,0.1373,0.4,0,0.1843,0.0948,0.5,0,0.2054,0.0812,0.6,0,0.2345,0.1007,0.2
+"PH needs 80% voter turnout to stand chance in NS, says coalition leader - Free Malaysia Today",0,0.2547,0.0735,0.0,0,0.3198,0.1293,0.3,0,0.1886,0.0787,0.0,0,0.1834,0.0645,0.0,0,0.1232,0.0752,0.0
+Negri Sembilan election: Official results - NST Online,0,0.1689,0.0588,0.0,0,0.247,0.0915,0.0,0,0.241,0.0529,0.0,0,0.3804,0.0903,0.0,0,0.2081,0.072,0.0
+"Pakatan hails BN openness, Fahmi says Melaka seat talks offer chance for stability - Newswav",0,0.1848,0.0544,0.0,0,0.4015,0.1832,0.3,0,0.1634,0.056,0.2,0,0.1875,0.0575,0.1,0,0.185,0.0605,0.4
+"I’m prepared to negotiate with any party for state polls, says Melaka CM - Free Malaysia Today",0,0.4809,0.068,0.0,0,0.4464,0.1792,0.0,0,0.1441,0.0504,0.0,0,0.1565,0.0516,0.0,0,0.0944,0.0469,0.0
+[Unofficial] BN-PN Reclaims Negeri Sembilan With Commanding 25-Seat Victory - TRP | The Rakyat Post,0,0.1254,0.0596,0.0,1,0.7119,0.8575,0.7,0,0.127,0.0495,0.0,0,0.1307,0.0634,0.0,0,0.2223,0.099,0.6
+"BN leaves 11 Negeri Sembilan state seats open, as Tok Mat cites talks with ‘trusted friend’ - Malay Mail",0,0.2564,0.0496,0.0,0,0.5775,0.5661,0.0,0,0.1087,0.0433,0.0,0,0.144,0.0488,0.0,0,0.1295,0.0495,0.0
+"PH Youth wants BN ministers, deputy ministers to quit over PN ties - Free Malaysia Today",0,0.2055,0.053,0.0,0,0.6568,0.3901,0.0,0,0.1516,0.0476,0.0,0,0.1963,0.0429,0.0,0,0.1506,0.0599,0.0
+"Two Kings, one ballot: How Negeri Sembilan's royal crisis is shaping an election - The Straits Times",0,0.1066,0.0655,0.2,0,0.2764,0.0916,0.6,0,0.1833,0.0721,0.5,0,0.3769,0.1052,0.4,0,0.2676,0.1598,0.0
+"Ampangan, Chennah, and Linggi set to be among fiercest election battlegrounds, say analysts - NST Online",0,0.2639,0.0699,0.3,0,0.226,0.1337,0.5,0,0.2669,0.0703,0.4,0,0.4638,0.076,0.6,0,0.4398,0.2192,0.3
+Special Issue on Negeri Sembilan State Election 2026 – 3 August 2026 - iseas.edu.sg,0,0.1673,0.0623,0.0,0,0.2027,0.0829,0.0,0,0.1347,0.071,0.0,0,0.1879,0.075,0.0,0,0.2663,0.0625,0.0
+"Extra KTM ETS trains for Negeri Sembilan state elections this weekend - JB Sentral-Seremban, KL Sentral to JB - Paul Tan's Automotive News",0,0.1717,0.0808,0.0,0,0.279,0.1362,0.0,0,0.1517,0.0886,0.0,0,0.1899,0.1205,0.0,0,0.1716,0.0816,0.0
+Negeri Sembilan State Polls Will Shape National Politics - fulcrum.sg,0,0.1994,0.0498,0.0,0,0.2996,0.1331,0.0,0,0.133,0.0541,0.0,0,0.1855,0.0534,0.0,0,0.1664,0.0634,0.0
+"Bersatu to use own logo in Negeri Sembilan polls, says Muhyiddin - The Edge Malaysia",0,0.1105,0.0508,0.0,0,0.4513,0.2543,0.0,0,0.1298,0.0554,0.0,0,0.1638,0.0537,0.0,0,0.1728,0.048,0.0
+Noh Omar hopes BN-PN formula sparks ‘blue wave’ in Selangor - Free Malaysia Today,0,0.1868,0.1153,0.0,1,0.852,0.9349,0.6,0,0.1191,0.0559,0.0,0,0.1526,0.0588,0.0,0,0.1769,0.2146,0.0
+YOURSAY | N Sembilan voters show Harapan their true feelings - disappointment - Malaysiakini,0,0.2555,0.0681,0.1,0,0.3387,0.1601,0.4,0,0.1989,0.062,0.5,0,0.2875,0.0558,0.6,1,0.3593,0.0717,0.0
+‘Blue wave’ faces its real test in Negeri Sembilan - The Edge Malaysia,0,0.0819,0.0544,0.3,1,0.4258,0.2501,0.4,0,0.1858,0.0561,0.5,0,0.2514,0.0448,0.4,0,0.3036,0.0537,0.3
+Negeri Sembilan election: What you need to know - The Straits Times,0,0.1429,0.0688,0.0,0,0.2239,0.0917,0.0,0,0.1634,0.0743,0.0,0,0.283,0.113,0.0,0,0.2722,0.1513,0.0
+PRN Johor: (Unofficial) Datuk Onn Hafiz Ghazi wins in Machap - The Vibes,0,0.1493,0.0637,0.0,0,0.2807,0.3196,0.0,0,0.2248,0.0489,0.0,0,0.2349,0.049,0.0,0,0.2006,0.0496,0.0
+BN-PN pact to carry on at coming Melaka election - Free Malaysia Today,0,0.1631,0.1008,0.2,1,0.7083,0.8959,0.9,0,0.1344,0.0535,0.5,0,0.1089,0.0422,0.6,0,0.2773,0.1042,0.4
+"Jalaluddin a likely candidate for Negeri Sembilan MB, says Hamzah - Free Malaysia Today",0,0.211,0.0763,0.2,0,0.4393,0.5845,0.7,0,0.1166,0.0513,0.3,0,0.1877,0.0547,0.4,0,0.217,0.0754,0.5
+EC denies PN leading in Negeri Sembilan early votes - Free Malaysia Today,0,0.1492,0.0706,0.2,0,0.5601,0.7057,0.3,0,0.091,0.0457,0.4,0,0.1997,0.0545,0.5,0,0.1592,0.0897,0.6
+Bersatu umum calon PRN Negeri Sembilan - Free Malaysia Today,0,0.1736,0.0699,0.2,0,0.4075,0.4467,0.9,0,0.096,0.0471,0.4,0,0.1184,0.0458,0.5,0,0.1221,0.1202,0.3
+Wawasan eyeing fewer than 10 seats in Negeri Sembilan polls - Free Malaysia Today,0,0.1188,0.0509,0.2,0,0.4735,0.1367,0.3,0,0.0867,0.0581,0.4,0,0.1575,0.0534,0.5,0,0.078,0.0546,0.6
+"PH needs big voter swing to hit 23-seat target in NS, analyst says - Free Malaysia Today",0,0.1904,0.0674,0.1,0,0.3641,0.1198,0.2,0,0.1619,0.0857,0.3,0,0.2095,0.0948,0.4,0,0.1565,0.0949,0.5
+N9 Polls: Appearence Of New Faces Provides A Fresh Option For Voters - Bernama,0,0.2761,0.1074,0.1,0,0.2407,0.0578,0.4,0,0.2036,0.1421,0.3,0,0.2835,0.2738,0.2,0,0.3633,0.1531,0.2
+Johor PRN (Unofficial): PH announces eight seats won as of 9.50 pm - The Vibes,0,0.131,0.0553,0.0,0,0.2641,0.144,0.0,0,0.2036,0.0559,0.0,0,0.1626,0.0635,0.0,0,0.2387,0.0534,0.0
+Negri Sembilan voters head to the polls today - NST Online,0,0.267,0.0695,0.0,0,0.2108,0.1219,0.0,0,0.2357,0.0786,0.0,0,0.2059,0.1081,0.0,0,0.5634,0.1146,0.0
+Tun Faisal Blames BN-PN Seat Breakdown For Three-Cornered Sikamat Fight - BusinessToday Malaysia,0,0.1619,0.082,0.0,1,0.6893,0.8356,0.5,0,0.2846,0.0531,0.0,0,0.3205,0.0583,0.0,0,0.2543,0.2108,0.0
+Liputan langsung PRN N Sembilan: 7.00 malam - Free Malaysia Today,0,0.2429,0.0664,0.0,0,0.457,0.4817,0.0,0,0.0919,0.0547,0.0,0,0.1167,0.0585,0.0,0,0.1022,0.0691,0.0
+"BN, PN to begin talks soon on electoral pact for Melaka polls, following Negeri Sembilan victory - CNA",0,0.1328,0.0568,0.0,1,0.7511,0.8,0.7,0,0.1004,0.0435,0.0,0,0.0984,0.055,0.0,0,0.2796,0.0746,0.0
+N Sembilan state polls: BN-PN sweeps PH in Negeri Sembilan with two-thirds majority - The Edge Malaysia,0,0.1004,0.0935,0.0,1,0.6684,0.8774,0.5,0,0.1254,0.0558,0.2,0,0.1839,0.0567,0.3,0,0.161,0.1703,0.6
+"Zahid to launch BN election machinery, candidate lineup for Negri polls tomorrow night - NST Online",0,0.149,0.0682,0.0,0,0.3344,0.0951,0.5,0,0.2222,0.0484,0.0,0,0.542,0.0963,0.0,0,0.1936,0.1018,0.0
+"No immediate need for Loke to resign as Negeri Sembilan chief, says Chow - Free Malaysia Today",0,0.3024,0.0536,0.0,0,0.4447,0.2026,0.0,0,0.1215,0.0546,0.0,0,0.0995,0.0556,0.0,0,0.1156,0.0602,0.0
+Opinion: BN-PN likely to take control of Negeri Sembilan — Ong Kian Ming - The Edge Malaysia,0,0.1335,0.122,0.0,1,0.6628,0.9368,0.8,0,0.1794,0.0654,0.0,0,0.2446,0.0585,0.0,0,0.3771,0.1955,0.7
+N9VOTES: BN-PN claim victory in Negeri Sembilan - The Edge Malaysia,0,0.0948,0.1308,0.0,1,0.7825,0.9445,0.8,0,0.1505,0.0637,0.2,0,0.1916,0.0705,0.3,0,0.2862,0.243,0.7
+"As Negeri Sembilan votes, all eyes on whether Anwar’s PH can retain state - CNA",0,0.1816,0.0484,0.0,0,0.3838,0.2582,0.0,0,0.1568,0.0414,0.0,0,0.1677,0.058,0.0,0,0.351,0.1547,0.0
+Negeri Sembilan race begins as nomination day kicks off - Malay Mail,0,0.3164,0.0659,0.0,0,0.3748,0.0935,0.0,0,0.1911,0.0721,0.0,0,0.2587,0.0976,0.0,0,0.1687,0.1885,0.0
+"If DAP exits the government, what next? - MySinchew",0,0.458,0.0655,0.0,0,0.2943,0.1258,0.0,0,0.2422,0.0751,0.0,0,0.3867,0.1016,0.0,0,0.2468,0.1976,0.0
+Why N Sembilan election highlights Malaysia's political immaturity - Malaysiakini,0,0.1683,0.0705,0.0,0,0.2993,0.1164,0.0,0,0.1741,0.0685,0.0,0,0.359,0.0687,0.0,0,0.395,0.193,0.0
+BN-PN claim victory in Negeri Sembilan polls - Free Malaysia Today,0,0.1255,0.1228,0.1,1,0.8169,0.9338,0.9,0,0.0846,0.0641,0.4,0,0.128,0.0533,0.5,0,0.1715,0.1734,0.7
+Muhyiddin fires back at Annuar over Bersatu PN exit claim - Free Malaysia Today,0,0.2223,0.0516,0.1,0,0.5872,0.5188,0.6,0,0.1598,0.0378,0.0,0,0.2673,0.0464,0.0,0,0.2459,0.0582,0.2
+PN not sweating over possible seat clashes with BN in Melaka polls - Free Malaysia Today,0,0.1506,0.0541,0.0,0,0.6746,0.6658,0.0,0,0.1405,0.0369,0.0,0,0.2204,0.049,0.0,0,0.1222,0.0692,0.0
+"State your stance on PAS-BN cooperation in Negeri Sembilan polls, Loke tells MCA, MIC - Free Malaysia Today",0,0.218,0.0984,0.6,1,0.6882,0.9235,0.7,0,0.0743,0.0546,0.5,0,0.1156,0.0562,0.6,0,0.1033,0.123,0.4
+"Call for removal of Sabah BN chief Kurup could backfire, analyst warns - Free Malaysia Today",0,0.1876,0.0495,0.0,0,0.4386,0.6928,0.0,0,0.1774,0.0384,0.0,0,0.2349,0.0616,0.0,0,0.1432,0.0763,0.0
+Khaled urges voters to ensure repeat of Bersatu’s Johor wipeout in NS - Free Malaysia Today,0,0.2011,0.067,0.1,0,0.2724,0.233,0.6,0,0.1699,0.0625,0.2,0,0.1661,0.0714,0.3,0,0.2297,0.0778,0.4
+INTERACTIVE: Here’s how Negri Sembilan voted in the polls - The Star,0,0.1041,0.074,0.1,0,0.3086,0.1106,0.6,0,0.3461,0.0927,0.4,0,0.3502,0.1286,0.3,0,0.2442,0.1002,0.2
+Election results show Malaysia trapped in a cycle of race-religion politics - Free Malaysia Today,0,0.2893,0.0722,0.0,0,0.2919,0.1136,0.0,0,0.1976,0.0561,0.0,0,0.1893,0.0595,0.0,0,0.1828,0.066,0.0
+Bersatu's decision to use own logo signals voluntary split from PN in NS polls - Annuar Musa | Malaysia - The Vibes,0,0.2121,0.0532,0.0,0,0.3557,0.2442,0.3,0,0.2891,0.0454,0.0,0,0.2298,0.053,0.0,0,0.1535,0.0594,0.0
+"PAS forced to work with Umno to unite the Malays, says Hadi - Free Malaysia Today",0,0.4462,0.6873,0.2,1,0.7493,0.9056,0.8,0,0.1823,0.0699,0.1,0,0.2025,0.0851,0.4,0,0.1206,0.1313,0.2
+"PN adopts BN manifesto for Negeri Sembilan polls, adds 14 pledges - Free Malaysia Today",0,0.1584,0.085,0.3,0,0.7299,0.8751,0.5,0,0.0753,0.049,0.4,0,0.0781,0.0572,0.4,0,0.077,0.0866,0.3
+Negeri Sembilan’s record investment pipeline faces execution test at Aug 1 poll - The Business Times,0,0.1271,0.0895,0.0,0,0.3995,0.066,0.0,0,0.1676,0.2445,0.0,0,0.1925,0.3213,0.0,1,0.2253,0.1284,0.0
+DAP bawa pengajaran PRN Johor ke Negeri Sembilan - Free Malaysia Today,0,0.3391,0.0856,0.1,0,0.2909,0.493,0.5,0,0.1201,0.063,0.2,0,0.1244,0.0358,0.4,0,0.206,0.0456,0.0
+Opinion: Projecting the Johor state election results - The Edge Malaysia,0,0.1449,0.057,0.0,0,0.2077,0.1019,0.0,0,0.2498,0.0744,0.0,0,0.2858,0.0775,0.0,0,0.1695,0.1589,0.0
+"Gelombang biru sepi ketika kempen, menyerlah di peti undi - Free Malaysia Today",0,0.4714,0.0993,0.1,1,0.4996,0.2799,0.2,0,0.2036,0.0753,0.3,0,0.1694,0.0417,0.4,0,0.073,0.0433,0.5
+Maut dilanggar lari ketika pasang bendera kempen PRN Negeri Sembilan - Berita Harian,0,0.1154,0.0684,0.0,0,0.3342,0.3964,0.0,0,0.1167,0.0638,0.0,0,0.1686,0.0493,0.0,0,0.2724,0.1761,0.0
+"Melaka polls could be held as early as Oct 31, says Ab Rauf - The Star",0,0.0957,0.0471,0.0,0,0.2941,0.1947,0.0,0,0.27,0.0449,0.0,0,0.266,0.0498,0.0,0,0.1426,0.0663,0.0
+"Unsubsidised fuel prices to rise again from Thursday, petrol up 20 sen and diesel 15 sen - The Edge Malaysia",0,0.232,0.1625,0.0,0,0.3062,0.1246,0.0,1,0.2473,0.5761,0.8,0,0.537,0.167,0.1,0,0.2251,0.1824,0.2
+Why Malaysia’s identity politics isn’t like the global right-wing rise - Free Malaysia Today,0,0.6522,0.3842,0.2,0,0.3089,0.404,0.5,0,0.2144,0.0645,0.4,0,0.1744,0.0751,0.5,0,0.266,0.1201,0.0
+"Malaysia Needs New Revenue Drivers Beyond Petronas, GLICs - BusinessToday Malaysia",0,0.2226,0.0984,0.0,0,0.2477,0.071,0.0,0,0.4573,0.5336,0.0,0,0.4567,0.3009,0.0,0,0.2008,0.1285,0.0
+Malaysia refers NSM dispute to AGC over possible legal action - NST Online,0,0.2884,0.2158,0.0,0,0.1893,0.1089,0.3,0,0.3066,0.155,0.1,1,0.5577,0.9574,0.2,0,0.2799,0.2237,0.0
+Policy stability must hold amid political headwinds - Free Malaysia Today,0,0.3867,0.1673,0.1,0,0.3764,0.1201,0.4,0,0.3553,0.151,0.5,0,0.2934,0.0624,0.6,0,0.0955,0.0725,0.3
+"2027 budget must address low graduate wages, says ex-deputy minister - Free Malaysia Today",0,0.2528,0.1419,0.0,0,0.281,0.1322,0.3,1,0.5324,0.9558,0.6,0,0.2624,0.2475,0.1,0,0.2805,0.4347,0.2
+Speech The Fifth MADANI Budget 2027 - Portal Rasmi Kementerian Kewangan,0,0.1641,0.0501,0.0,0,0.2029,0.1067,0.0,1,0.6403,0.1049,0.0,0,0.2233,0.0685,0.0,1,0.2794,0.0847,0.8
+"Malaysia’s DAP votes overwhelmingly to stay on in Cabinet, offering reprieve to PM Anwar - CNA",0,0.383,0.0895,0.1,0,0.2785,0.0672,0.2,0,0.2556,0.079,0.3,0,0.2309,0.1942,0.4,1,0.2551,0.0712,0.7
+PAC urges govt to revise Spanco deal after vehicle delivery delays - The Star,0,0.1566,0.0681,0.0,0,0.2839,0.0557,0.0,0,0.4084,0.2016,0.0,0,0.2675,0.5673,0.0,0,0.1986,0.2589,0.8
+"Pakatan Harapan to contest Melaka state election as united team, says Fadhlina - The Star",0,0.2582,0.0495,0.0,0,0.2622,0.3456,0.0,0,0.2716,0.0398,0.0,0,0.1633,0.046,0.0,0,0.2172,0.0615,0.0
+"Unable to move on PAS continues to slander DAP without basis, says AMANAH leader - Focus Malaysia",0,0.5744,0.2889,0.3,0,0.4187,0.8919,0.2,0,0.1974,0.0515,0.0,0,0.166,0.1111,0.1,0,0.3107,0.1911,0.0
+"My Say: Bribery and corruption law: What companies, directors and officers must know - The Edge Malaysia",0,0.0979,0.2005,0.0,0,0.2988,0.104,0.0,0,0.3269,0.2406,0.0,1,0.3528,0.9153,1.0,0,0.3189,0.2413,0.0
+Melaka State Election: List Of Candidates Being Finalised By Party Leadership - Fadhlina - Bernama,0,0.3294,0.0854,0.0,0,0.1749,0.1081,0.0,0,0.1753,0.0582,0.0,0,0.1984,0.0796,0.0,0,0.2693,0.0527,0.0
+Analysts: Umno-Pas cooperation carries political risks and opportunities - NST Online,0,0.4695,0.217,0.4,1,0.6408,0.9116,0.5,0,0.2141,0.0641,0.1,0,0.2882,0.0739,0.3,0,0.2664,0.222,0.2
+"2027 Budget to address ageing population, cost-of-living pressures - NST Online",0,0.2068,0.2284,0.0,0,0.1528,0.1645,0.0,1,0.9288,0.9385,1.0,0,0.2694,0.2334,0.0,0,0.4009,0.2485,0.5
+High growth needs stronger floor - The Star,0,0.1488,0.2546,0.0,0,0.2115,0.158,0.3,0,0.6967,0.8694,0.7,0,0.2396,0.3063,0.0,0,0.1897,0.3027,0.5
+"Malaysia’s Budget 2027 lifts minimum wage to RM2,000, sets RM2,500 floor for graduates - HRM Asia",0,0.1389,0.147,0.0,0,0.1966,0.1456,0.0,1,0.811,0.9592,0.8,0,0.2896,0.1624,0.0,0,0.426,0.2941,0.6
+"Quality jobs, not minimum pay, key to income growth — BNM assistant governor - The Edge Malaysia",0,0.2147,0.1596,0.0,0,0.2789,0.1033,0.0,1,0.4993,0.924,0.0,0,0.2879,0.1544,0.0,0,0.2637,0.199,0.0
+Trump dangled his $5k ‘dividend’ to voters. Here’s how other countries have been buying elections for decades - Yahoo News UK,0,0.2671,0.1062,0.0,0,0.2464,0.0444,0.0,0,0.2847,0.182,0.0,0,0.4151,0.5236,0.0,0,0.2202,0.1044,0.0
+Opinion: Offering cash for votes is quite common throughout history — but here’s why it doesn’t work - Yahoo,0,0.1822,0.1733,0.0,0,0.3417,0.1419,0.0,0,0.2388,0.2087,0.0,1,0.2586,0.2362,0.0,0,0.3795,0.187,0.0
+Rise and fall and rise again of Umno-PAS relations - Free Malaysia Today,0,0.3528,0.3517,0.0,1,0.6589,0.905,0.0,0,0.2582,0.0774,0.0,0,0.2109,0.0712,0.0,0,0.1536,0.1365,0.0
+Anwar's Tambun among 27 seats PH risks losing if BN and PN unite in GE16 - Sinar Daily,0,0.1749,0.0592,0.0,1,0.5337,0.8684,0.5,0,0.1596,0.0497,0.0,0,0.2388,0.0402,0.0,0,0.2142,0.126,0.0
+Canine Rocky death could be spark that ignites racial meltdown; is this what Malaysians want? - Focus Malaysia,0,0.1422,0.1058,0.2,0,0.2625,0.0595,0.3,0,0.2744,0.1488,0.1,0,0.4311,0.2105,0.2,0,0.1868,0.0937,0.1
+"Bekalan tersusun antara faktor kuota subsidi bahan api naik, kata MoF - Free Malaysia Today",0,0.2868,0.1122,0.0,0,0.4531,0.7141,0.0,1,0.1524,0.0532,0.8,0,0.178,0.052,0.0,0,0.2329,0.0728,0.6
+Khaled: Recovering losses from Norway missile dispute could take time - NST Online,0,0.3413,0.0959,0.0,0,0.206,0.0636,0.0,0,0.3788,0.1197,0.0,1,0.2766,0.5234,0.0,0,0.3455,0.1432,0.0
+Budget 2027 Gives Opportunities For Banks To Drive Economic Growth - BusinessToday Malaysia,0,0.2014,0.1904,0.0,0,0.198,0.144,0.2,0,0.8268,0.9075,0.1,0,0.2491,0.3721,0.0,0,0.4683,0.2874,0.4
+"MACC remands corporate brothers in RM10m investment probe, seizes 15 luxury cars among others - The Edge Malaysia",0,0.2095,0.1583,0.0,0,0.2355,0.0848,0.0,0,0.3554,0.2088,0.0,1,0.7945,0.9538,1.0,0,0.1284,0.2416,0.0
+"Kerjasama Umno percepat cita-cita PAS ke Putrajaya, kata penganalisis - Free Malaysia Today",0,0.4758,0.231,0.0,1,0.7352,0.9321,0.5,0,0.2885,0.0526,0.0,0,0.1791,0.0542,0.0,0,0.0835,0.1769,0.0
+MACC Rewards RM1.18 Million To Civil Servants For Exposing Bribery - BusinessToday Malaysia,0,0.1442,0.2542,0.0,0,0.2134,0.1401,0.0,0,0.3807,0.2483,0.0,1,0.7779,0.949,1.0,0,0.1775,0.2582,0.8
+After Negri Sembilan: Can Anwar Ibrahim stop Malaysia’s green tide? - The Malaysian Reserve,0,0.1267,0.0513,0.0,0,0.3511,0.1742,0.0,0,0.2713,0.0578,0.0,0,0.1528,0.0475,0.0,0,0.3354,0.0577,0.0
+"UiTM Holdings probe ongoing but complex, says MACC - Free Malaysia Today",0,0.2459,0.1066,0.0,0,0.3693,0.0749,0.2,0,0.1685,0.1334,0.0,1,0.5783,0.7327,0.7,0,0.168,0.1354,0.0
+"Beyond cost-of-living aid: Malaysia must build a stronger, more secure middle class - Focus Malaysia",0,0.1928,0.2526,0.0,0,0.23,0.1635,0.0,1,0.7798,0.9321,0.8,0,0.2325,0.2247,0.0,0,0.1686,0.2275,0.5
+"Why Loke? Resignation unlikely to quell DAP criticism, says analyst - The Sun Malaysia",0,0.374,0.0617,0.0,0,0.2962,0.0821,0.0,0,0.232,0.068,0.0,0,0.2352,0.2163,0.0,1,0.2446,0.1893,0.0
+Bersama names candidates for 15 Melaka seats ahead of state election - The Star,0,0.1051,0.0645,0.0,0,0.2221,0.1491,0.5,0,0.317,0.0697,0.0,0,0.2126,0.1081,0.0,0,0.1687,0.0749,0.0
+Malaysia seeks to strengthen social protection system as it prepares for aged nation status - Human Resources Online,0,0.3594,0.2298,0.0,0,0.2588,0.0992,0.0,0,0.3046,0.8489,0.0,0,0.3615,0.3398,0.0,0,0.173,0.339,0.0
+PH Unveils 'Melaka Rumah Kita' Concept For State Election - Bernama,0,0.1387,0.0691,0.0,0,0.2128,0.0728,0.0,0,0.1332,0.0749,0.0,0,0.2334,0.1001,0.0,0,0.2456,0.0677,0.0
+"Melaka Pakatan open to talks, coalition welcomes negotiations ahead state election - Malay Mail",0,0.2739,0.0626,0.0,0,0.298,0.1501,0.3,0,0.1452,0.0643,0.0,0,0.1864,0.0575,0.0,0,0.1213,0.0557,0.2
+We don’t have time for divisive politics - Free Malaysia Today,0,0.4079,0.1028,0.0,0,0.3729,0.2518,0.0,0,0.178,0.0458,0.0,0,0.2055,0.0423,0.0,0,0.1224,0.0921,0.0
+Azalina: Malaysians want political funding law before GE16; political parties’ buy-in needed to avoid delay - Malay Mail,0,0.1436,0.0815,0.0,0,0.3787,0.0555,0.2,0,0.239,0.2,0.0,1,0.2777,0.3186,0.5,0,0.1564,0.1102,0.1
+ADB Raises Malaysia's Economic Growth Forecasts For 2026 And 2027 - Bernama,0,0.2651,0.2202,0.0,0,0.2186,0.1482,0.0,0,0.4776,0.912,0.0,0,0.2836,0.275,0.0,1,0.2542,0.2721,0.0
+"Hadi calls for Malay-Muslim unity with 'non-extreme' partners including MCA, MIC - NST Online",1,0.7488,0.9467,0.0,1,0.3724,0.5925,0.8,0,0.2287,0.2539,0.0,0,0.2493,0.2214,0.0,0,0.2765,0.3394,0.0
+[UPDATED] Former minister to be charged with corruption tomorrow - NST Online,0,0.3416,0.1927,0.0,0,0.2226,0.1017,0.0,0,0.3514,0.2604,0.0,1,0.3707,0.9426,1.0,0,0.2588,0.2548,0.0
+"BN will be of no help in PAS’s quest to win Selangor, says analyst - Free Malaysia Today",0,0.2303,0.0758,0.0,1,0.6176,0.7674,0.0,0,0.1377,0.042,0.0,0,0.2455,0.0476,0.0,0,0.1055,0.1376,0.0
+"Unity Govt Remains Stable, Strong At Federal Level – PM Anwar - Bernama",0,0.2697,0.0586,0.0,0,0.2814,0.6628,0.6,0,0.2994,0.0475,0.0,0,0.2599,0.0541,0.0,1,0.5272,0.2552,0.8
+Initiative launched to ease cost of living pressures - The Star,0,0.1099,0.1381,0.0,0,0.1841,0.1588,0.4,1,0.911,0.9601,0.9,0,0.1977,0.1709,0.1,0,0.1932,0.2634,0.5
+My Say: The Malaysia that we must not lose - The Edge Malaysia,0,0.2153,0.0692,0.0,0,0.2542,0.2189,0.0,0,0.4225,0.0848,0.0,0,0.4533,0.0773,0.0,0,0.2612,0.08,0.0
+"MCW urges MACC to probe claims senior officer received RM350,000 bribe - NST Online",0,0.2666,0.2424,0.0,0,0.1874,0.1472,0.0,0,0.297,0.2988,0.0,1,0.6857,0.9603,1.0,0,0.2722,0.259,0.0
+PAS’s Evolving International Engagement: From Islamism To Development Diplomacy? - Analysis - Eurasia Review,1,0.3335,0.9275,0.1,0,0.5599,0.4009,0.3,0,0.1936,0.2956,0.2,0,0.4073,0.3065,0.1,0,0.2005,0.3648,0.2
+Donating to Najib: ‘One of the most foolish things I have seen’ – UM student - The Vibes,0,0.1575,0.1041,0.0,0,0.2401,0.1505,0.0,0,0.3748,0.0855,0.0,0,0.2351,0.1067,0.6,0,0.2364,0.2271,0.0
+Melaka election countdown? Perikatan hints at polls within two months - Malay Mail,0,0.2209,0.0677,0.0,0,0.3793,0.1073,0.0,0,0.1719,0.0796,0.0,0,0.321,0.1241,0.0,0,0.1613,0.0782,0.0
+"Fahmi: PKR congress to assess party performance in Johor, Negeri Sembilan polls - Malay Mail",0,0.2861,0.0483,0.0,0,0.3343,0.2581,0.0,0,0.1701,0.0461,0.0,0,0.2635,0.057,0.0,0,0.1598,0.1594,0.0
+"Inflation Eases To 1.8% In September As Energy Costs Moderates, DOSM - BusinessToday Malaysia",0,0.2502,0.2328,0.0,0,0.2968,0.1486,0.0,1,0.2389,0.9613,0.2,0,0.4245,0.1467,0.0,0,0.1296,0.2857,0.3
+MELAKA: ELECTION WAR DRUMS BEATING | Political bargaining in Melaka gets complicated - The Edge Malaysia,0,0.1388,0.0679,0.0,0,0.2613,0.1024,0.0,0,0.2287,0.0764,0.0,0,0.3783,0.1608,0.0,0,0.1607,0.0856,0.0
+"Consumer Outlook Resilient But Risk Remains On Prolonged Energy, Food, Logistics Costs - BusinessToday Malaysia",0,0.2587,0.1825,0.0,0,0.2641,0.1314,0.0,1,0.2273,0.9373,0.7,0,0.5155,0.1337,0.0,0,0.3394,0.246,0.0
+"S&P reaffirms Malaysia's A- rating, stable outlook - NST Online",0,0.3218,0.0725,0.0,0,0.1901,0.0991,0.3,1,0.307,0.2443,0.0,0,0.593,0.1163,0.0,0,0.2813,0.3138,0.4
+Threat of Najib pardon gives Malaysian coalition new battle cry in Johor poll - South China Morning Post,0,0.1534,0.0535,0.7,0,0.277,0.1053,0.8,0,0.2283,0.0624,0.4,0,0.2678,0.1123,0.6,0,0.2569,0.1743,0.3
+Syed Saddiq urges Norway to compensate Malaysia over cancelled missile deal - NST Online,0,0.297,0.264,0.0,0,0.1995,0.2068,0.3,0,0.2693,0.2613,0.0,0,0.5879,0.9199,0.0,0,0.3356,0.4013,0.1
+Umno-DAP cooperation remains hard to sell to Malay voters - NST Online,1,0.2474,0.0925,0.2,0,0.3425,0.9241,0.5,0,0.3134,0.0515,0.1,0,0.3359,0.0562,0.3,0,0.4443,0.1175,0.2
+Forced Into a ‘Double Life’ as a Malay Christian - International Christian Concern,1,0.2009,0.776,0.6,0,0.3104,0.3901,0.4,0,0.271,0.1735,0.0,0,0.3414,0.293,0.2,0,0.1873,0.3618,0.0
+Troubled UMNO-linked firm Zetrix owes Malaysian government over $63 million in collections: Source - The Straits Times,0,0.116,0.0608,0.0,0,0.2772,0.4121,0.4,0,0.1905,0.0474,0.0,1,0.2734,0.1083,0.6,0,0.3465,0.0964,0.0
+The new political equation: What the maths shows about the likely outcome of GE16 in Peninsular Malaysia - The Edge Malaysia,0,0.1586,0.0583,0.6,0,0.3316,0.1812,0.7,0,0.3294,0.0674,0.5,0,0.3803,0.0579,0.8,0,0.1601,0.1503,0.3
+PKR to chart reform roadmap as Anwar headlines 2026 national congress - The Vibes,0,0.2014,0.0454,0.1,0,0.2051,0.1285,0.2,0,0.2901,0.0738,0.3,0,0.2366,0.0787,0.2,0,0.2911,0.1965,0.4
+"Akmal’s use of principle only a political weapon, says analyst - Free Malaysia Today",0,0.186,0.675,0.0,0,0.4791,0.3629,0.4,0,0.1805,0.1176,0.0,0,0.2038,0.3663,0.0,0,0.1939,0.5927,0.0
+PM Anwar to Table 2027 Budget in Dewan Rakyat This Afternoon - Malaysia-China Insight,0,0.1929,0.0711,0.0,0,0.2009,0.0824,0.6,0,0.629,0.1744,0.8,0,0.2159,0.1338,0.5,0,0.6201,0.1231,0.7
+Malaysia's Residential Property Market Analysis 2026 - Global Property Guide,0,0.2297,0.1902,0.0,0,0.2487,0.1026,0.0,0,0.2834,0.8746,0.0,0,0.4107,0.3737,0.0,0,0.4006,0.4415,0.0
+"CIMB backs Budget 2027 push for growth, fiscal sustainability - The Malaysian Reserve",0,0.1632,0.1042,0.0,0,0.2513,0.0923,0.0,1,0.4849,0.6474,0.3,0,0.2083,0.1117,0.0,0,0.416,0.2085,0.0
+"Malaysia strengthens cyber, data safeguards amid AI deepfake threats - The Malaysian Reserve",0,0.1776,0.1537,0.1,0,0.309,0.0764,0.2,0,0.3932,0.275,0.0,0,0.2397,0.8851,0.0,0,0.3375,0.2365,0.3
+"Govt to amend wage law for mandatory RM2,500 minimum starting salary for graduates, semi-skilled workers — HR minister - The Edge Malaysia",0,0.2151,0.1306,0.0,0,0.2631,0.0964,0.0,0,0.5166,0.9242,0.5,0,0.4371,0.4204,0.0,0,0.1617,0.3887,0.5
+Malaysia's Anwar targets cost-of-living woes after election setbacks - Nikkei Asia,0,0.1699,0.1838,0.0,0,0.1664,0.1005,0.3,1,0.8027,0.9427,0.9,0,0.2195,0.3017,0.4,0,0.2186,0.3057,0.2
+"Malaysia's strong growth yet to reach households, small businesses - Nikkei Asia",0,0.2393,0.282,0.1,0,0.2843,0.1519,0.6,1,0.5359,0.8825,0.8,0,0.2384,0.2612,0.5,0,0.276,0.2327,0.7
+"Let DAP delegates revisit options if they vote to stay in govt, says Ramkarpal - Free Malaysia Today",0,0.4017,0.0579,0.1,0,0.4011,0.098,0.3,0,0.2058,0.063,0.2,0,0.2651,0.0755,0.5,0,0.2561,0.0677,0.0
+Analysts split over DAP’s ‘stay for now’ strategy - Free Malaysia Today,0,0.2012,0.0797,0.0,0,0.3588,0.2478,0.0,0,0.1551,0.0789,0.0,0,0.2899,0.0426,0.0,0,0.3664,0.1373,0.0
+"Don't rush early GE16, PKR rep tells unity government - NST Online",0,0.2442,0.0707,0.0,0,0.2786,0.2556,0.3,0,0.3154,0.0415,0.0,0,0.4641,0.0737,0.0,0,0.439,0.1442,0.0
+Amanah leader dares Hadi to haul DAP to court for ‘opposing Islam’ - Free Malaysia Today,1,0.2566,0.2475,0.9,0,0.4264,0.364,0.3,0,0.2088,0.0362,0.0,0,0.1859,0.1234,0.0,0,0.2023,0.2112,0.0
+Selangor PKR Youth urges PH to reassess ties with BN - Free Malaysia Today,0,0.2163,0.0902,0.0,0,0.5697,0.9211,0.0,0,0.1822,0.053,0.0,0,0.2169,0.0548,0.0,0,0.1725,0.1227,0.0
+Political Differences Should Not Become Religious Threats - YADIM - Bernama,1,0.1301,0.3903,0.2,0,0.3497,0.172,0.3,0,0.2958,0.0802,0.0,0,0.3198,0.186,0.0,0,0.3622,0.3257,0.1
+MACC denies more Umno senior leaders will be arrested after 2026 assembly - Free Malaysia Today,0,0.1817,0.0676,0.0,0,0.4116,0.3366,0.0,0,0.2259,0.0329,0.0,1,0.3924,0.1204,0.0,0,0.1581,0.1105,0.0
+"Anwar warns students of toxic politics, urges them to uphold values - Free Malaysia Today",0,0.4605,0.9294,0.1,0,0.2678,0.3749,0.3,0,0.2453,0.2247,0.4,0,0.1632,0.1508,0.5,0,0.1387,0.169,0.6
+"RM3,100 living wage reasonable amid rising costs, say economists - NST Online",0,0.2757,0.2124,0.0,0,0.1659,0.1391,0.0,1,0.6731,0.9603,0.8,0,0.297,0.2899,0.0,0,0.3474,0.3596,0.3
+N. Sembilan polls: EC says no complaints of vote‑buying during campaign - Malay Mail,0,0.257,0.0637,0.0,0,0.4219,0.1251,0.2,0,0.1585,0.0722,0.1,1,0.1856,0.0827,0.1,0,0.1721,0.0819,0.0
+Malaysia's cost-of-living plan outlines 429 measures through 2030 - Traders Union,0,0.1863,0.239,0.0,0,0.2084,0.167,0.0,1,0.872,0.9657,1.0,0,0.2371,0.1533,0.0,0,0.2021,0.2531,0.5
+"MACC: Misconception that only bribe recipients are prosecuted, givers face action too - The Star",0,0.1536,0.2303,0.0,0,0.2308,0.1312,0.0,0,0.4117,0.2934,0.0,1,0.474,0.9565,1.0,0,0.2034,0.2615,0.0
+"‘Muafakat 2.0’ taking shape in Johor, says analyst - Free Malaysia Today",0,0.1612,0.0951,0.2,1,0.4213,0.544,0.9,0,0.1233,0.0655,0.3,0,0.1576,0.0562,0.4,0,0.2145,0.058,0.5
+Loke Calls for PH Presidential Council Meeting to Address Political Fractures - Vocal,0,0.2049,0.2186,0.1,0,0.3715,0.0873,0.3,0,0.2693,0.1126,0.4,0,0.2205,0.2919,0.5,0,0.2243,0.3512,0.0
+"Minimum wage review does not automatically mean pay hike, says UNI-MLC - The Star",0,0.1984,0.1662,0.0,0,0.2558,0.1689,0.2,1,0.6112,0.9603,0.5,0,0.2673,0.2654,0.0,0,0.1988,0.4669,0.3
+"2 cops nabbed for allegedly taking bribes totalling RM14,000 from motorists - Free Malaysia Today",0,0.3878,0.2158,0.0,0,0.3539,0.1284,0.0,0,0.2662,0.2534,0.0,1,0.1763,0.9507,0.9,0,0.1022,0.2236,0.0
+"Rising wages fail to ease financial strain for some urban families, study finds - The Star",0,0.1988,0.2479,0.0,0,0.2537,0.1679,0.0,1,0.6462,0.9547,0.8,0,0.2092,0.276,0.2,0,0.2039,0.3607,0.3
+Kelantan MACC remands project manager in RM38k bribery probe - NST Online,0,0.2697,0.2002,0.0,0,0.1617,0.1182,0.0,0,0.2773,0.2412,0.0,1,0.8767,0.9504,1.0,0,0.2704,0.228,0.0
+"No compelling reason for voters to back PH, says DAP rep - Free Malaysia Today",0,0.2263,0.0523,0.1,0,0.374,0.1229,0.3,0,0.1635,0.0514,0.0,0,0.1969,0.0698,0.4,0,0.3254,0.083,0.0
+MACC busts illegal frozen chicken syndicate in Sabah - The Edge Malaysia,0,0.1022,0.2291,0.0,0,0.2324,0.1013,0.0,0,0.2916,0.1865,0.0,1,0.5291,0.8768,0.8,0,0.2392,0.1863,0.5
+"MACC opens six investigation papers into Felda, FIC; arrests expected next week - The Edge Malaysia",0,0.3293,0.1882,0.0,0,0.2726,0.16,0.3,0,0.2399,0.2369,0.0,1,0.7012,0.8993,0.8,0,0.2173,0.3114,0.0
+"Tough talks ahead in proposed Umno-PAS GE16 pact, says analysts - Free Malaysia Today",0,0.269,0.1046,0.5,1,0.797,0.9288,0.4,0,0.1317,0.0568,0.2,0,0.1886,0.0496,0.4,0,0.222,0.1696,0.1
+"PM: Malaysia's 5.8pct growth shows resilience, but reforms must continue - NST Online",0,0.2925,0.1537,0.0,0,0.1918,0.0859,0.3,0,0.5822,0.8688,0.0,0,0.5749,0.1563,0.0,0,0.4477,0.2193,0.6
+"Malaysia's inflation among region's lowest, but upstream cost pressures rising - World Bank - The Star",0,0.2174,0.2126,0.0,0,0.2168,0.1323,0.4,1,0.7344,0.9518,0.5,0,0.3456,0.1407,0.0,0,0.1958,0.2574,0.3
+"Pas' move to prioritise Umno, BN signals intent, not electoral realignment, says analyst - NST Online",0,0.4811,0.1345,0.2,1,0.5923,0.8622,0.7,0,0.2503,0.0576,0.1,0,0.1907,0.0684,0.4,0,0.315,0.3032,0.2
+Malaysia’s Progressive Islamic Party: Can Amanah Still Be Pakatan Harapan’s Counterweight to PAS? - fulcrum.sg,1,0.2333,0.0744,0.3,0,0.3515,0.6053,0.4,0,0.2337,0.0353,0.5,0,0.2904,0.0344,0.6,0,0.2788,0.0901,0.0
+Umno–PAS cooperation: Who is using whom – and who will utimately absorb whom? - MySinchew,0,0.3334,0.0711,0.6,1,0.7413,0.614,0.5,0,0.1559,0.0423,0.2,0,0.2842,0.0385,0.4,0,0.1592,0.0655,0.1
+FAM election: Checkmate or just another move in Malaysian football's power game - NST Online,0,0.2124,0.0736,0.0,0,0.2367,0.0753,0.0,0,0.2503,0.0985,0.0,0,0.4893,0.1501,0.0,0,0.2699,0.2119,0.0
+"Selangor voters can judge PAS by SG4, says analyst - Free Malaysia Today",0,0.2656,0.0638,0.4,0,0.6712,0.4458,0.3,0,0.1421,0.049,0.5,0,0.132,0.055,0.6,0,0.1759,0.0465,0.4
+"Anwar: We are not building a nation for one fiscal year, but for a generation - The Malaysian Reserve",0,0.1899,0.0662,0.0,0,0.2503,0.1135,0.0,0,0.373,0.5054,0.0,0,0.3594,0.0864,0.0,0,0.3456,0.3099,0.5
+Chauvinism has to be “Ta Pau” first - MySinchew,0,0.2466,0.9026,0.7,0,0.3177,0.561,0.6,0,0.3055,0.2609,0.1,0,0.3002,0.1775,0.3,0,0.2242,0.2883,0.2
+"BN returns to power in Negri Sembilan after 8 years, with PN support - The Malaysian Reserve",0,0.143,0.072,0.0,1,0.5129,0.8831,0.7,0,0.2021,0.0505,0.0,0,0.1794,0.0646,0.0,0,0.2741,0.1162,0.6
+BN holds advantage as Melaka election arithmetic shifts - NST Online,0,0.156,0.0485,0.0,0,0.3111,0.1143,0.0,0,0.2481,0.0611,0.0,0,0.37,0.0712,0.0,0,0.2029,0.0628,0.0
+Govt launches 5-year plan with 429 measures to ease cost of living - Free Malaysia Today,0,0.218,0.1424,0.0,0,0.3096,0.0992,0.3,1,0.701,0.7843,0.9,0,0.1884,0.2237,0.1,0,0.1976,0.1772,0.6
+Malaysia’s Islamist Party Signals Alliance With Anwar’s Partners - Bloomberg.com,1,0.2996,0.8076,0.2,0,0.4462,0.6694,0.3,0,0.2993,0.0769,0.0,0,0.3082,0.1656,0.4,0,0.2411,0.1598,0.3
+"[UPDATED] Police probe RM350,000 bribery claim against senior MACC officer - NST Online",0,0.2185,0.2375,0.0,0,0.1828,0.1761,0.0,0,0.2403,0.2918,0.0,1,0.9295,0.9543,1.0,0,0.224,0.3564,0.0
+Melaka state assembly dissolved to pave way for 16th state polls - The Star,0,0.1814,0.059,0.0,0,0.238,0.1205,0.0,0,0.2851,0.0572,0.0,0,0.2378,0.0645,0.0,0,0.1313,0.0539,0.0
+INTERACTIVE: Household spending outpaces income growth in 12 states - The Star,0,0.1873,0.1294,0.0,0,0.2703,0.1563,0.0,1,0.5138,0.9525,0.8,0,0.2461,0.1588,0.0,0,0.2328,0.2474,0.0
+"Budget 2027: Malaysia’s minimum wage to rise from RM1,700 to RM2,000 from June 2027 - Borneo Post",0,0.2245,0.1992,0.0,0,0.198,0.1529,0.0,1,0.798,0.941,0.8,0,0.3897,0.28,0.0,0,0.4613,0.2526,0.5
+"Consumer spending to moderate in 2H2026 amid cost pressures, say economists - The Edge Malaysia",0,0.1051,0.1414,0.0,0,0.2226,0.1709,0.0,1,0.5964,0.9623,0.8,0,0.2049,0.147,0.0,0,0.2803,0.332,0.0
+Climate change drives up cost of living - The Star,0,0.13,0.3041,0.0,0,0.2398,0.1688,0.0,1,0.8928,0.9642,0.8,0,0.2128,0.1418,0.2,0,0.1755,0.2534,0.3
+"Umno-Pas cooperation drawing envy from political rivals, says Asyraf Wajdi - NST Online",0,0.5255,0.3384,0.2,1,0.6878,0.95,0.7,0,0.2104,0.0694,0.1,0,0.4292,0.0906,0.3,0,0.1779,0.2477,0.6
+PH to contest only 21 seats in Melaka polls - Free Malaysia Today,0,0.1684,0.0529,0.2,0,0.2938,0.1297,0.3,0,0.1565,0.0601,0.4,0,0.194,0.0674,0.5,0,0.0984,0.1504,0.0
+"Melaka state election set for Nov 14 polling, Oct 31 nomination - Malay Mail",0,0.2851,0.0777,0.0,0,0.2057,0.0757,0.0,0,0.1688,0.0728,0.0,0,0.2855,0.0981,0.0,0,0.1212,0.054,0.0
+Ten focus areas in upcoming Budget 2027 — MOF - The Edge Malaysia,0,0.1002,0.1598,0.0,0,0.2027,0.1345,0.0,0,0.8136,0.8439,0.8,0,0.2194,0.111,0.0,0,0.6762,0.4404,0.7
+"MACC says police investigating MyEG and Zetrix AI, will act if corruption suspected - The Edge Malaysia",0,0.1178,0.2369,0.0,0,0.3423,0.1309,0.0,0,0.2613,0.1981,0.0,1,0.4313,0.9393,0.8,0,0.278,0.2639,0.0
+"Don’t leave Malay Muslim concerns open to exploitation, says Kamil - Free Malaysia Today",1,0.7169,0.9458,0.4,0,0.4821,0.4545,0.7,0,0.1817,0.2647,0.2,0,0.181,0.3158,0.3,0,0.1189,0.3634,0.1
+MA63 - PBK CALLS FOR A DEFINITIVE SETTLEMENT OF SARAWAK AND SABAH’S CONSTITUTIONAL RIGHTS - Jesselton Times,0,0.2072,0.1321,0.0,0,0.3118,0.4432,0.0,0,0.2502,0.056,0.0,0,0.3949,0.0885,0.0,0,0.2512,0.1401,0.0
+"PAC demands strict oversight, financial discipline for RM11.22bil LCS project - NST Online",0,0.3993,0.1661,0.0,0,0.2105,0.0722,0.0,0,0.3223,0.3534,0.0,1,0.4159,0.9,0.3,0,0.4347,0.2481,0.0
+"Talks on Naval Strike Missile delivery cancellation to begin mid-August, says Khaled - The Star",0,0.158,0.2746,0.0,0,0.3037,0.1891,0.0,0,0.3773,0.3992,0.0,0,0.2348,0.5288,0.0,0,0.3202,0.3773,0.2
+Sebahagian kawasan di Lembah Klang hampiri IPU sangat tak sihat - Free Malaysia Today,0,0.4714,0.1268,0.0,0,0.4996,0.4503,0.0,0,0.2036,0.0756,0.0,0,0.1694,0.0384,0.0,0,0.073,0.0443,0.0
+"Police: Two investigation papers opened over RM350,000 bribery claim against senior MACC officer - Malay Mail",0,0.2273,0.2508,0.0,0,0.236,0.1248,0.0,0,0.2327,0.1721,0.0,1,0.9241,0.9716,1.0,0,0.1662,0.2282,0.0
+How Tabung Haji hid a RM4.8bn hole in its accounts - Aliran,0,0.2071,0.0885,0.1,0,0.3685,0.0669,0.2,0,0.3656,0.1042,0.3,1,0.3223,0.7821,0.9,0,0.1702,0.131,0.1
+"Melaka state assembly to be dissolved on Sep 23, paving way for election within 60 days: Chief Minister - CNA",0,0.1343,0.0566,0.0,0,0.2157,0.099,0.0,0,0.2142,0.0504,0.0,0,0.2988,0.0948,0.0,0,0.2135,0.1026,0.0
+"LCS 1 delivery rescheduled to April 2027, says Mohamed Khaled - The Malaysian Reserve",0,0.1899,0.0601,0.0,0,0.3178,0.133,0.0,0,0.3121,0.0737,0.0,0,0.2383,0.3589,0.0,0,0.4944,0.2191,0.0
+"DAP will remain multiracial party despite electoral setbacks, says Loke - The Edge Malaysia",1,0.1864,0.0566,0.0,0,0.2819,0.4251,0.0,0,0.2527,0.0344,0.0,0,0.2157,0.0386,0.0,0,0.3848,0.1055,0.0
+"Ridhuan Tee Called MCA ‘Biawak Hidup’, He Was Their Member For 15 Years - TRP | The Rakyat Post",0,0.2653,0.0947,0.0,0,0.3324,0.6973,0.0,0,0.2822,0.0488,0.0,0,0.3268,0.0551,0.0,0,0.2063,0.1375,0.0
+"In the US, a wealth boom and a price shock collide - Free Malaysia Today",0,0.2134,0.1956,0.0,0,0.4573,0.1132,0.0,0,0.1755,0.7975,0.0,0,0.2172,0.2407,0.0,0,0.1255,0.1722,0.0
+"PAS accelerating Putrajaya ambitions with Umno alliance, says analyst - Free Malaysia Today",0,0.3083,0.1549,0.3,1,0.8317,0.9313,0.6,0,0.1107,0.0471,0.1,0,0.1915,0.0514,0.4,0,0.113,0.1843,0.2
+Communal politics blamed for religious intolerance among kids - Free Malaysia Today,1,0.4661,0.4932,0.6,0,0.3938,0.1196,0.5,0,0.2026,0.182,0.2,0,0.2423,0.2034,0.4,0,0.11,0.2509,0.3
+Malaysia Court Rejects Najib Razak’s Bid to Suspend 15-Year Jail Term in 1MDB Scandal - Modern Diplomacy,0,0.2037,0.1631,0.0,0,0.281,0.176,0.2,0,0.2636,0.185,0.0,1,0.2976,0.8087,0.9,0,0.28,0.3159,0.0
+Moving from identity politics to citizenship politics - Free Malaysia Today,1,0.5225,0.264,0.0,0,0.3666,0.2254,0.0,0,0.2425,0.1086,0.0,0,0.1612,0.1267,0.0,0,0.1397,0.0634,0.0
+From wars to wallets:How inflation hits home - The Sun Malaysia,0,0.2463,0.2003,0.0,0,0.2226,0.1329,0.0,1,0.407,0.8227,0.8,0,0.509,0.2342,0.0,0,0.241,0.2105,0.2
+"BN remains committed to unity government until end of term, says Khaled - NST Online",0,0.3274,0.1105,0.2,0,0.3481,0.8949,0.7,0,0.2665,0.0491,0.5,0,0.4898,0.0574,0.3,1,0.2524,0.2425,0.6
+Anwar signals more measures to boost wages in 2027 Budget - NST Online,0,0.2933,0.2019,0.0,0,0.2069,0.1649,0.0,1,0.6846,0.9492,0.7,0,0.3732,0.2969,0.0,0,0.4543,0.2773,0.6
+"Umno, PAS must start talks now if they want to cooperate in Perak, says delegate - Free Malaysia Today",0,0.3837,0.0865,0.0,1,0.7485,0.8493,0.8,0,0.1923,0.0487,0.0,0,0.263,0.0436,0.0,0,0.0977,0.0852,0.0
+"Social media, popular culture threatening Muslim identity, says Sultan Nazrin - NST Online",1,0.5979,0.9181,0.9,0,0.3037,0.3185,0.4,0,0.2233,0.2468,0.1,0,0.476,0.411,0.2,0,0.2889,0.2359,0.1
+"Islamic State watched me while I went jogging, says Ayob - Free Malaysia Today",1,0.2715,0.1568,0.9,0,0.5066,0.1617,0.2,0,0.0905,0.0779,0.1,0,0.1048,0.1544,0.3,0,0.1035,0.065,0.2
+"Over 8,400 fake social media accounts exploiting 3R issues identified, says Fahmi - The Star",0,0.2285,0.2294,0.7,0,0.2575,0.1001,0.6,0,0.3853,0.2362,0.0,0,0.3789,0.9324,0.3,0,0.2523,0.2397,0.2
+Mohd Yadzil signals impending Barisan-Perikatan Melaka poll talks - The Star,0,0.1227,0.0555,0.0,1,0.344,0.1595,0.6,0,0.3765,0.0614,0.0,0,0.2309,0.0597,0.0,0,0.263,0.1664,0.1
+"PM: Billions spent, but more needs to be done to ease cost-of-living pressures - The Vibes",0,0.1531,0.1426,0.0,0,0.1666,0.1343,0.0,1,0.8187,0.9575,1.0,0,0.2908,0.2503,0.0,0,0.2067,0.4118,0.7
+Human Resources Ministry to introduce Starting Basic Salary Guidelines in June 2027 rollout - Malay Mail,0,0.3512,0.1637,0.0,0,0.3394,0.1291,0.0,1,0.338,0.8889,0.1,0,0.3129,0.3572,0.0,0,0.2599,0.2683,0.1
+MOF: Shareholder difference one reason why Berjaya-Naza lost govt fleet management contract - The Edge Malaysia,0,0.1775,0.0782,0.0,0,0.3164,0.0672,0.0,0,0.5149,0.2191,0.0,0,0.417,0.6808,0.0,1,0.1776,0.2762,0.0
