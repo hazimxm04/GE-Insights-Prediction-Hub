@@ -48,13 +48,14 @@ st.markdown("""
 
 st.markdown("""
 <div class="headline-card">
-    <div class="headline-number">94.64% / 91.67%</div>
+    <div class="headline-number">85.71% / 86.11%</div>
     <div style="font-size:13px; color:#F87171; text-transform:uppercase; letter-spacing:1px; margin-top:4px; font-weight:600;">
         Accuracy Rate
     </div>
     <div class="headline-label" style="margin-top:8px;">
-        Validated against actual 2026 Malaysian state election results —
-        the real outcome, not a simulated test.
+        Johor / Negeri Sembilan, checked against the actual 2026 results
+        with leakage-free features. Simple rules score 48&ndash;50 of 56 (Johor)
+        and 25&ndash;30 of 36 (NS), so read the accuracy next to those baselines.
     </div>
 </div>
 """, unsafe_allow_html=True)
@@ -76,15 +77,15 @@ with col1:
     st.markdown("""
     <div class="finding-card">
         <div style="color:#4ADE80; font-weight:700; font-size:16px; margin-bottom:10px;">
-             Redefining Label Beats Feature Engineering
+             Defining The Target To Match Reality
         </div>
         <div style="color:#FAFAFA; font-size:14px; font-weight:700; margin-bottom:8px;">
-            One reframe beat every feature we added.
+            The target is the government bloc against Harapan.
         </div>
         <div style="color:#D1D5DB; font-size:13px; line-height:1.5;">
             Redefining the target from "BN vs everyone" to "government
             bloc (BN+PN) vs Harapan" — matching the real 2026 political
-            alignment — added 28 points on its own.
+            alignment. It is also a known simplification (see Known Limitations).
         </div>
     </div>
     """, unsafe_allow_html=True)
@@ -101,9 +102,7 @@ with col2:
         <div style="color:#D1D5DB; font-size:13px; line-height:1.5;">
             Selangor's Malay voters (Pakatan Harapan's heartland since 2008)
             behave oppositely to Johor's. Required native, state-specific
-            models — and a backtest confirming when the simpler original
-            model (94.64%) beats the "improved" one (91.23% on the
-            same test).
+            models.
         </div>
     </div>
     """, unsafe_allow_html=True)
@@ -123,8 +122,7 @@ with col3:
             52% of the time — barely better than a coin flip. This
             confirms the Efficient Market Hypothesis: prices already
             reflect known information, so daily movement is genuinely
-            unpredictable. The forecast still feeds the election model
-            as one feature, weighted low to match its actual signal strength.
+            unpredictable.
         </div>
     </div>
     """, unsafe_allow_html=True)
@@ -142,7 +140,7 @@ with st.expander("📥 Data Pipeline"):
     **Voter demographics:** GE-15 voter roll (3–5M rows), aggregated to
     seat-level ethnicity/age composition
 
-    **Sentiment:** FMT + Malay Mail RSS scraped daily, scored via Groq/Llama
+    **Sentiment:** FMT + Malay Mail RSS scraped daily, scored via Groq
     (9 dimensions: BN/Harapan/PN sentiment, racial tension, per article)
 
     **Economic:** yfinance (KLCI, USD/MYR) + BNM API, forecasted via PyTorch LSTM
@@ -152,59 +150,45 @@ with st.expander("📥 Data Pipeline"):
 
 with st.expander("🧠 Model Architecture — Validated States (Johor, Negeri Sembilan)"):
     st.markdown("""
-    Single-transition training (most recent completed election pair) →
-    25 engineered features (structural, sentiment, demographic, interaction
-    terms) → Random Forest + XGBoost ensemble → isotonic calibration →
-    EllipticEnvelope OOD detection with base-rate fallback blending.
+    Features come from one shared function (`backend/core/features.py`,
+    version `a_only_v1`): structural and ethnicity features built only
+    from information known before the election, so nothing from the
+    result leaks in. Model: Random Forest + XGBoost, isotonic
+    calibration, then outlier detection with a historical base-rate
+    blend for seats unlike the training data.
 
-    **Hyperparameters** (max_depth, min_samples_leaf, regularization) were
-    tuned by diagnosing overconfidence symptoms — checking for predictions
-    above 90% confidence that turned out wrong — rather than a systematic
-    grid search. *(See Known Limitations.)*
-
-    **Result:** 94.64% (Johor) / 91.67% (NS) accuracy against actual
-    2026 results.
+    **Result:** 85.71% (Johor, 48/56) and 86.11% (NS, 31/36) against the
+    actual 2026 results. The simple rules "never opposition" and "same
+    as last time" score 48 and 50 of 56 in Johor, and 25 and 30 of 36 in
+    NS, so the model clearly beats them in NS but only ties or trails
+    them on accuracy in Johor.
     """)
 
 with st.expander("🧠 Model Architecture — Forecast States (Melaka, Selangor, Perak)"):
     st.markdown("""
-    Multi-transition training (2013→2018 + 2018→recent, combined) with
-    stronger regularization → native RF+XGB ensemble per state → blended
-    50/50 with a weighted-recency historical loyalty score:
+    The same pipeline and the same feature code are used for each
+    state, trained on its own history, and the forecast is made for
+    the next election.
 
-    ```
-    loyalty_score = weighted_avg_share + trend_adjustment − blue_wave_pressure
-    ```
+    Seats are matched across election years by **number** (e.g. "N.21"),
+    not name, to survive redelineation-driven name changes.
 
-    The 50/50 blend weight and the blue-wave pressure multiplier are
-    **hand-selected based on observed behavior, not empirically tuned**
-    via cross-validation. *(See Known Limitations.)*
-
-    Recency weights: 2008=10%, 2013=20%, 2018=30%, most recent=40%.
-
-    Seats matched across election years by **number** (e.g. "N.21"), not
-    name, to survive redelineation-driven name changes — N.21 "Chempaka"
-    (2008/2013) became "Pandan Indah" (2018+); matching by name alone
-    silently dropped its historical loyalty and understated a genuinely
-    safe seat.
+    **Frozen forecasts:** on 30 Oct 2026 the forecasts for Selangor (56
+    seats), Melaka (28) and Perak (59) were saved with checksums and
+    tagged `forecasts-2026-10-30` on GitHub, before any of these
+    elections. They will be scored against the real results when they
+    happen.
     """)
 
 
 with st.expander("✅ Validation Strategy"):
     st.markdown("""
-    **Direct validation (Johor, NS):** trained on year N, predicted year
-    N+1, compared against the real, already-occurred result.
+    **Direct validation (Johor, NS):** trained on earlier elections,
+    predicted the 2026 result, compared against the real outcome,
+    always against the simple baselines.
 
-    **Indirect validation (forecast states):** no election has happened
-    yet to check against. Instead, applied the SAME forecast methodology
-    to Johor's known 2026 result as a backtest — 91.23% accuracy confirmed
-    the general approach is sound, even though it underperforms Johor's
-    own tuned model.
-
-    **Overconfidence diagnostic:** checked every validated prediction for
-    cases where the model was >90% confident but wrong. Johor: 0 such
-    cases. NS: 2 (both genuinely mixed-demographic seats with no clear
-    ethnic plurality).
+    **Forecast states:** no result exists yet. Instead the forecasts
+    were frozen in advance (see above), so the later score is believable.
     """)
 
 with st.expander("🤖 RAG Chatbot + Function Calling"):
@@ -221,10 +205,14 @@ with st.expander("🤖 RAG Chatbot + Function Calling"):
 
 with st.expander("⚠️ Known Limitations"):
     limitations = [
-        "**Blend weights are hand-selected, not empirically tuned.** The "
-        "50/50 split between native model and historical loyalty (and the "
-        "blue-wave pressure multiplier) were chosen based on observed "
-        "behavior, not a grid search or cross-validated fit.",
+        "**Johor does not clearly beat simple rules on accuracy.** "
+        "48/56 matches the \"never opposition\" rule and trails \"same as "
+        "last time\" (50/56). The model's value there is ranking seats "
+        "(AUC), not raw accuracy.",
+
+        "**Confidence labels are not calibrated.** The HIGH/MEDIUM/LOW "
+        "cut-offs do not fit the scale of the outlier scores, so every "
+        "seat currently shows LOW confidence.",
 
         "**Coalition target treats BN and PN as one \"non-Harapan\" bloc**, "
         "regardless of whether they contested the same seat together "
@@ -236,11 +224,6 @@ with st.expander("⚠️ Known Limitations"):
         "and Perak's next elections haven't happened — these are "
         "forecasts, not validated predictions, however sound the "
         "backtested methodology appears.",
-
-        "**No formal train/validation split for forecast-state models.** "
-        "They train on all available historical transitions; the Johor "
-        "backtest substitutes for held-out validation but isn't the same "
-        "as a true validation set.",
 
         "**Small training samples** (28–60 seats per state) mean "
         "individual hyperparameter choices (tree depth, regularization) "

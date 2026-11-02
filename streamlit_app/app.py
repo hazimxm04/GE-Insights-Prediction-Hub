@@ -379,12 +379,12 @@ with hc2:
     c1, c2, c3 = st.columns(3)
     with c1:
         st.markdown(f"""<div class="stat-card">
-            <div class="value">94.64%</div>
+            <div class="value">85.71%</div>
             <div class="label">Johor Accuracy</div>
         </div>""", unsafe_allow_html=True)
     with c2:
         st.markdown(f"""<div class="stat-card">
-            <div class="value">91.67%</div>
+            <div class="value">86.11%</div>
             <div class="label">NS Accuracy</div>
         </div>""", unsafe_allow_html=True)
     with c3:
@@ -479,15 +479,15 @@ with c1:
     <div class="stat-card" style="text-align:left; padding:14px;">
         <div style="display:flex; justify-content:space-between; margin-bottom:2px;">
             <span style="color:#4ADE80; font-size:12px;">Accuracy</span>
-            <span style="font-weight:700;">94.64%</span>
+            <span style="font-weight:700;">85.71%</span>
         </div>
         <div style="font-size:11px; color:#6B7280; margin-bottom:8px;">
-            53/56 seats correct
+            48/56 seats correct
         </div>
         <div style="display:flex; justify-content:space-between; margin-bottom:2px;
                     background:#450A0A; border-radius:6px; padding:6px 8px;">
             <span style="color:#FCA5A5; font-size:12px;">Wrong predictions</span>
-            <span style="font-weight:700; color:#FCA5A5; font-size:12px;">3 (5%)</span>
+            <span style="font-weight:700; color:#FCA5A5; font-size:12px;">8 (14%)</span>
         </div>
     </div>
     """, unsafe_allow_html=True)
@@ -503,15 +503,15 @@ with c2:
     <div class="stat-card" style="text-align:left; padding:14px;">
         <div style="display:flex; justify-content:space-between; margin-bottom:2px;">
             <span style="color:#4ADE80; font-size:12px;">Accuracy</span>
-            <span style="font-weight:700;">91.67%</span>
+            <span style="font-weight:700;">86.11%</span>
         </div>
         <div style="font-size:11px; color:#6B7280; margin-bottom:8px;">
-            33/36 seats correct
+            31/36 seats correct
         </div>
         <div style="display:flex; justify-content:space-between; margin-bottom:2px;
                     background:#450A0A; border-radius:6px; padding:6px 8px;">
             <span style="color:#FCA5A5; font-size:12px;">Wrong predictions</span>
-            <span style="font-weight:700; color:#FCA5A5; font-size:12px;">3 (8%)</span>
+            <span style="font-weight:700; color:#FCA5A5; font-size:12px;">5 (14%)</span>
         </div>
     </div>
     """, unsafe_allow_html=True)
