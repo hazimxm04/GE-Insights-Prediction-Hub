@@ -24,6 +24,12 @@ from groq import Groq
 ROOT = Path(__file__).resolve().parents[2]
 sys.path.insert(0, str(ROOT))
 
+from backend.core.states import STATES
+from sentiment.scoring.groq_settings import groq_model, completion_options
+from chatbot.chain.scenario_utils import (
+    is_scenario_question, pp_to_fraction, detect_state, message_text,
+)
+
 # -- Load env ----------------------------------------------------------
 for p in [Path("backend/.env"), Path(__file__).resolve().parents[2] / "backend/.env"]:
     if p.exists():
@@ -43,7 +49,7 @@ if not GROQ_API_KEY:
     raise ValueError("GROQ_API_KEY not found in backend/.env or Streamlit secrets")
 
 CHROMA_DIR = Path(__file__).resolve().parents[2] / "chatbot/chroma_db"
-MODEL      = "openai/gpt-oss-20b"
+MODEL      = groq_model()      # GROQ_MODEL env var overrides the default
 N_RESULTS  = 4
 
 groq_client = Groq(api_key=GROQ_API_KEY)
@@ -88,6 +94,10 @@ def predict_seat_tool(state: str, seat_name: str,
     Tool function called by the LLM. Merges user-specified changes
     with the seat's real baseline for anything not specified,
     then calls the actual trained model.
+
+    turnout_change and majority_perc_change are FRACTIONS here (-0.10 = 10 points lower),
+    the same scale as training. handle_tool_call converts from the percentage points
+    the LLM works in.
     """
     from backend.core.models.state_predictor import StatePredictor
 
@@ -116,8 +126,8 @@ def predict_seat_tool(state: str, seat_name: str,
         "prediction": "Harapan" if result['prediction'] == 'non-BN' else "BN/PN",
         "probability": round(result['probability'], 3),
         "is_ood": result['is_ood'],
-        "baseline_turnout_change": round(baseline['turnout_change'], 2),
-        "scenario_turnout_change": round(features['turnout_change'], 2),
+        "baseline_turnout_change_pp": round(baseline['turnout_change'] * 100, 1),
+        "scenario_turnout_change_pp": round(features['turnout_change'] * 100, 1),
     }
 
 
@@ -127,7 +137,7 @@ TOOLS = [{
         "name": "predict_seat_scenario",
         "description": (
             "Predicts whether Harapan or the BN+PN government coalition "
-            "wins a specific Johor or Negeri Sembilan DUN seat, under a "
+            "wins a specific DUN seat, under a "
             "hypothetical 'what if' scenario. Use this whenever the user "
             "asks about a hypothetical change (turnout, margin, etc.) for "
             "a NAMED seat -- not for questions about actual historical results."
@@ -137,7 +147,7 @@ TOOLS = [{
             "properties": {
                 "state": {
                     "type": "string",
-                    "enum": ["johor", "neg_sembilan"],
+                    "enum": list(STATES),
                     "description": "Which state the seat is in"
                 },
                 "seat_name": {
@@ -146,14 +156,15 @@ TOOLS = [{
                 },
                 "turnout_change": {
                     "type": "number",
-                    "description": "Percentage point change in voter turnout "
-                                   "vs the real baseline, e.g. -10 for 10pp lower"
+                    "description": "Change in voter turnout in PERCENTAGE POINTS "
+                                   "vs the seat's real baseline, e.g. -10 for 10 "
+                                   "points lower, 5 for 5 points higher"
                 },
                 "majority_perc_change": {
                     "type": "number",
-                    "description": "Change in winning margin as a fraction "
-                                   "of total voters, e.g. -0.1 for margin "
-                                   "shrinking by 10% of the electorate"
+                    "description": "Change in the winning margin in PERCENTAGE POINTS "
+                                   "of the electorate, e.g. -10 for the margin "
+                                   "shrinking by 10 points"
                 }
             },
             "required": ["state", "seat_name"]
@@ -165,11 +176,17 @@ TOOLS = [{
 def handle_tool_call(tool_call) -> dict:
     """Execute the tool call requested by the LLM."""
     args = json.loads(tool_call.function.arguments)
+    try:
+        # the LLM speaks in percentage points; the model's features are fractions
+        turnout = pp_to_fraction(args.get("turnout_change"))
+        majority = pp_to_fraction(args.get("majority_perc_change"))
+    except ValueError as e:
+        return {"error": str(e)}
     return predict_seat_tool(
         state=args.get("state"),
         seat_name=args.get("seat_name"),
-        turnout_change=args.get("turnout_change"),
-        majority_perc_change=args.get("majority_perc_change"),
+        turnout_change=turnout,
+        majority_perc_change=majority,
     )
 
 
@@ -198,14 +215,6 @@ Question: {question}
 Answer (be specific, cite numbers from the context, keep it concise):"""
 
 
-def is_scenario_question(question: str) -> bool:
-    """Detect if this is a 'what if' scenario question vs factual RAG question."""
-    q = question.lower()
-    scenario_keywords = ['what if', 'if turnout', 'if the', 'suppose',
-                         'hypothetically', 'what would happen']
-    return any(k in q for k in scenario_keywords)
-
-
 # ======================================================================
 # Main ask() -- routes to tool calling OR RAG
 # ======================================================================
@@ -221,8 +230,9 @@ def ask(question: str, collection) -> dict:
                 "You help users explore hypothetical election scenarios. "
                 "When asked a 'what if' question about a specific seat, "
                 "call predict_seat_scenario with the seat name and the "
-                "changed parameter. State names are 'johor' or 'neg_sembilan' -- "
-                "infer from context or ask if ambiguous."
+                "changed parameter. Give changes in percentage points. State names are "
+                + ", ".join(f"'{s}'" for s in STATES) +
+                " -- infer from context or ask if ambiguous."
             )
         }, {
             "role": "user",
@@ -234,8 +244,8 @@ def ask(question: str, collection) -> dict:
             messages=messages,
             tools=TOOLS,
             tool_choice="auto",
-            max_tokens=500,
             temperature=0.1,
+            **completion_options(MODEL, 500),
         )
 
         msg = response.choices[0].message
@@ -252,13 +262,15 @@ def ask(question: str, collection) -> dict:
             final_response = groq_client.chat.completions.create(
                 model=MODEL,
                 messages=messages,
-                max_tokens=400,
                 temperature=0.2,
+                **completion_options(MODEL, 400),
             )
 
             return {
                 'question':  question,
-                'answer':    final_response.choices[0].message.content.strip(),
+                'answer':    message_text(final_response.choices[0].message,
+                                          "I got a prediction but could not write it up. "
+                                          f"Raw result: {tool_result}"),
                 'sources':   ['live_prediction'],
                 'n_sources': 1,
                 'tool_result': tool_result,
@@ -266,7 +278,7 @@ def ask(question: str, collection) -> dict:
         else:
             return {
                 'question':  question,
-                'answer':    msg.content or "I couldn't identify which seat and scenario you're asking about -- could you specify the seat name and state?",
+                'answer':    message_text(msg) or "I couldn't identify which seat and scenario you're asking about -- could you specify the seat name and state?",
                 'sources':   [],
                 'n_sources': 0,
             }
@@ -280,18 +292,10 @@ def ask(question: str, collection) -> dict:
     ])
     is_summary_query = any(k in q_lower for k in [
         'summary', 'overall', 'total', 'how many seats',
-        'overall prediction', 'win in melaka', 'melaka prediction'
+        'overall prediction'
     ])
 
-    state_filter = None
-    if any(k in q_lower for k in ['ns', 'negeri sembilan', 'sembilan']):
-        state_filter = 'neg_sembilan'
-    elif any(k in q_lower for k in ['johor', 'jhr']):
-        state_filter = 'johor'
-    elif any(k in q_lower for k in ['melaka', 'malacca']):
-        state_filter = 'melaka'
-    elif any(k in q_lower for k in ['selangor']):
-        state_filter = 'selangor'
+    state_filter = detect_state(question)
 
     if is_wrong_query:
         summary_results = collection.query(
@@ -307,7 +311,7 @@ def ask(question: str, collection) -> dict:
     elif is_summary_query:
         retrieved = retrieve(question, collection, n=6)
         summary_results = collection.query(
-            query_texts=["Melaka 2026 overall prediction 22 seats BN Harapan summary"],
+            query_texts=["state overall prediction summary seats Harapan BN"],
             n_results=2, where={"type": {"$in": ["melaka_summary", "state_summary"]}}
         )
         if summary_results['documents'][0]:
@@ -327,13 +331,14 @@ def ask(question: str, collection) -> dict:
     response = groq_client.chat.completions.create(
         model=MODEL,
         messages=[{"role": "user", "content": prompt}],
-        max_tokens=500,
         temperature=0.2,
+        **completion_options(MODEL, 500),
     )
 
     return {
         'question':  question,
-        'answer':    response.choices[0].message.content.strip(),
+        'answer':    message_text(response.choices[0].message,
+                                  "The model returned an empty answer. Please ask again."),
         'sources':   [meta.get('type', 'unknown') for _, meta in retrieved],
         'n_sources': len(retrieved),
     }
