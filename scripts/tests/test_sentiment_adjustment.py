@@ -76,4 +76,59 @@ def test_adjust_forecast_leaves_input_alone_and_flags_flips():
 
 def test_assumption_table_lists_every_theme():
     t = sa.assumption_table()
-    assert set(t['theme']) == set(sa.THEMES)
+    assert set(sa.THEMES) <= set(t['theme'])
+
+
+def test_load_windows(tmp_path):
+    p = tmp_path / 'w.csv'
+    assert sa.load_windows(p) is None
+    rows = [dict(REF, date='2026-10-01', label='a'), dict(REF, date='2026-11-01', label='b', islam_threat=.2)]
+    pd.DataFrame(rows).to_csv(p, index=False)
+    cur_w, ref_w = sa.load_windows(p)
+    assert cur_w['label'] == 'b' and ref_w['label'] == 'a' and cur_w['islam_threat'] == .2
+    pd.DataFrame(rows[:1]).to_csv(p, index=False)
+    assert sa.load_windows(p) is None
+
+
+def coal(h, b, p):
+    return dict(REF, harapan_sentiment=h, bn_sentiment=b, pn_sentiment=p)
+
+
+def test_coalition_lean_sign():
+    assert sa.coalition_lean(coal(.4, 0, 0)) == pytest.approx(.4)
+    assert sa.coalition_lean(coal(0, .2, .4)) == pytest.approx(-.3)
+    assert sa.coalition_lean(REF) is None
+
+
+def test_lean_moves_every_seat_toward_the_favoured_side():
+    s = sa.segment_shares(demo(.6, .3, .05))
+    zero = {t: 0.0 for t in sa.THEMES}
+    assert sa.seat_shift(s, zero, False, lean_delta=.2) > 0      # Harapan coverage improves
+    assert sa.seat_shift(s, zero, True, lean_delta=-.2) < 0      # BN/PN coverage improves
+    assert sa.lean_change(coal(.4, 0, 0), coal(.1, 0, 0)) == pytest.approx(.3)
+    assert sa.lean_change(REF, REF) == 0.0                       # missing columns: channel off
+
+
+def test_symmetry_each_theme_helps_and_hurts_both_sides():
+    """Same-size changes should not push every seat one way."""
+    d = demo(.55, .3, .08)
+    s = sa.segment_shares(d)
+    for theme in ['cost_living', 'corruption']:
+        ch = {t: 0.0 for t in sa.THEMES}; ch[theme] = .1
+        assert sa.seat_shift(s, ch, True) < 0 < sa.seat_shift(s, ch, False)
+
+
+def test_lean_is_smaller_in_older_malay_seats_than_in_mixed_seats():
+    zero = {t: 0.0 for t in sa.THEMES}
+    rural = sa.seat_shift(sa.segment_shares(demo(.9, .05, .03, young=.1, older=.5)), zero, False, lean_delta=.2)
+    mixed = sa.seat_shift(sa.segment_shares(demo(.3, .55, .1, young=.1, older=.1)), zero, False, lean_delta=.2)
+    assert 0 < rural < mixed
+
+
+def test_update_summary(tmp_path):
+    p = tmp_path / 'w.csv'
+    assert sa.update_summary(p) is None
+    rows = [dict(REF, date='2026-09-30', label='Sep 2026', start='2026-09-01'),
+            dict(REF, date='2026-10-31', label='Oct 2026', start='2026-10-01', n_articles=312)]
+    pd.DataFrame(rows).to_csv(p, index=False)
+    assert sa.update_summary(p) == 'Oct 2026: news 2026-10-01 to 2026-10-31, 312 headlines scored'

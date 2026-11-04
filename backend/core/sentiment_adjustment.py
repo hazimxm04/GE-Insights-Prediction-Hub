@@ -41,6 +41,11 @@ THEMES = ['islam_threat', 'malay_unity', 'cost_living', 'corruption', 'govt_perf
 
 MIN_HEADLINES = 300          # per window; below this the theme means are too noisy
 STRENGTH = 4.0               # logit change per +1.0 change in a theme share, at full reaction (ASSUMED)
+LEAN_STRENGTH = 1.5          # logit per +1.0 change in coalition lean (ASSUMED)
+LEAN_RELIABILITY = 0.5       # the lean comes from the same unchecked LLM scorer, so it is halved
+# How strongly each group follows a change in coalition coverage (ASSUMED). Older Malay voters are
+# assumed least moved by news, younger and non-Malay voters most.
+LEAN_GROUP_WEIGHT = {'older_malay': 0.6, 'young_malay': 0.9, 'chinese': 1.0, 'indian': 1.0, 'other': 1.0}
 MAX_ABS_SHIFT = 0.5          # logit; about 12 points near 50 %, much less near 0 or 1
 PROB_FLOOR, PROB_CEIL = 0.01, 0.99   # frozen probabilities of exactly 0 or 1 cannot move otherwise
 
@@ -88,6 +93,24 @@ def segment_shares(row) -> dict:
     return {k: v / total for k, v in shares.items()} if total > 0 else shares
 
 
+def coalition_lean(window: dict):
+    """Net lean toward Harapan in a window, like a 'points toward one party' measure:
+    Harapan sentiment minus the average of BN and PN sentiment (each -1..+1).
+    Positive = coverage is more favourable to Harapan than to BN/PN. None if the window lacks the columns."""
+    try:
+        return float(window['harapan_sentiment']) - (float(window['bn_sentiment']) + float(window['pn_sentiment'])) / 2
+    except (KeyError, TypeError, ValueError):
+        return None
+
+
+def lean_change(current: dict, reference: dict) -> float:
+    """Change in coalition lean between windows; 0 if either window lacks coalition sentiment."""
+    a, b = coalition_lean(current), coalition_lean(reference)
+    if a is None or b is None or pd.isna(a) or pd.isna(b):
+        return 0.0
+    return a - b
+
+
 def theme_change(current: dict, reference: dict) -> dict:
     """Change in each theme share between two windows. Only change is used, never level."""
     return {t: float(current[t]) - float(reference[t]) for t in THEMES}
@@ -102,7 +125,7 @@ def data_status(current: dict, reference: dict, min_headlines: int = MIN_HEADLIN
     return True, f'OK (current {n_cur}, reference {n_ref} headlines)'
 
 
-def seat_shift(shares: dict, change: dict, held_by_opposition: bool) -> float:
+def seat_shift(shares: dict, change: dict, held_by_opposition: bool, lean_delta: float = 0.0) -> float:
     """Logit shift for one seat. Positive = toward opposition (Harapan)."""
     holder_sign = -1.0 if held_by_opposition else 1.0   # anti-incumbent pushes AWAY from the holder
     total = 0.0
@@ -118,6 +141,8 @@ def seat_shift(shares: dict, change: dict, held_by_opposition: bool) -> float:
             else:
                 continue
             total += share * reaction * d * rel * STRENGTH
+    for seg, share in shares.items():          # coalition lean: same direction, group-specific size
+        total += share * LEAN_GROUP_WEIGHT[seg] * lean_delta * LEAN_STRENGTH * LEAN_RELIABILITY
     return max(-MAX_ABS_SHIFT, min(MAX_ABS_SHIFT, total))
 
 
@@ -132,6 +157,9 @@ def adjust_forecast(forecast: pd.DataFrame, demographics: pd.DataFrame,
     """
     ok, message = data_status(current, reference, min_headlines)
     change = theme_change(current, reference) if ok else {t: 0.0 for t in THEMES}
+    lean = lean_change(current, reference) if ok else 0.0
+    if ok and lean == 0.0 and coalition_lean(current) is None:
+        message += '; coalition sentiment missing, lean channel off'
     demo = demographics.copy()
     demo['seat_no'] = demo['seat'].astype(str).str.split().str[0]
     demo = demo.set_index('seat_no')
@@ -144,7 +172,7 @@ def adjust_forecast(forecast: pd.DataFrame, demographics: pd.DataFrame,
             shift = 0.0
         else:
             shift = seat_shift(segment_shares(demo.loc[r['seat_no']]), change,
-                               held_by_opposition=bool(r['baseline_same_as_last']))
+                               held_by_opposition=bool(r['baseline_same_as_last']), lean_delta=lean)
         shifts.append(round(shift, 4))
         adjusted.append(round(_sigmoid(_logit(p) + shift), 4) if shift else p)
     out['sentiment_shift_logit'] = shifts
@@ -166,6 +194,38 @@ def assumption_table() -> pd.DataFrame:
         rows.append({'theme': t, 'type': 'fixed direction', 'weight': RELIABILITY[t], **m})
     for t, m in ANTI_INCUMBENT.items():
         rows.append({'theme': t, 'type': 'against the seat holder', 'weight': RELIABILITY[t], **m})
+    rows.append({'theme': 'coalition_lean (Harapan minus BN/PN sentiment)', 'type': 'same direction, size by group',
+                 'weight': LEAN_RELIABILITY, **LEAN_GROUP_WEIGHT})
     rows.append({'theme': 'govt_performance', 'type': 'not used', 'weight': 0.0,
                  **{s: 0.0 for s in SEGMENTS}})
     return pd.DataFrame(rows)
+
+
+WINDOWS_FILE = ROOT / 'data/processed/narrative_windows.csv'
+
+
+def load_windows(path=None):
+    """(current, reference) theme dicts from the two newest rows of narrative_windows.csv
+    (columns: date, label, the five themes, n_articles). None if fewer than two windows exist."""
+    path = Path(path) if path else WINDOWS_FILE
+    if not path.exists():
+        return None
+    df = pd.read_csv(path).sort_values('date')
+    if len(df) < 2:
+        return None
+    cur, ref = df.iloc[-1].to_dict(), df.iloc[-2].to_dict()
+    return cur, ref
+
+
+def update_summary(path=None):
+    """One line saying which news the sentiment layer last used, or None if no window exists.
+    Uses the newest window row: label, date range and headline count."""
+    path = Path(path) if path else WINDOWS_FILE
+    if not path.exists():
+        return None
+    df = pd.read_csv(path).sort_values('date')
+    if df.empty:
+        return None
+    r = df.iloc[-1]
+    start = f"{r['start']} to " if 'start' in df.columns and pd.notna(r.get('start')) else 'up to '
+    return f"{r.get('label', r['date'])}: news {start}{r['date']}, {int(r['n_articles'])} headlines scored"
