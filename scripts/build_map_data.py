@@ -9,12 +9,16 @@ Run once (or whenever predictions update):
     python build_map_data.py
 """
 
+import sys
 import requests
 import geopandas as gpd
 import pandas as pd
 from pathlib import Path
 
-ROOT = Path(__file__).resolve().parent
+ROOT = Path(__file__).resolve().parent.parent
+sys.path.insert(0, str(ROOT))
+
+from backend.core.frozen_forecast import latest_frozen
 
 OUR_STATES = ['Johor', 'Negeri Sembilan', 'Melaka', 'Selangor', 'Perak']
 
@@ -51,12 +55,12 @@ def load_johor_ns(state_key, state_name):
     return df[['dun', 'status', 'prediction_label', 'actual_label',
                'display_winner', 'probability', 'correct']]
 
-def load_forecast(path, state_key):
-    df = pd.read_csv(path)
+def load_forecast(state_key):
+    df, _ = latest_frozen(state_key)     # newest frozen forecast
+    if df is None:
+        raise SystemExit(f'No frozen forecast for {state_key}; run scripts/freeze_forecasts.py first.')
     df['dun'] = df['seat_name']
     df['status'] = 'forecast'
-    prob_col = 'probability' if 'probability' in df.columns else 'harapan_holds_probability'
-    df['probability'] = df[prob_col]
     df['prediction_label'] = df['probability'].apply(
         lambda x: 'Harapan' if x >= 0.5 else 'BN/PN'
     )
@@ -70,9 +74,9 @@ print("\nLoading prediction data...")
 
 johor_df = load_johor_ns('johor', 'Johor')
 ns_df    = load_johor_ns('neg_sembilan', 'Negeri Sembilan')
-melaka_df = load_forecast(ROOT / 'data/processed/melaka_2026_prediction.csv', 'melaka')
-selangor_df = load_forecast(ROOT / 'data/processed/selangor_2026_bluwave.csv', 'selangor')
-perak_df = load_forecast(ROOT / 'data/processed/perak_2026_prediction.csv', 'perak')
+melaka_df = load_forecast('melaka')
+selangor_df = load_forecast('selangor')
+perak_df = load_forecast('perak')
 
 all_predictions = pd.concat(
     [johor_df, ns_df, melaka_df, selangor_df, perak_df], ignore_index=True

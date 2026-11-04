@@ -341,32 +341,49 @@ if status == 'validated':
 # ══════════════════════════════════════════════════════════════════
 
 else:
-    if state == 'melaka':
-        #placed under methodology: st.warning("Based on 2018→2021 patterns + current sentiment/economic data.")
-        csv_path = ROOT / "data/processed/melaka_2026_prediction.csv"
-        prob_col = 'probability'
-        seat_col = 'seat_name'
-        last_winner_col = 'winner_2021'     
-        winner_col_label = "2021" 
-
-    elif state == 'perak':
-        csv_path = ROOT / "data/processed/perak_2026_prediction.csv"
-        prob_col = 'probability'
-        seat_col = 'seat_name'
-        last_winner_col = 'winner_2022'
-        winner_col_label = "2022"
-    else:
-        csv_path = ROOT / "data/processed/selangor_2026_bluwave.csv"
-        prob_col = 'harapan_holds_probability'
-        seat_col = 'seat_name'
-        last_winner_col = 'winner_2023'  
-        winner_col_label = "2023" 
-
-    if not csv_path.exists():
-        st.error(f"Run predict_{state}.py first to generate data.")
+    from backend.core.frozen_forecast import latest_frozen, last_side
+    df, frozen_info = latest_frozen(state)
+    if df is None:
+        st.error(f"No frozen forecast found for {state}. Run scripts/freeze_forecasts.py first.")
         st.stop()
+    prob_col = 'probability'
+    seat_col = 'seat_name'
+    df['last_side'] = last_side(df)
 
-    df = pd.read_csv(csv_path)
+    # ── Prediction view: validated model (default) or the experimental sentiment layer ──
+    pred_view = st.radio(
+        "Prediction view:",
+        ["Validated model", "With sentiment (experimental)"],
+        horizontal=True, key="pred_view",
+    )
+    use_sentiment = False
+    if pred_view.startswith("With"):
+        from backend.core import sentiment_adjustment as sa
+        windows = sa.load_windows()
+        if windows is None:
+            st.warning("Sentiment view is not available yet: it needs two scored news windows "
+                       "(data/processed/narrative_windows.csv). Showing the validated model.")
+        else:
+            cur_w, ref_w = windows
+            data_ok, data_msg = sa.data_status(cur_w, ref_w)
+            if not data_ok:
+                st.warning(data_msg + " Showing the validated model.")
+            else:
+                adjusted, _ = sa.adjust_forecast(df, sa.load_demographics(state), cur_w, ref_w)
+                df['frozen_probability'] = df['probability']
+                df['probability'] = adjusted['sentiment_probability'].values
+                use_sentiment = True
+                st.warning(
+                    "**Experimental.** These numbers add a sentiment layer on top of the frozen forecast. "
+                    "Its effects are assumptions written by a person, not fitted to data, so no accuracy is "
+                    "claimed for them. The accuracy figures on this site belong to the validated model only. "
+                    "See the Sentiment Prediction page for the assumptions."
+                )
+    st.info(
+        f"**Frozen forecast** saved {frozen_info['folder_date']} (code commit "
+        f"`{frozen_info['code_commit']}`), before the election. It is scored against the real "
+        f"result once the election has happened, and it is never edited afterwards."
+    )
 
     govt_wins    = (df[prob_col] < 0.45).sum()
     toss_ups     = ((df[prob_col] >= 0.45) & (df[prob_col] < 0.55)).sum()
@@ -440,55 +457,19 @@ else:
         """, unsafe_allow_html=True)
 
         with st.container(border=True):
-            hcol1, hcol2, hcol3 = st.columns([3, 1.3, 1])
+            hcol1, hcol3 = st.columns([4, 1])
             hcol1.markdown("**Seat**")
-            hcol2.markdown("**Trend**")
             hcol3.markdown("**Probability**")
             st.divider()
 
             for _, row in subset.iterrows():
-                trend = row.get('trend', 0)
-                if trend > 0.02:
-                    trend_color = "#4ADE80"
-                    trend_arrow = "↑"
-                    trend_label = "Harapan gaining"
-                elif trend < -0.02:
-                    trend_color = "#F87171"
-                    trend_arrow = "↓"
-                    trend_label = "Harapan losing"
-                else:
-                    trend_color = "#6B7280"
-                    trend_arrow = "→"
-                    trend_label = "Stable"
-
-                c1, c2, c3 = st.columns([3, 1.3, 1])
+                c1, c3 = st.columns([3, 2])
                 c1.markdown(f"**{row[seat_col]}**")
-                c2.markdown(f"<span style='color:{trend_color};'>{trend_arrow} {trend:+.2f}</span>", unsafe_allow_html=True)
-                c3.markdown(f"`{row[prob_col]:.2f}`")
+                if 'frozen_probability' in subset.columns:
+                    c3.markdown(f"`{row[prob_col]:.2f}` (frozen `{row['frozen_probability']:.2f}`)")
+                else:
+                    c3.markdown(f"`{row[prob_col]:.2f}`")
 
-
-    st.markdown("""
-    <div style="background:#1A1D24; border:1px solid rgba(255,255,255,0.08);
-                border-radius:8px; padding:10px 20px; margin-bottom:16px;
-                display:flex; align-items:center; gap:20px; font-size:13px;">
-        <span style="color:#9CA3AF; font-weight:600;">Trend legend:</span>
-        <span style="color:#F87171;">↓ Red — trending toward BN+PN</span>
-        <span style="color:#4ADE80;">↑ Green — trending toward Harapan</span>
-        <span style="color:#6B7280;">→ Grey — stable, no clear direction</span>
-    </div>
-    """, unsafe_allow_html=True)
-
-    st.markdown("""
-    <div style="background:#1A1D24; border:1px solid rgba(255,255,255,0.08);
-                border-radius:8px; padding:10px 20px; margin-bottom:16px;
-                font-size:12px; color:#9CA3AF;">
-        <span style="font-weight:700; color:#D1D5DB;">Trend strength:</span>
-        ±0.02 or less = stable &nbsp;·&nbsp;
-        ±0.03–0.10 = mild &nbsp;·&nbsp;
-        ±0.11–0.20 = moderate &nbsp;·&nbsp;
-        ±0.21 and beyond = strong historical shift
-    </div>
-    """, unsafe_allow_html=True)
 
     tab1, tab2, tab3, tab4, tab5, tab6, tab7 = st.tabs([
     f"🔴 Safe BN+PN ({len(safe_govt)})",
@@ -520,15 +501,14 @@ else:
     """, unsafe_allow_html=True)
 
     st.subheader("🔄 Predicted Seat Flips vs Last Election")
-    st.caption(f"Comparing predicted winner to the {winner_col_label} result")
+    st.caption(f"Comparing the predicted side to who held the seat at the last election "
+               f"({frozen_info['forecasting_election_after']})")
 
     df_flip = df.copy()
     df_flip['predicted_winner'] = df_flip[prob_col].apply(
         lambda x: 'Harapan' if x >= 0.5 else 'BN/PN'
     )
-    df_flip['actual_side'] = df_flip[last_winner_col].apply(
-        lambda x: 'Harapan' if x in ['PH', 'Harapan'] else 'BN/PN'
-    )
+    df_flip['actual_side'] = df_flip['last_side']
 
     flips = df_flip[df_flip['predicted_winner'] != df_flip['actual_side']]
     harapan_gains = flips[flips['actual_side'] == 'BN/PN']    # BN/PN -> Harapan (Harapan gains)
