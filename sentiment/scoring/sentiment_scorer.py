@@ -45,6 +45,13 @@ from groq import Groq
 ROOT = Path(__file__).resolve().parents[2]
 sys.path.insert(0, str(ROOT))
 from sentiment.scoring.groq_settings import groq_model, completion_options
+from sentiment.scoring.score_quality import (
+    failed_scores, parse_scores, usable, failure_counts, theme_means, classify_api_error,
+)
+
+
+class DailyLimitReached(Exception):
+    """Groq's token allowance for today is used up. Stop scoring, keep what is done, and resume later."""
 
 # ── Load environment ───────────────────────────────────────────────
 
@@ -97,7 +104,7 @@ STATE_COLS = {
 
 # ── Core scoring ────────────────────────────────────────────────────
 
-def score_article_all(text: str) -> dict:
+def score_article_all(text: str, _retry: bool = True) -> dict:
     """
     Score one article for:
       - Coalition sentiment (BN/Harapan/PN)
@@ -146,39 +153,22 @@ Return ONLY these 9 lines with numbers, nothing else."""
         )
         result = response.choices[0].message.content.strip()
 
-        def extract(label: str, default: float = 0.0) -> float:
-            match = re.search(
-                rf'{label}:\s*(-?\d+\.?\d*)',
-                result, re.IGNORECASE
-            )
-            return float(match.group(1)) if match else default
-
-        def clamp(v, lo, hi):
-            return max(lo, min(hi, v))
-
-        return {
-            # Coalition sentiment
-            'bn_sentiment':       clamp(extract('BN'),        -1.0, 1.0),
-            'harapan_sentiment':  clamp(extract('Harapan'),   -1.0, 1.0),
-            'pn_sentiment':       clamp(extract('PN'),         -1.0, 1.0),
-            'racial_tension':     clamp(extract('Tension'),    0.0,  1.0),
-            # National narrative themes (NEW)
-            'islam_threat':       clamp(extract('Islam_threat'),    0.0, 1.0),
-            'malay_unity':        clamp(extract('Malay_unity'),     0.0, 1.0),
-            'cost_living':        clamp(extract('Cost_living'),     0.0, 1.0),
-            'corruption':         clamp(extract('Corruption'),      0.0, 1.0),
-            'govt_performance':   clamp(extract('Govt_performance'), 0.0, 1.0),
-        }
+        scores = parse_scores(result)
+        if scores is None:
+            print(f"  Reply could not be read, marking the article as failed: {result[:150]!r}")
+            return failed_scores()
+        return scores
 
     except Exception as e:
+        kind = classify_api_error(str(e))
+        if kind == 'daily':
+            raise DailyLimitReached(str(e))
+        if kind == 'minute' and _retry:
+            print("  Per-minute limit, waiting 8 s and retrying once")
+            time.sleep(8)
+            return score_article_all(text, _retry=False)
         print(f"  Scoring failed: {e}")
-        return {
-            'bn_sentiment': 0.0, 'harapan_sentiment': 0.0,
-            'pn_sentiment': 0.0, 'racial_tension': 0.0,
-            'islam_threat': 0.0, 'malay_unity': 0.0,
-            'cost_living': 0.0, 'corruption': 0.0,
-            'govt_performance': 0.0,
-        }
+        return failed_scores()          # missing values, never zeros
 
 
 # ── Score all articles ─────────────────────────────────────────────
@@ -203,14 +193,12 @@ def score_dataframe(df: pd.DataFrame) -> pd.DataFrame:
                 scores = future.result(timeout=20)
             except FutureTimeoutError:
                 print(f"    Hard timeout after 20s, skipping article")
-                scores = {
-                    'bn_sentiment': 0.0, 'harapan_sentiment': 0.0,
-                    'pn_sentiment': 0.0, 'racial_tension': 0.0,
-                    'islam_threat': 0.0, 'malay_unity': 0.0,
-                    'cost_living': 0.0, 'corruption': 0.0,
-                    'govt_performance': 0.0,
-                }
-                
+                scores = failed_scores()
+            except DailyLimitReached as e:
+                print(f"\nDaily token limit reached after {len(results)} articles. "
+                      f"Progress is kept; run again later to continue.\n{str(e)[:200]}")
+                break
+
         time.sleep(2)
 
         print(f"    BN={scores['bn_sentiment']:+.2f} | "
@@ -240,9 +228,15 @@ def score_dataframe(df: pd.DataFrame) -> pd.DataFrame:
             'corruption':          scores['corruption'],
             'govt_performance':    scores['govt_performance'],
             'text_snippet':        text[:200],
+            'scoring_ok':          not any(pd.isna(v) for v in scores.values()),
         })
 
-    return pd.DataFrame(results)
+    out = pd.DataFrame(results)
+    failed, n = failure_counts(out)
+    print(f"\nScored {n - failed}/{n} articles; {failed} failed and are excluded from all averages.")
+    if n and failed / n > 0.10:
+        print(f"WARNING: {failed / n:.0%} of articles failed. Check the API key, the model name and the rate limit.")
+    return out
 
 
 # ── National narrative aggregation (all articles) ───────────────────
@@ -254,16 +248,11 @@ def compute_national_narratives(df_scored: pd.DataFrame) -> dict:
 
     Returns dict used to weight sentiment per seat via demographics.
     """
-    narratives = {
-        'islam_threat':     df_scored['islam_threat'].mean(),
-        'malay_unity':      df_scored['malay_unity'].mean(),
-        'cost_living':      df_scored['cost_living'].mean(),
-        'corruption':       df_scored['corruption'].mean(),
-        'govt_performance': df_scored['govt_performance'].mean(),
-        'n_articles':       len(df_scored),
-    }
+    ok = usable(df_scored)
+    narratives = theme_means(df_scored)          # raises if nothing was scored; failed rows are skipped
+    narratives['n_articles'] = len(ok)
 
-    print(f"\nNational narrative scores ({len(df_scored)} articles):")
+    print(f"\nNational narrative scores ({len(ok)} articles):")
     print(f"  Islam threat:     {narratives['islam_threat']:.3f}")
     print(f"  Malay unity:      {narratives['malay_unity']:.3f}")
     print(f"  Cost of living:   {narratives['cost_living']:.3f}")
@@ -331,6 +320,7 @@ def compute_state_scores(df_scored: pd.DataFrame,
     Reports both independent-only and all-sources versions.
     Includes national narrative summary per state.
     """
+    df_scored = usable(df_scored)       # failed articles are not averaged in
     state_scores = []
     has_lean = 'source_lean' in df_scored.columns
 
@@ -403,6 +393,7 @@ def compute_weekly_trend(df_scored: pd.DataFrame,
                           state: str) -> pd.DataFrame:
     """Group sentiment + themes by week."""
     col = f'mentions_{state}'
+    df_scored = usable(df_scored)
 
     if col in df_scored.columns:
         state_df = df_scored[df_scored[col] == True].copy()
