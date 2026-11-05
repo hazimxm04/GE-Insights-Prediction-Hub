@@ -1,0 +1,544 @@
+{
+  "tests": [
+    {
+      "state": "johor",
+      "test": "2013->2018",
+      "is_real_2026": false,
+      "seats": 56,
+      "opposition_wins": 36,
+      "variants": {
+        "current": {
+          "correct": 37,
+          "auc": 0.949,
+          "brier": 0.244
+        },
+        "logistic_all": {
+          "correct": 36,
+          "auc": 0.956,
+          "brier": 0.282
+        },
+        "logistic_2feat": {
+          "correct": 32,
+          "auc": 0.796,
+          "brier": 0.266
+        },
+        "drop_ethnicity": {
+          "correct": 32,
+          "auc": 0.892,
+          "brier": 0.231
+        },
+        "drop_turnout": {
+          "correct": 37,
+          "auc": 0.95,
+          "brier": 0.258
+        },
+        "drop_majority": {
+          "correct": 38,
+          "auc": 0.932,
+          "brier": 0.242
+        }
+      },
+      "ranking_accuracy_oracle": 48
+    },
+    {
+      "state": "johor",
+      "test": "2018->2022",
+      "is_real_2026": false,
+      "seats": 56,
+      "opposition_wins": 12,
+      "variants": {
+        "current": {
+          "correct": 51,
+          "auc": 0.966,
+          "brier": 0.115
+        },
+        "logistic_all": {
+          "correct": 27,
+          "auc": 0.96,
+          "brier": 0.451
+        },
+        "logistic_2feat": {
+          "correct": 30,
+          "auc": 0.466,
+          "brier": 0.426
+        },
+        "drop_ethnicity": {
+          "correct": 33,
+          "auc": 0.769,
+          "brier": 0.259
+        },
+        "drop_turnout": {
+          "correct": 33,
+          "auc": 0.968,
+          "brier": 0.255
+        },
+        "drop_majority": {
+          "correct": 51,
+          "auc": 0.972,
+          "brier": 0.108
+        }
+      },
+      "ranking_accuracy_oracle": 52
+    },
+    {
+      "state": "johor",
+      "test": "2022->2026",
+      "is_real_2026": true,
+      "seats": 56,
+      "opposition_wins": 8,
+      "variants": {
+        "current": {
+          "correct": 48,
+          "auc": 0.911,
+          "brier": 0.087
+        },
+        "logistic_all": {
+          "correct": 49,
+          "auc": 0.971,
+          "brier": 0.062
+        },
+        "logistic_2feat": {
+          "correct": 24,
+          "auc": 0.115,
+          "brier": 0.298
+        },
+        "drop_ethnicity": {
+          "correct": 45,
+          "auc": 0.68,
+          "brier": 0.135
+        },
+        "drop_turnout": {
+          "correct": 47,
+          "auc": 0.891,
+          "brier": 0.148
+        },
+        "drop_majority": {
+          "correct": 49,
+          "auc": 0.924,
+          "brier": 0.106
+        }
+      },
+      "ranking_accuracy_oracle": 48
+    },
+    {
+      "state": "neg_sembilan",
+      "test": "2013->2018",
+      "is_real_2026": false,
+      "seats": 35,
+      "opposition_wins": 20,
+      "variants": {
+        "current": {
+          "correct": 28,
+          "auc": 0.95,
+          "brier": 0.152
+        },
+        "logistic_all": {
+          "correct": 27,
+          "auc": 0.947,
+          "brier": 0.142
+        },
+        "logistic_2feat": {
+          "correct": 18,
+          "auc": 0.563,
+          "brier": 0.307
+        },
+        "drop_ethnicity": {
+          "correct": 18,
+          "auc": 0.573,
+          "brier": 0.257
+        },
+        "drop_turnout": {
+          "correct": 28,
+          "auc": 0.957,
+          "brier": 0.156
+        },
+        "drop_majority": {
+          "correct": 28,
+          "auc": 0.957,
+          "brier": 0.15
+        }
+      },
+      "ranking_accuracy_oracle": 31
+    },
+    {
+      "state": "neg_sembilan",
+      "test": "2018->2023",
+      "is_real_2026": false,
+      "seats": 35,
+      "opposition_wins": 17,
+      "variants": {
+        "current": {
+          "correct": 32,
+          "auc": 0.964,
+          "brier": 0.071
+        },
+        "logistic_all": {
+          "correct": 34,
+          "auc": 0.99,
+          "brier": 0.038
+        },
+        "logistic_2feat": {
+          "correct": 32,
+          "auc": 0.987,
+          "brier": 0.083
+        },
+        "drop_ethnicity": {
+          "correct": 32,
+          "auc": 0.941,
+          "brier": 0.092
+        },
+        "drop_turnout": {
+          "correct": 34,
+          "auc": 0.984,
+          "brier": 0.055
+        },
+        "drop_majority": {
+          "correct": 32,
+          "auc": 0.971,
+          "brier": 0.066
+        }
+      },
+      "ranking_accuracy_oracle": 31
+    },
+    {
+      "state": "neg_sembilan",
+      "test": "2023->2026",
+      "is_real_2026": true,
+      "seats": 36,
+      "opposition_wins": 11,
+      "variants": {
+        "current": {
+          "correct": 31,
+          "auc": 0.985,
+          "brier": 0.105
+        },
+        "logistic_all": {
+          "correct": 31,
+          "auc": 0.92,
+          "brier": 0.118
+        },
+        "logistic_2feat": {
+          "correct": 18,
+          "auc": 0.571,
+          "brier": 0.305
+        },
+        "drop_ethnicity": {
+          "correct": 22,
+          "auc": 0.691,
+          "brier": 0.204
+        },
+        "drop_turnout": {
+          "correct": 29,
+          "auc": 0.985,
+          "brier": 0.122
+        },
+        "drop_majority": {
+          "correct": 31,
+          "auc": 0.982,
+          "brier": 0.092
+        }
+      },
+      "ranking_accuracy_oracle": 34
+    },
+    {
+      "state": "selangor",
+      "test": "2013->2018",
+      "is_real_2026": false,
+      "seats": 56,
+      "opposition_wins": 51,
+      "variants": {
+        "current": {
+          "correct": 51,
+          "auc": 0.91,
+          "brier": 0.071
+        },
+        "logistic_all": {
+          "correct": 53,
+          "auc": 0.965,
+          "brier": 0.041
+        },
+        "logistic_2feat": {
+          "correct": 44,
+          "auc": 0.863,
+          "brier": 0.147
+        },
+        "drop_ethnicity": {
+          "correct": 51,
+          "auc": 0.904,
+          "brier": 0.071
+        },
+        "drop_turnout": {
+          "correct": 51,
+          "auc": 0.906,
+          "brier": 0.074
+        },
+        "drop_majority": {
+          "correct": 49,
+          "auc": 0.918,
+          "brier": 0.094
+        }
+      },
+      "ranking_accuracy_oracle": 52
+    },
+    {
+      "state": "selangor",
+      "test": "2018->2023",
+      "is_real_2026": false,
+      "seats": 56,
+      "opposition_wins": 32,
+      "variants": {
+        "current": {
+          "correct": 37,
+          "auc": 0.962,
+          "brier": 0.255
+        },
+        "logistic_all": {
+          "correct": 35,
+          "auc": 0.951,
+          "brier": 0.344
+        },
+        "logistic_2feat": {
+          "correct": 37,
+          "auc": 0.884,
+          "brier": 0.31
+        },
+        "drop_ethnicity": {
+          "correct": 32,
+          "auc": 0.753,
+          "brier": 0.341
+        },
+        "drop_turnout": {
+          "correct": 37,
+          "auc": 0.962,
+          "brier": 0.261
+        },
+        "drop_majority": {
+          "correct": 38,
+          "auc": 0.939,
+          "brier": 0.225
+        }
+      },
+      "ranking_accuracy_oracle": 50
+    },
+    {
+      "state": "melaka",
+      "test": "2013->2018",
+      "is_real_2026": false,
+      "seats": 28,
+      "opposition_wins": 15,
+      "variants": {
+        "current": {
+          "correct": 23,
+          "auc": 0.903,
+          "brier": 0.137
+        },
+        "logistic_all": {
+          "correct": 15,
+          "auc": 0.908,
+          "brier": 0.322
+        },
+        "logistic_2feat": {
+          "correct": 15,
+          "auc": 0.477,
+          "brier": 0.281
+        },
+        "drop_ethnicity": {
+          "correct": 23,
+          "auc": 0.779,
+          "brier": 0.162
+        },
+        "drop_turnout": {
+          "correct": 21,
+          "auc": 0.944,
+          "brier": 0.156
+        },
+        "drop_majority": {
+          "correct": 23,
+          "auc": 0.897,
+          "brier": 0.139
+        }
+      },
+      "ranking_accuracy_oracle": 22
+    },
+    {
+      "state": "melaka",
+      "test": "2018->2021",
+      "is_real_2026": false,
+      "seats": 28,
+      "opposition_wins": 5,
+      "variants": {
+        "current": {
+          "correct": 22,
+          "auc": 1.0,
+          "brier": 0.13
+        },
+        "logistic_all": {
+          "correct": 16,
+          "auc": 0.983,
+          "brier": 0.361
+        },
+        "logistic_2feat": {
+          "correct": 18,
+          "auc": 0.965,
+          "brier": 0.375
+        },
+        "drop_ethnicity": {
+          "correct": 21,
+          "auc": 0.978,
+          "brier": 0.157
+        },
+        "drop_turnout": {
+          "correct": 19,
+          "auc": 1.0,
+          "brier": 0.22
+        },
+        "drop_majority": {
+          "correct": 25,
+          "auc": 1.0,
+          "brier": 0.096
+        }
+      },
+      "ranking_accuracy_oracle": 28
+    },
+    {
+      "state": "perak",
+      "test": "2013->2018",
+      "is_real_2026": false,
+      "seats": 59,
+      "opposition_wins": 29,
+      "variants": {
+        "current": {
+          "correct": 31,
+          "auc": 0.883,
+          "brier": 0.224
+        },
+        "logistic_all": {
+          "correct": 39,
+          "auc": 0.838,
+          "brier": 0.235
+        },
+        "logistic_2feat": {
+          "correct": 29,
+          "auc": 0.733,
+          "brier": 0.341
+        },
+        "drop_ethnicity": {
+          "correct": 29,
+          "auc": 0.792,
+          "brier": 0.263
+        },
+        "drop_turnout": {
+          "correct": 32,
+          "auc": 0.891,
+          "brier": 0.219
+        },
+        "drop_majority": {
+          "correct": 29,
+          "auc": 0.887,
+          "brier": 0.232
+        }
+      },
+      "ranking_accuracy_oracle": 49
+    },
+    {
+      "state": "perak",
+      "test": "2018->2022",
+      "is_real_2026": false,
+      "seats": 59,
+      "opposition_wins": 24,
+      "variants": {
+        "current": {
+          "correct": 46,
+          "auc": 0.988,
+          "brier": 0.12
+        },
+        "logistic_all": {
+          "correct": 48,
+          "auc": 0.973,
+          "brier": 0.139
+        },
+        "logistic_2feat": {
+          "correct": 43,
+          "auc": 0.923,
+          "brier": 0.191
+        },
+        "drop_ethnicity": {
+          "correct": 42,
+          "auc": 0.887,
+          "brier": 0.214
+        },
+        "drop_turnout": {
+          "correct": 47,
+          "auc": 0.983,
+          "brier": 0.1
+        },
+        "drop_majority": {
+          "correct": 44,
+          "auc": 0.973,
+          "brier": 0.135
+        }
+      },
+      "ranking_accuracy_oracle": 55
+    }
+  ],
+  "summary": {
+    "all_tests": {
+      "tests": 12,
+      "seats": 560,
+      "accuracy": {
+        "current": 0.78,
+        "logistic_all": 0.732,
+        "logistic_2feat": 0.607,
+        "drop_ethnicity": 0.679,
+        "drop_turnout": 0.741,
+        "drop_majority": 0.78
+      },
+      "mean_auc": {
+        "current": 0.948,
+        "logistic_all": 0.947,
+        "logistic_2feat": 0.695,
+        "drop_ethnicity": 0.803,
+        "drop_turnout": 0.952,
+        "drop_majority": 0.946
+      },
+      "mean_brier": {
+        "current": 0.143,
+        "logistic_all": 0.211,
+        "logistic_2feat": 0.278,
+        "drop_ethnicity": 0.199,
+        "drop_turnout": 0.169,
+        "drop_majority": 0.14
+      },
+      "oracle_ranking_accuracy": 0.893
+    },
+    "real_2026_only": {
+      "tests": 2,
+      "seats": 92,
+      "accuracy": {
+        "current": 0.859,
+        "logistic_all": 0.87,
+        "logistic_2feat": 0.457,
+        "drop_ethnicity": 0.728,
+        "drop_turnout": 0.826,
+        "drop_majority": 0.87
+      },
+      "mean_auc": {
+        "current": 0.948,
+        "logistic_all": 0.946,
+        "logistic_2feat": 0.343,
+        "drop_ethnicity": 0.685,
+        "drop_turnout": 0.938,
+        "drop_majority": 0.953
+      },
+      "mean_brier": {
+        "current": 0.096,
+        "logistic_all": 0.09,
+        "logistic_2feat": 0.301,
+        "drop_ethnicity": 0.169,
+        "drop_turnout": 0.135,
+        "drop_majority": 0.099
+      },
+      "oracle_ranking_accuracy": 0.891
+    }
+  }
+}

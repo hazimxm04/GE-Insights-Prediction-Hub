@@ -1,0 +1,126 @@
+{
+  "johor": {
+    "seats": 56,
+    "opposition_won": 8,
+    "accuracy": {
+      "model": {
+        "correct": 48,
+        "value": 0.8571,
+        "ci95": [
+          0.7679,
+          0.9464
+        ]
+      },
+      "never_opp": {
+        "correct": 48,
+        "value": 0.8571,
+        "ci95": [
+          0.7674,
+          0.9464
+        ]
+      },
+      "same_as_last": {
+        "correct": 50,
+        "value": 0.8929,
+        "ci95": [
+          0.8036,
+          0.9643
+        ]
+      }
+    },
+    "auc": {
+      "value": 0.9271,
+      "ci95": [
+        0.8463,
+        0.9856
+      ]
+    },
+    "brier": {
+      "value": 0.0833,
+      "ci95": [
+        0.0487,
+        0.1227
+      ]
+    },
+    "paired_vs_model": {
+      "never_opp": {
+        "model_minus_rule_seats": 0,
+        "ci95_seats": [
+          -7.0,
+          7.0
+        ],
+        "mcnemar_exact_p": 1.0
+      },
+      "same_as_last": {
+        "model_minus_rule_seats": -2,
+        "ci95_seats": [
+          -5.0,
+          0.0
+        ],
+        "mcnemar_exact_p": 0.5
+      }
+    }
+  },
+  "neg_sembilan": {
+    "seats": 36,
+    "opposition_won": 11,
+    "accuracy": {
+      "model": {
+        "correct": 31,
+        "value": 0.8611,
+        "ci95": [
+          0.75,
+          0.9722
+        ]
+      },
+      "never_opp": {
+        "correct": 25,
+        "value": 0.6944,
+        "ci95": [
+          0.5278,
+          0.8333
+        ]
+      },
+      "same_as_last": {
+        "correct": 30,
+        "value": 0.8333,
+        "ci95": [
+          0.6944,
+          0.9444
+        ]
+      }
+    },
+    "auc": {
+      "value": 0.9855,
+      "ci95": [
+        0.9443,
+        1.0
+      ]
+    },
+    "brier": {
+      "value": 0.1035,
+      "ci95": [
+        0.0434,
+        0.1812
+      ]
+    },
+    "paired_vs_model": {
+      "never_opp": {
+        "model_minus_rule_seats": 6,
+        "ci95_seats": [
+          -2.0,
+          14.0
+        ],
+        "mcnemar_exact_p": 0.2101
+      },
+      "same_as_last": {
+        "model_minus_rule_seats": 1,
+        "ci95_seats": [
+          -2.0,
+          5.0
+        ],
+        "mcnemar_exact_p": 1.0
+      }
+    }
+  }
+}
