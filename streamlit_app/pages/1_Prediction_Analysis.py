@@ -357,8 +357,12 @@ else:
         horizontal=True, key="pred_view",
     )
     use_sentiment = False
+    from backend.core import sentiment_adjustment as sa
+    st.caption(
+        f"Validated model: frozen forecast saved {frozen_info['folder_date']}. "
+        f"Sentiment layer: {sa.update_summary() or 'no news window scored yet'}."
+    )
     if pred_view.startswith("With"):
-        from backend.core import sentiment_adjustment as sa
         windows = sa.load_windows()
         if windows is None:
             st.warning("Sentiment view is not available yet: it needs two scored news windows "

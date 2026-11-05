@@ -50,6 +50,34 @@ Reproduce with `python scripts/evaluate_holdout.py` (writes `backend/models/hold
 The training score is not a performance number: it is 96–100% for every state, while the held-out scores above are 66–91%.
 Training now saves the held-out score in `metadata.json` next to the training score.
 
+### How certain are these numbers? (real 2026 tests)
+
+95% intervals come from resampling the seats (`scripts/evaluate_with_ci.py`, saved in `docs/evaluation_with_ci.json`).
+With 36 and 56 seats the intervals are wide, and the differences from the simple rules are inside them.
+
+| State | Model | "Never opposition" | "Same as last time" | Model minus "same as last time" (seats) | AUC | Brier |
+|---|---|---|---|---|---|---|
+| Johor (56) | 85.7% [76.8, 94.6] | 85.7% [76.7, 94.6] | 89.3% [80.4, 96.4] | -2 [-5, 0], exact McNemar p = 0.50 | 0.927 [0.846, 0.986] | 0.083 |
+| Negeri Sembilan (36) | 86.1% [75.0, 97.2] | 69.4% [52.8, 83.3] | 83.3% [69.4, 94.4] | +1 [-2, 5], p = 1.0 | 0.986 [0.944, 1.000] | 0.104 |
+
+- The model's advantage over "never opposition" in Negeri Sembilan (+6 seats) has an interval of [-2, 14] (p = 0.21), so
+  it is not established either.
+- **Honest reading:** the model ranks seats well (high AUC) but is not shown to beat the simple rules on accuracy.
+
+### What carries the signal? (ablation and a simple baseline)
+
+Same time-ordered method, 12 held-out tests across the five states (`scripts/baseline_ablation.py`,
+`docs/baseline_ablation.json`). Each variant is re-trained with one change.
+
+- **Ethnicity and age features carry the signal.** Dropping them lowered the number of correct seats in 9 of 12 tests and
+  never raised it (Johor 2022 → 2026: 48 → 45; Negeri Sembilan 2023 → 2026: 31 → 22).
+- **Majority-change features add little.** Dropping them lowered the score in only 3 of 12 tests, and raised it in 4.
+- **A plain logistic regression is level with the ensemble.** On the two real-2026 tests it scored 49 vs 48 (Johor) and
+  31 vs 31 (Negeri Sembilan); across the 12 tests it was ahead in 5, equal in 1 and behind in 6. The ensemble is not
+  shown to be better than a simple linear model on this data.
+- **A cut-off is not the whole story.** If the best possible cut-off were chosen after seeing the answers, accuracy would be
+  48/56 (Johor) and 34/36 (Negeri Sembilan). That uses the results, so it is a ceiling, not a result.
+
 Predicts binary outcome per seat: **Harapan wins** vs. **BN / PN win** (BN and PN are not separated). See
 [docs/multiclass_analysis.md](docs/multiclass_analysis.md) for why this framing was chosen, and for an important open
 finding below.
@@ -133,7 +161,8 @@ variation — different seats respond differently to the same national
 narrative. This is an idea that is **not in the current models**: it was
 kept out of training to avoid the sentiment leakage described below, and
 the live predictor currently holds these inputs at 0. It needs a retrain
-with real seat-level values and a fair held-out test before any claim.
+with real seat-level values and a fair held-out test before any claim. A separate, assumption-based version that does not
+touch the models is described under *Experimental sentiment layer*.
 
 ---
 
@@ -160,6 +189,37 @@ the checks failing.
 - A new forecast goes in a new dated folder; a frozen folder is never overwritten.
 - Known weakness, recorded as it was: the confidence label is `LOW` for all 143 seats of the three states, because the
   OOD scores sit on a different scale from the thresholds used for the label (see limitations).
+
+---
+
+## Experimental sentiment layer (assumption-based, not part of the validated results)
+
+The validated model uses seat history and demographics only. A separate layer asks: *if the news mix changes, how
+might each seat's probability move?* It is shown on the dashboard as an optional view ("With sentiment (experimental)"),
+next to the frozen forecast, which it never changes (`backend/core/sentiment_adjustment.py`).
+
+- **Input:** theme scores from news headlines (islam_threat, malay_unity, cost_living, corruption) and the sentiment toward
+  Harapan, BN and PN, for two windows (`data/processed/narrative_windows.csv`). Only the **change** between windows counts,
+  because the *level* of a theme depends on which outlets were scraped. At least 300 successfully scored headlines are
+  needed in each window, otherwise no adjustment is applied.
+- **How a seat moves:** each seat is split into five voter groups (older Malay, younger Malay, Chinese, Indian, other).
+  Its shift on the logit scale is the sum of (group share × group reaction × change in the theme). Identity themes have a
+  fixed direction per group; cost of living and corruption push away from whoever held the seat last time, so both sides
+  can lose seats; a rise in Harapan coverage relative to BN/PN moves seats toward Harapan, more strongly in younger and
+  non-Malay seats. The shift is capped.
+- **Every effect size is an assumption written by a person** (the table is printed on the dashboard and in
+  `sentiment_adjustment.py`). There is no past news paired with past results to fit them on, so **no accuracy is claimed**.
+- **Not used:** govt_performance has zero weight (14 labelled examples), and islam_threat is halved (low reliability).
+- **Fairness check:** with the same-size change in one input, cost of living and corruption move 82 and 61 of 143 seats
+  toward each side; the two identity themes move about 70% of seats (103 and 104 of 143) toward BN/PN, because most seats are Malay-majority; coalition lean moves all seats the
+  same way. The label set still has no theme aimed at Harapan-side stories (reform, free speech, urban policy); that is
+  the next labelling step ([docs/label_schema_v2.md](docs/label_schema_v2.md)).
+- **How well the scorer follows the news** (`docs/sentiment_tracking_check.json`, resampled headline sets): the aggregate
+  score follows the true share closely for cost_living (0.96–0.99), corruption (0.93–0.98) and malay_unity (0.90–0.96),
+  but not for govt_performance (0.08–0.47). Scorers over-estimate the level (for example Groq gives corruption 0.20 when
+  the true share is 0.08), which is another reason only changes are used.
+- **To fit the effect sizes from data** (the roadmap): collect historical news for past elections, pair it with their
+  results, and test on a later election. See [docs/phase9_plan.md](docs/phase9_plan.md) for the per-coalition model.
 
 ---
 
@@ -417,6 +477,8 @@ data/
 | Release `v1.0` | Done |
 | Frozen forecasts and scoring script | Done (`forecasts-2026-10-30`) |
 | Headline classifier decision | Done (DistilBERT better on three themes; two themes unresolved) |
+| Experimental sentiment layer (assumption-based, optional dashboard view) | Built; needs two scored news windows to show numbers |
+| Confidence intervals, baselines and ablation for the headline results | Done (`docs/evaluation_with_ci.json`, `docs/baseline_ablation.json`) |
 | Chatbot answer check (do answers quote the current numbers?) | Next |
 | Per-coalition target (BN / PH / PN) and 1-vs-1 versus multi-corner contests | Planned; an earlier 3-class attempt failed for data reasons |
 | More states; API, chatbot and dashboard moved onto the same state list | Planned |
@@ -440,6 +502,10 @@ data/
 - **Binary target only** (Harapan vs BN/PN); 1-vs-1 versus multi-corner contests are not modelled yet.
 - Only Johor and Neg Sembilan have held their 2026 elections, so those are the only two states with a real-election
   score. Selangor, Melaka and Perak have frozen forecasts that will be scored when they vote.
+- **The sentiment layer is unvalidated.** Its effect sizes are assumptions, the label set has no Harapan-side themes yet,
+  there is no rural/urban split, and the voter-group data is one snapshot per state.
+- **Free-tier scoring limits:** scoring about 300 headlines a month uses most of Groq's daily token allowance for the model,
+  so windows are scored over more than one day (`scripts/score_news_file.py` resumes where it stopped).
 - **The confidence label is not informative yet:** all 143 frozen forecasts are labelled `LOW`, because the OOD scores
   (from 7.9 up to 731.9, medians 29 to 118) are on a different scale from the thresholds (1.0 and 2.5). It needs
   recalibrating.
