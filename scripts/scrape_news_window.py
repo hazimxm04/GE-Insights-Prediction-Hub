@@ -45,6 +45,13 @@ QUERIES = [
     'Malay rights Islam Malaysia',
     'Malaysia race religion',
     'Johor Selangor Perak Melaka Negeri Sembilan election',
+    # added 5 Nov 2026 to widen coverage (same queries for BOTH windows, so the comparison stays fair)
+    'Malaysia economy inflation ringgit',
+    'Dewan Rakyat Parliament Malaysia',
+    'PAS Hadi Muhyiddin Bersatu',
+    'DAP MCA MIC Malaysia',
+    'Malaysia election commission SPR',
+    'Malaysia budget subsidies government',
 ]
 
 

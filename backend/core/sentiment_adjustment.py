@@ -204,28 +204,75 @@ def assumption_table() -> pd.DataFrame:
 WINDOWS_FILE = ROOT / 'data/processed/narrative_windows.csv'
 
 
-def load_windows(path=None):
-    """(current, reference) theme dicts from the two newest rows of narrative_windows.csv
-    (columns: date, label, the five themes, n_articles). None if fewer than two windows exist."""
+def _rows_for(df: pd.DataFrame, state=None) -> pd.DataFrame:
+    """Window rows for one state. A row with an empty 'state' column is a national, current window
+    (used for the states that have not voted yet). A row with a state name is news collected
+    BEFORE that state's election, used to test the layer against the real result."""
+    if 'state' not in df.columns:
+        df = df.assign(state='')
+    key = df['state'].fillna('').astype(str).str.strip()
+    return df[key == (state or '')].sort_values('date')
+
+
+def load_windows(path=None, state=None):
+    """(current, reference) theme dicts from the two newest rows of narrative_windows.csv for this
+    state (state=None: the national windows for upcoming elections). None if fewer than two exist.
+    Columns: date, label, [state], the five themes, the coalition sentiments, n_articles."""
     path = Path(path) if path else WINDOWS_FILE
     if not path.exists():
         return None
-    df = pd.read_csv(path).sort_values('date')
+    df = _rows_for(pd.read_csv(path), state)
     if len(df) < 2:
         return None
-    cur, ref = df.iloc[-1].to_dict(), df.iloc[-2].to_dict()
-    return cur, ref
+    return df.iloc[-1].to_dict(), df.iloc[-2].to_dict()
 
 
-def update_summary(path=None):
-    """One line saying which news the sentiment layer last used, or None if no window exists.
-    Uses the newest window row: label, date range and headline count."""
+def update_summary(path=None, state=None):
+    """One line saying which news the sentiment layer last used, or None if no window exists."""
     path = Path(path) if path else WINDOWS_FILE
     if not path.exists():
         return None
-    df = pd.read_csv(path).sort_values('date')
+    df = _rows_for(pd.read_csv(path), state)
     if df.empty:
         return None
     r = df.iloc[-1]
     start = f"{r['start']} to " if 'start' in df.columns and pd.notna(r.get('start')) else 'up to '
     return f"{r.get('label', r['date'])}: news {start}{r['date']}, {int(r['n_articles'])} headlines scored"
+
+
+STALE_AFTER_DAYS = 14
+
+
+def freshness(current: dict, reference: dict, today=None) -> dict:
+    """How old the news behind the sentiment view is. Returns
+    {'updated': 'YYYY-MM-DD', 'days_old': int, 'stale': bool, 'n_current': int, 'n_reference': int,
+     'text': one line for the page}. days_old counts from the END date of the current window."""
+    import datetime as _dt
+    updated = pd.Timestamp(current['date']).date()
+    today = pd.Timestamp(today).date() if today is not None else _dt.date.today()
+    days = max((today - updated).days, 0)
+    n_cur, n_ref = int(current['n_articles']), int(reference['n_articles'])
+    stale = days > STALE_AFTER_DAYS
+    first = pd.Timestamp(reference['start']).date() if pd.notna(reference.get('start')) else None
+    span = f"{first:%d %b %Y} to {updated:%d %b %Y}" if first else f"up to {updated:%d %b %Y}"
+    text = f"News scored: {span} ({days} day{'s' if days != 1 else ''} since the latest headline); " \
+           f"{n_cur} headlines in the current window, {n_ref} in the one before."
+    if stale:
+        text += f" This is more than {STALE_AFTER_DAYS} days old, so treat it as out of date."
+    return {'updated': str(updated), 'days_old': days, 'stale': stale,
+            'n_current': n_cur, 'n_reference': n_ref, 'text': text}
+
+
+def adjust_validation(val: pd.DataFrame, demographics: pd.DataFrame, current: dict, reference: dict,
+                      min_headlines: int = MIN_HEADLINES):
+    """Sentiment-informed probabilities for a state that has ALREADY voted (validation_2026.csv),
+    so they can be compared with the real result. Use windows of news published BEFORE polling day.
+    Adds sentiment_probability, sentiment_predicted, sentiment_correct. Returns (DataFrame, message)."""
+    from backend.core.features import OPPOSITION
+    f = val.copy()
+    f['seat_no'] = f['seat'].astype(str).str.split().str[0]
+    f['baseline_same_as_last'] = f['winner_coalition_a'].isin(OPPOSITION).astype(int)
+    out, message = adjust_forecast(f, demographics, current, reference, min_headlines)
+    out['sentiment_predicted'] = (out['sentiment_probability'] >= 0.5).astype(int)
+    out['sentiment_correct'] = out['sentiment_predicted'] == out['actual_non_bn']
+    return out, message

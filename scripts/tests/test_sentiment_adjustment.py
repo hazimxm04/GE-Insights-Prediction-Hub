@@ -132,3 +132,38 @@ def test_update_summary(tmp_path):
             dict(REF, date='2026-10-31', label='Oct 2026', start='2026-10-01', n_articles=312)]
     pd.DataFrame(rows).to_csv(p, index=False)
     assert sa.update_summary(p) == 'Oct 2026: news 2026-10-01 to 2026-10-31, 312 headlines scored'
+
+
+def test_windows_are_separated_by_state(tmp_path):
+    p = tmp_path / 'w.csv'
+    rows = [dict(REF, date='2026-09-30', label='Sep', state=''), dict(REF, date='2026-10-31', label='Oct', state=''),
+            dict(REF, date='2026-05-31', label='Jh-1', state='johor'), dict(REF, date='2026-06-30', label='Jh-2', state='johor')]
+    pd.DataFrame(rows).to_csv(p, index=False)
+    assert sa.load_windows(p)[0]['label'] == 'Oct'                        # national windows
+    assert sa.load_windows(p, state='johor')[0]['label'] == 'Jh-2'
+    assert sa.load_windows(p, state='perak') is None
+    assert 'Jh-2' in sa.update_summary(p, state='johor')
+    old = tmp_path / 'old.csv'                                             # file without a state column
+    pd.DataFrame(rows[:2]).drop(columns='state').to_csv(old, index=False)
+    assert sa.load_windows(old)[0]['label'] == 'Oct' and sa.load_windows(old, state='johor') is None
+
+
+def test_adjust_validation_scores_against_actual():
+    val = pd.DataFrame({'seat': ['N.01 A', 'N.02 B'], 'winner_coalition_a': ['BN', 'PH'],
+                        'actual_non_bn': [1, 0], 'probability': [.49, .30], 'predicted_non_bn': [0, 0]})
+    d = pd.DataFrame({'seat': ['N.01 A', 'N.02 B'], 'malay_pct': [.2, .85], 'chinese_pct': [.7, .08],
+                      'indian_pct': [.05, .03], 'young_malay_pct': [.1, .3], 'older_malay_pct': [.1, .3]})
+    out, msg = sa.adjust_validation(val, d, cur(harapan_sentiment=.4, bn_sentiment=0, pn_sentiment=0, islam_threat=.25),
+                                    dict(REF, harapan_sentiment=0, bn_sentiment=0, pn_sentiment=0))
+    assert list(out['sentiment_correct']) == [True, True]      # Chinese-majority seat tips to Harapan, Malay seat stays
+    assert out.loc[0, 'sentiment_probability'] > .49
+
+
+def test_freshness_fresh_and_stale():
+    cur = {'date': '2026-11-04', 'n_articles': 320}
+    ref = {'date': '2026-10-05', 'start': '2026-09-06', 'n_articles': 310}
+    f = sa.freshness(cur, ref, today='2026-11-06')
+    assert f['days_old'] == 2 and not f['stale'] and f['n_current'] == 320
+    assert '06 Sep 2026 to 04 Nov 2026' in f['text']
+    old = sa.freshness(cur, ref, today='2026-12-01')
+    assert old['stale'] and 'out of date' in old['text']
