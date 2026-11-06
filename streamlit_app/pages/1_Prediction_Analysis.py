@@ -92,6 +92,16 @@ STATE_LABELS = {
     'johor': 'Johor', 'neg_sembilan': 'Negeri Sembilan',
     'melaka': 'Melaka', 'selangor': 'Selangor', 'perak': 'Perak',
 }
+# The two prediction views. The sentiment score is NOT a feature of the model: it is an adjustment
+# applied afterwards to the model's probabilities.
+# Validated states (a real result exists) and forecasts use different words on purpose:
+# "Validated" is only claimed where the model was checked against a real result.
+OPT_VALIDATED = "Validated Model"
+OPT_VALIDATED_NEWS = "Validated Model + Sentiment"
+OPT_MODEL = "Prediction (Model)"
+OPT_NEWS = "Prediction (Model + Sentiment)"
+SENTIMENT_NOTE = ("Sentiment is scored from recent news headlines and applied as an adjustment to the model's "
+                  "probabilities. Experimental, no accuracy claimed.")
 
 def stat_card(value, label, color="#FAFAFA"):
     st.markdown(f"""<div class="stat-card">
@@ -101,18 +111,46 @@ def stat_card(value, label, color="#FAFAFA"):
 
 # ── State selector ────────────────────────────────────────────────
 
+level = st.radio("Level:", ["State (DUN)", "Parliament"], horizontal=True, label_visibility="collapsed")
+if "Parliament" in level:
+    st.info("Parliament: coming soon. Every prediction on this site is for State (DUN) elections.")
+    st.stop()
+
 category = st.radio(
     "Category:",
-    ["Validated (Recent Elections from 2026)", "Upcoming Forecasts"],
+    ["Validated", "Upcoming Forecasts"],
     horizontal=True
 )
 
-available_states = [s for s, v in STATE_STATUS.items()
-                    if v == ('validated' if 'Validated' in category else 'forecast')]
+from backend.core.frozen_forecast import latest_frozen
 
-state = st.selectbox("Select state:", available_states,
-                     format_func=lambda x: STATE_LABELS[x])
-status = STATE_STATUS[state]
+in_validated = 'Validated' in category
+if in_validated:
+    available_states = [s for s, v in STATE_STATUS.items() if v == 'validated']
+    state_has_forecast = {}
+else:
+    # every state is listed; a state without a frozen forecast says "not available yet".
+    # States with a forecast come first, so the default selection always has one.
+    state_has_forecast = {k: latest_frozen(k)[0] is not None for k in STATE_LABELS}
+    available_states = sorted(STATE_LABELS, key=lambda k: not state_has_forecast[k])
+
+def _state_label(key):
+    if not in_validated and not state_has_forecast[key]:
+        return f"{STATE_LABELS[key]} (not available yet)"
+    return STATE_LABELS[key]
+
+# No state is chosen at first: the details below only appear after the user picks one.
+# The key includes the category, so Validated and Forecast each start with an empty choice.
+state = st.selectbox("Select state:", available_states, format_func=_state_label, index=None,
+                     placeholder="Choose a state to see its details", key=f"state_{'val' if in_validated else 'fc'}")
+if state is None:
+    st.info("Choose a state above to see its seat-by-seat prediction.")
+    st.stop()
+status = 'validated' if in_validated else 'forecast'
+
+if status == 'forecast' and not state_has_forecast[state]:
+    st.info(f"**{STATE_LABELS[state]}: forecast data not available yet.**")
+    st.stop()
 
 # ══════════════════════════════════════════════════════════════════
 # VALIDATED: Johor, Negeri Sembilan
@@ -128,6 +166,45 @@ if status == 'validated':
         st.stop()
 
     df = pd.read_csv(csv_path)
+
+    # ── Prediction view: validated model (default) or the experimental sentiment layer ──
+    from backend.core import sentiment_adjustment as sa
+    pred_view = st.radio(
+        "Prediction view:",
+        [OPT_VALIDATED, OPT_VALIDATED_NEWS],
+        horizontal=True, key="pred_view_val",
+    )
+    st.caption(
+        "Validated Model: the model's pre-election prediction, scored against the real 2026 result. "
+        "Sentiment uses the 30 days of news BEFORE the election: "
+        f"{sa.update_summary(state=state) or 'no pre-election news window scored for this state yet'}. "
+        + SENTIMENT_NOTE
+    )
+    base_correct = int(df['correct'].sum())
+    if pred_view == OPT_VALIDATED_NEWS:
+        windows = sa.load_windows(state=state)
+        if windows is None:
+            st.warning("The sentiment view is not available for this state yet. It needs two scored 30-day news "
+                       "windows from BEFORE the election, so the news can be tested against the real result. "
+                       "Showing the Validated Model.")
+        else:
+            cur_w, ref_w = windows
+            data_ok, data_msg = sa.data_status(cur_w, ref_w)
+            if not data_ok:
+                st.warning(data_msg + " Showing the Validated Model.")
+            else:
+                adjusted, _ = sa.adjust_validation(df, sa.load_demographics(state), cur_w, ref_w)
+                df['frozen_probability'] = df['probability']
+                df['probability'] = adjusted['sentiment_probability'].values
+                df['predicted_non_bn'] = adjusted['sentiment_predicted'].values
+                df['correct'] = adjusted['sentiment_correct'].values
+                st.warning(
+                    "**Experimental test.** News published before the election, adjusted with assumed effects "
+                    "(not fitted to data), applied to the model's probabilities. "
+                    f"Correct seats: Validated Model {base_correct}/{len(df)}, with sentiment "
+                    f"{int(df['correct'].sum())}/{len(df)}. A difference of a few seats is within the noise "
+                    "of this sample; no improvement is claimed."
+                )
     total    = len(df)
     correct  = df['correct'].sum()
     wrong    = total - correct
@@ -353,35 +430,40 @@ else:
     # ── Prediction view: validated model (default) or the experimental sentiment layer ──
     pred_view = st.radio(
         "Prediction view:",
-        ["Validated model", "With sentiment (experimental)"],
+        [OPT_MODEL, OPT_NEWS],
         horizontal=True, key="pred_view",
     )
     use_sentiment = False
     from backend.core import sentiment_adjustment as sa
     st.caption(
-        f"Validated model: frozen forecast saved {frozen_info['folder_date']}. "
-        f"Sentiment layer: {sa.update_summary() or 'no news window scored yet'}."
+        f"Prediction (Model): frozen forecast saved {frozen_info['folder_date']}. "
+        f"Sentiment: {sa.update_summary() or 'no news window scored yet'}. "
+        + SENTIMENT_NOTE
     )
-    if pred_view.startswith("With"):
+    if pred_view == OPT_NEWS:
         windows = sa.load_windows()
         if windows is None:
             st.warning("Sentiment view is not available yet: it needs two scored news windows "
-                       "(data/processed/narrative_windows.csv). Showing the validated model.")
+                       "(data/processed/narrative_windows.csv). Showing Prediction (Model).")
         else:
             cur_w, ref_w = windows
             data_ok, data_msg = sa.data_status(cur_w, ref_w)
             if not data_ok:
-                st.warning(data_msg + " Showing the validated model.")
+                st.warning(data_msg + " Showing Prediction (Model).")
             else:
                 adjusted, _ = sa.adjust_forecast(df, sa.load_demographics(state), cur_w, ref_w)
                 df['frozen_probability'] = df['probability']
                 df['probability'] = adjusted['sentiment_probability'].values
+                df['sentiment_flips_call'] = adjusted['sentiment_flips_call'].values
                 use_sentiment = True
+                fresh = sa.freshness(cur_w, ref_w)
+                (st.warning if fresh['stale'] else st.info)(fresh['text'])
                 st.warning(
                     "**Experimental.** These numbers add a sentiment layer on top of the frozen forecast. "
                     "Its effects are assumptions written by a person, not fitted to data, so no accuracy is "
-                    "claimed for them. The accuracy figures on this site belong to the validated model only. "
-                    "See the Sentiment Prediction page for the assumptions."
+                    "claimed for them. The accuracy figures on this site belong to the model validated on Johor "
+                    "and Negeri Sembilan, not to the sentiment adjustment. "
+                    "See the Sentiment Analysis page for the assumptions."
                 )
     st.info(
         f"**Frozen forecast** saved {frozen_info['folder_date']} (code commit "
@@ -438,6 +520,23 @@ else:
     """, unsafe_allow_html=True)
 
     
+
+    if use_sentiment:
+        frozen_h = int((df['frozen_probability'] >= 0.5).sum())
+        sent_h = int((df['probability'] >= 0.5).sum())
+        k1, k2, k3 = st.columns(3)
+        k1.metric("Harapan-side seats: frozen forecast", frozen_h)
+        k2.metric("Harapan-side seats: with today's news", sent_h, delta=sent_h - frozen_h)
+        k3.metric("Seats whose call changes", int(df['sentiment_flips_call'].sum()))
+        flipped = df[df['sentiment_flips_call']]
+        if flipped.empty:
+            st.caption("Today's news does not change the call in any seat. It only moves probabilities.")
+        else:
+            with st.expander(f"Seats whose call changes ({len(flipped)})", expanded=False):
+                table = flipped[[seat_col, 'frozen_probability', prob_col]].rename(
+                    columns={seat_col: 'seat', 'frozen_probability': 'frozen P(Harapan)',
+                             prob_col: 'with news P(Harapan)'})
+                st.dataframe(table.round(3), use_container_width=True, hide_index=True)
 
     safe_govt   = df[df[prob_col] < 0.20].sort_values(prob_col)
     likely_govt = df[(df[prob_col] >= 0.20) & (df[prob_col] < 0.35)].sort_values(prob_col)

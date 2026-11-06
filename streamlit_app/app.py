@@ -1,29 +1,48 @@
 """
-app.py
-======
-GE-Insights home page — polished version with:
-  1. Simplified 2-row map legend
-  2. Distinct border-style (not just lighter shade) for forecast seats
-  3. Hover micro-interactions on stat cards
-  4. Varied card sizes (map as dominant hero element)
+app.py  (home page)
+===================
+Structure:
+  1. Title + LIVE/OFFLINE badge (API health) + level toggle (State DUN / Parliament)
+  2. Headline numbers (validated accuracy read from the validation CSVs, never typed in)
+  3. Map of state seats: FORECAST ONLY. Map view = "Prediction" or "Prediction + sentiment".
+     States without a forecast yet (today Johor, Negeri Sembilan) stay grey ("No forecast yet").
+  4. State-by-state summary: option "Validated" (states that have voted) or "Forecast" (all five;
+     a state without a forecast shows "not available yet").
+  5. Disclaimer and navigation
+
+A state has a forecast if a frozen forecast folder exists for it (latest_frozen returns data). If not, the page
+shows "not available yet". Nothing is hard-coded per state: add a forecast folder and it appears.
 """
 
-import streamlit as st
-import pandas as pd
-import geopandas as gpd
-import plotly.express as px
 import json
+import re
+import sys
 from pathlib import Path
+
+import geopandas as gpd
+import pandas as pd
+import plotly.express as px
+import streamlit as st
+
+ROOT = Path(__file__).resolve().parent.parent
+sys.path.insert(0, str(ROOT))
+
+from backend.core import sentiment_adjustment as sa
+from backend.core.frozen_forecast import latest_frozen
 from utils.api import health_check
 
-st.set_page_config(
-    page_title="MYRamalan",
-    page_icon="🗳️",
-    layout="wide",
-    initial_sidebar_state="expanded"
-)
+st.set_page_config(page_title="MYRamalan", page_icon="🗳️", layout="wide", initial_sidebar_state="expanded")
 
-# ── CSS: hero, cards with hover, distinct border styling ──────────
+# ── The states ──────────────────────────────────────────────────────────────────
+# key -> label (the label must match the 'state' column of data/processed/map_data.geojson)
+STATES = {'johor': 'Johor', 'neg_sembilan': 'Negeri Sembilan',
+          'melaka': 'Melaka', 'selangor': 'Selangor', 'perak': 'Perak'}
+# states that have voted = states with a validation file (checked against the real 2026 result)
+VALIDATED = [k for k in STATES if (ROOT / f"backend/models/{k}/validation_2026.csv").exists()]
+
+GEOJSON_PATH = ROOT / "data/processed/map_data.geojson"
+
+# ── CSS ─────────────────────────────────────────────────────────────────────────
 
 st.markdown("""
 <style>
@@ -151,160 +170,74 @@ st.markdown("""
 </style>
 """, unsafe_allow_html=True)
 
-# ── Ticker bar: live data freshness indicator ──────────────────
-import os
-from datetime import datetime
-ROOT = Path(__file__).resolve().parent.parent
-geojson_path = ROOT / "data/processed/map_data.geojson"
 
-sentiment_path = ROOT / "data/processed/state_sentiment_scores.csv"
-if sentiment_path.exists():
-    sentiment_df = pd.read_csv(sentiment_path)
-    total_articles = int(sentiment_df['n_articles_total'].sum())
-    n_states = sentiment_df['state'].nunique()
-    last_modified = datetime.fromtimestamp(os.path.getmtime(sentiment_path))
-    updated_str = last_modified.strftime("%d %b %Y")
-
-    # Bar 1: simple update indicator
-    st.markdown(f"""
-    <div style="background:#151821; border:1px solid rgba(255,255,255,0.06);
-                border-radius:8px; padding:10px 20px; margin-bottom:8px;
-                display:flex; align-items:center; gap:16px; font-size:13px;
-                color:#9CA3AF;">
-        <span>Last Update: <b style="color:#D1D5DB;">{updated_str}</b></span>
-    </div>
-    """, unsafe_allow_html=True)
-
-    # Bar 2: clickable expander with article count + full source detail
-    with st.expander(f"📰 {total_articles} articles scored — view sources"):
-        st.markdown("**News Sources**")
-
-        sources = [
-            ("Free Malaysia Today", "logos/fmt.png"),
-            ("Malay Mail", "logos/malaymail.png"),
-            ("Malaysiakini", "logos/malaysiakini.jpg"),
-            ("Utusan Malaysia", "logos/utusan.png"),
-            ("Bernama", "logos/bernama.png"),
-        ]
-
-        cols = st.columns(5)
-        for col, (name, path) in zip(cols, sources):
-            with col:
-                logo_path = ROOT / "streamlit_app/assets" / path
-                if logo_path.exists():
-                    st.image(str(logo_path), use_container_width=True)
-                st.caption(name)
-
-        st.divider()
-
-        st.markdown("**Sentiment Scoring**")
-        st.markdown("""
-        Each article is scored across 9 dimensions (BN, Harapan, and PN
-        sentiments, racial tension and economic index) by using **Groq's Llama** model.
-        The score is then aggregated to state-level sentiment scores used in the
-        prediction formula.
-        """)
-
-        st.caption("Coverage: last 24–48 hours of articles per scraping cycle.")
-
-
-if not geojson_path.exists():
-    st.error("Run build_map_data.py first to generate the map.")
-    st.stop()
-
-gdf = gpd.read_file(geojson_path)
-gdf['id'] = gdf['dun']
-
-# ── Colour categorisation with distinct patterns for forecast ─────
-# Actual results: solid saturated colours
-# Forecast: same hue family but rendered with a border style
-#           (line_color differs) so they're visually distinct
-#           beyond just opacity/shade
-
-def get_swing_category(row):
-    if row['status'] == 'validated':
-        return 'Harapan (Actual)' if row['display_winner'] == 'Harapan' else 'BN/PN (Actual)'
-    prob = row['probability']
-    if prob >= 0.70:
-        return 'Harapan (Safe - Forecast)'
-    elif prob >= 0.55:
-        return 'Harapan (Leaning - Forecast)'
-    elif prob >= 0.45:
-        return 'Toss-up (Forecast)'
-    elif prob >= 0.30:
-        return 'BN/PN (Leaning - Forecast)'
-    else:
-        return 'BN/PN (Safe - Forecast)'
-
-gdf['color_label'] = gdf.apply(get_swing_category, axis=1)
-gdf['status_label'] = gdf['status'].apply(
-    lambda x: 'Validated (actual result)' if x == 'validated' else 'Forecast (upcoming)'
-)
-
-# Actual = fully saturated, no border distinction needed (ground truth)
-# Forecast = slightly desaturated fill + will get dashed border via
-#            separate trace overlay for visual "not yet confirmed" cue
-COLOR_MAP = {
-    'Harapan (Actual)':            '#DC2626',
-    'BN/PN (Actual)':              '#2563EB',
-    'Harapan (Safe - Forecast)':   '#DC2626',
-    'Harapan (Leaning - Forecast)':'#F87171',
-    'Toss-up (Forecast)':          '#A78BFA',
-    'BN/PN (Leaning - Forecast)':  '#60A5FA',
-    'BN/PN (Safe - Forecast)':     '#2563EB',
-}
+# ── Data helpers (one source of truth, the same files the Prediction Analysis page reads) ──────────
 
 @st.cache_data(ttl=300)
-def get_state_totals():
-    totals = {}
-    johor_df = pd.read_csv(ROOT / "backend/models/johor/validation_2026.csv")
-    totals['Johor'] = {
-        'govt': int((johor_df['actual_non_bn'] == 0).sum()),
-        'harapan': int((johor_df['actual_non_bn'] == 1).sum()),
-        'total': len(johor_df), 'type': 'Actual (2026)',
-    }
-    ns_df = pd.read_csv(ROOT / "backend/models/neg_sembilan/validation_2026.csv")
-    totals['Negeri Sembilan'] = {
-        'govt': int((ns_df['actual_non_bn'] == 0).sum()),
-        'harapan': int((ns_df['actual_non_bn'] == 1).sum()),
-        'total': len(ns_df), 'type': 'Actual (2026)',
-    }
-    melaka_path = ROOT / "data/processed/melaka_2026_prediction.csv"
-    if melaka_path.exists():
-        melaka_df = pd.read_csv(melaka_path)
-        prob_col = 'probability' if 'probability' in melaka_df.columns else 'final_score'
-        totals['Melaka'] = {
-            'govt': int((melaka_df[prob_col] < 0.5).sum()),
-            'harapan': int((melaka_df[prob_col] >= 0.5).sum()),
-            'total': len(melaka_df), 'type': 'Forecast',
-        }
-    selangor_path = ROOT / "data/processed/selangor_2026_bluwave.csv"
-    if selangor_path.exists():
-        selangor_df = pd.read_csv(selangor_path)
-        totals['Selangor'] = {
-            'govt': int((selangor_df['harapan_holds_probability'] < 0.5).sum()),
-            'harapan': int((selangor_df['harapan_holds_probability'] >= 0.5).sum()),
-            'total': len(selangor_df), 'type': 'Forecast (see risk breakdown)',
-        }
-        perak_path = ROOT / "data/processed/perak_2026_prediction.csv"
-    if perak_path.exists():
-        perak_df = pd.read_csv(perak_path)
-        prob_col = 'probability' if 'probability' in perak_df.columns else 'final_score'
-        totals['Perak'] = {
-            'govt': int((perak_df[prob_col] < 0.5).sum()),
-            'harapan': int((perak_df[prob_col] >= 0.5).sum()),
-            'total': len(perak_df), 'type': 'Forecast',
-        }
-    return totals
+def validation_summary(key: str) -> dict:
+    """Johor / Negeri Sembilan: seats, correct, wrong, accuracy, from backend/models/<state>/validation_2026.csv."""
+    df = pd.read_csv(ROOT / f"backend/models/{key}/validation_2026.csv")
+    correct, total = int(df['correct'].sum()), len(df)
+    return {'total': total, 'correct': correct, 'wrong': total - correct, 'accuracy': correct / total}
 
-STATE_TOTALS = get_state_totals()
-total_seats = len(gdf)
-api_ok = health_check()
 
-# ── HERO SECTION ─────────────────────────────────────────────────
+def forecast_frame(key: str, with_sentiment: bool, windows=None):
+    """Seat probabilities for an upcoming state from its FROZEN forecast. Returns (DataFrame, calls_changed).
+    Columns: state, seat_name, probability. With sentiment, the probability is the experimental adjusted one."""
+    forecast, _ = latest_frozen(key)
+    if forecast is None:
+        return None, 0
+    if with_sentiment and windows is not None:
+        current, reference = windows
+        out, _ = sa.adjust_forecast(forecast, sa.load_demographics(key), current, reference)
+        frame = pd.DataFrame({'seat_name': out['seat_name'], 'probability': out['sentiment_probability']})
+        changed = int(out['sentiment_flips_call'].sum())
+    else:
+        frame = pd.DataFrame({'seat_name': forecast['seat_name'], 'probability': forecast['probability']})
+        changed = 0
+    frame['state'] = STATES[key]
+    return frame, changed
 
+
+def seat_key(name) -> str:
+    """'N.39 Kota Damansara' and 'Kota Damansara' both become 'kotadamansara', so map and forecast can be joined."""
+    name = re.sub(r'^\s*N\.?\s*\d+\s*', '', str(name), flags=re.I)
+    return re.sub(r'[^a-z0-9]', '', name.lower())
+
+
+def swing_category(prob) -> str:
+    if pd.isna(prob):
+        return 'No forecast yet'
+    if prob >= 0.70:
+        return 'Harapan (strong)'
+    if prob >= 0.55:
+        return 'Harapan (lean)'
+    if prob >= 0.45:
+        return 'Toss-up'
+    if prob >= 0.30:
+        return 'BN/PN (lean)'
+    return 'BN/PN (strong)'
+
+
+COLOR_MAP = {
+    'Harapan (strong)': '#DC2626', 'Harapan (lean)': '#F87171', 'Toss-up': '#A78BFA',
+    'BN/PN (lean)': '#60A5FA', 'BN/PN (strong)': '#2563EB', 'No forecast yet': '#4B5563',
+}
+
+
+def change_vs_last_election(key: str):
+    """TODO (you): how many seats change side compared with the last election, for the summary card.
+    Hint: pages/1_Prediction_Analysis.py already does `df['last_side'] = last_side(df)` with
+    `from backend.core.frozen_forecast import latest_frozen, last_side`. Return e.g. {'harapan': +3, 'govt': -3},
+    or None while this is not written. The card shows a dash for None."""
+    return None
+
+
+# ── 1. Title and level ──────────────────────────────────────────────────────────
+
+api_ok = health_check()      # LIVE once the API is deployed and reachable, OFFLINE until then
 status_class = "status-live" if api_ok else "status-offline"
-status_text  = "🟢 LIVE" if api_ok else "🔴 OFFLINE"
+status_text = "🟢 LIVE" if api_ok else "🔴 OFFLINE"
 
 st.markdown(f"""
 <div class="hero-container">
@@ -314,7 +247,6 @@ st.markdown(f"""
     <div class="hero-subtitle">Malaysian State Assembly (DUN) election prediction, validated on actual 2026 results.</div>
 </div>
 """, unsafe_allow_html=True)
-# ── Level selector: DUN vs Parliament (styled pill toggle) ─────────
 
 st.markdown("""
 <style>
@@ -348,13 +280,7 @@ div[data-testid="stRadio"] label[data-baseweb="radio"] > div:first-child {
 </style>
 """, unsafe_allow_html=True)
 
-level = st.radio(
-    "Level:",
-    ["State (DUN)", "Parliament"],
-    horizontal=True,
-    label_visibility="collapsed"
-)
-
+level = st.radio("Level:", ["State (DUN)", "Parliament"], horizontal=True, label_visibility="collapsed")
 if "Parliament" in level:
     st.markdown("""
     <div class="hero-container" style="padding:60px 30px; text-align:center; margin-top:16px;">
@@ -364,289 +290,171 @@ if "Parliament" in level:
     """, unsafe_allow_html=True)
     st.stop()
 
+if not GEOJSON_PATH.exists():
+    st.error("Run build_map_data.py first to generate the map.")
+    st.stop()
+gdf = gpd.read_file(GEOJSON_PATH)
+gdf['id'] = gdf['dun']
+
+# ── 2. Headline numbers ─────────────────────────────────────────────────────────
+
 st.write("")
-
-# ── Stat cards: dominant hero stat + 3 secondary ──────────────────
-
+johor, ns = validation_summary('johor'), validation_summary('neg_sembilan')
 hc1, hc2 = st.columns([1.3, 2.7])
 with hc1:
     st.markdown(f"""<div class="hero-stat-card">
-        <div class="value">{total_seats}</div>
-        <div class="label">DUN Seats Analysed</div>
-    </div>""", unsafe_allow_html=True)
-
+        <div class="value">{len(gdf)}</div><div class="label">DUN Seats Analysed</div></div>""", unsafe_allow_html=True)
 with hc2:
     c1, c2, c3 = st.columns(3)
-    with c1:
-        st.markdown(f"""<div class="stat-card">
-            <div class="value">94.64%</div>
-            <div class="label">Johor Accuracy</div>
-        </div>""", unsafe_allow_html=True)
-    with c2:
-        st.markdown(f"""<div class="stat-card">
-            <div class="value">91.67%</div>
-            <div class="label">NS Accuracy</div>
-        </div>""", unsafe_allow_html=True)
-    with c3:
-        st.markdown(f"""<div class="stat-card" title="Johor, Negeri Sembilan, Melaka, Selangor, Perak">
-            <div class="value">5</div>
-            <div class="label">States Covered</div>
-        </div>""", unsafe_allow_html=True)
-
-st.write("")
+    for col, value, label in [(c1, f"{johor['accuracy']:.2%}", "Johor accuracy (validated)"),
+                              (c2, f"{ns['accuracy']:.2%}", "NS accuracy (validated)"),
+                              (c3, str(len(STATES)), "States covered")]:
+        with col:
+            st.markdown(f"""<div class="stat-card"><div class="value">{value}</div>
+                <div class="label">{label}</div></div>""", unsafe_allow_html=True)
+st.caption("Validated accuracy is the model's pre-election prediction against the real 2026 result, "
+           "on 56 Johor seats and 36 Negeri Sembilan seats. See Methodology for the baselines it is compared with.")
 st.divider()
 
-# ── Map (dominant visual element) ─────────────────────────────────
+# ── 3. Map: forecast only ───────────────────────────────────────────────────────
 
-st.subheader("🗺️ Forecast of State Legistative Seats (DUN)")
+st.subheader("🗺️ Map of State Legislative Seats (DUN): forecast")
+map_view = st.radio("Map view:", ["Prediction (Model)", "Prediction (Model + Sentiment)"], horizontal=True)
+use_sentiment = map_view.startswith("Prediction +")
+
+windows = None
+if use_sentiment:
+    windows = sa.load_windows()
+    ok, message = (False, "No sentiment data yet.") if windows is None else sa.data_status(*windows)
+    if not ok:
+        st.warning(f"{message} Showing the prediction without sentiment.")
+        use_sentiment, windows = False, None
+    else:
+        st.caption(sa.freshness(*windows)['text'] + " Experimental: the effect sizes are assumptions, and no "
+                   "accuracy is claimed for this view.")
+
+frames, changed_total, has_forecast = [], 0, []
+for key in STATES:
+    frame, changed = forecast_frame(key, use_sentiment, windows)
+    if frame is not None:          # no frozen forecast -> the state stays grey on the map
+        frames.append(frame)
+        has_forecast.append(STATES[key])
+        changed_total += changed
+probs = pd.concat(frames, ignore_index=True) if frames else pd.DataFrame(columns=['state', 'seat_name', 'probability'])
+probs['key'] = probs['seat_name'].map(seat_key)
+probs = probs.drop_duplicates(['state', 'key'])
+
+gdf['key'] = gdf['dun'].map(seat_key)
+gdf = gdf.drop(columns=[c for c in ['probability'] if c in gdf.columns]).merge(
+    probs[['state', 'key', 'probability']], on=['state', 'key'], how='left')
+gdf['color_label'] = gdf['probability'].map(swing_category)
 
 with st.expander("🔍 Filter map by state"):
-    view_states = st.multiselect(
-        "Show only:", ['Johor', 'Negeri Sembilan', 'Melaka', 'Selangor', 'Perak'],
-        default=['Johor', 'Negeri Sembilan', 'Melaka', 'Selangor', 'Perak']
-    )
-
-gdf_filtered = gdf[gdf['state'].isin(view_states)] if view_states else gdf
-
-geojson_dict = json.loads(gdf_filtered.to_json())
-
+    view_states = st.multiselect("Show only:", list(STATES.values()), default=list(STATES.values()))
+gdf_view = gdf[gdf['state'].isin(view_states)] if view_states else gdf
 
 fig = px.choropleth_map(
-    gdf_filtered, geojson=geojson_dict, locations='id',
-    featureidkey='properties.id', color='color_label',
-    color_discrete_map=COLOR_MAP,
-    map_style="carto-positron",  # ← CHANGED: no external tile dependency
-    zoom=7.3, center={"lat": 2.6, "lon": 102.7}, opacity=0.80,
-    hover_name='dun',
-    hover_data={'state': True, 'status_label': True,
-               'probability': ':.2f', 'id': False, 'color_label': False},
-    labels={'color_label': 'Predicted / Actual Winner'},
+    gdf_view, geojson=json.loads(gdf_view.to_json()), locations='id', featureidkey='properties.id',
+    color='color_label', color_discrete_map=COLOR_MAP, map_style="carto-positron",
+    zoom=7.3, center={"lat": 2.6, "lon": 102.7}, opacity=0.80, hover_name='dun',
+    hover_data={'state': True, 'probability': ':.2f', 'id': False, 'color_label': False},
+    labels={'color_label': 'Forecast'},
 )
 fig.update_traces(marker_line_width=1.0, marker_line_color='rgba(255,255,255,0.4)')
-fig.update_layout(
-    height=680, margin={"r": 0, "t": 0, "l": 0, "b": 0},
-    showlegend=False,  # custom legend below instead — cleaner
-    paper_bgcolor='rgba(0,0,0,0)',
-)
+fig.update_layout(height=680, margin={"r": 0, "t": 0, "l": 0, "b": 0}, showlegend=False, paper_bgcolor='rgba(0,0,0,0)')
 st.plotly_chart(fig, use_container_width=True)
-
-# ── Simplified 2-row legend ────────────────────────────────────────
 
 st.markdown("""
 <div style="background:#1A1D24; border-radius:10px; padding:14px 18px; margin-top:-8px;">
-    <div class="legend-row">
-        <span class="legend-label">Actual result:</span>
-        <span><span class="legend-swatch" style="background:#2563EB;"></span>BN/PN</span>
-        <span><span class="legend-swatch" style="background:#DC2626;"></span>Harapan</span>
-        <span style="color:#6B7280; font-size:12px;">— Johor, Negeri Sembilan</span>
-    </div>
     <div class="legend-row" style="margin-bottom:0;">
         <span class="legend-label">Forecast:</span>
-        <span><span class="legend-swatch" style="background:#2563EB;"></span>Safe BN+PN </span>
-        <span><span class="legend-swatch" style="background:#60A5FA;"></span>Leaning BN+PN</span>
+        <span><span class="legend-swatch" style="background:#2563EB;"></span>BN/PN strong</span>
+        <span><span class="legend-swatch" style="background:#60A5FA;"></span>BN/PN lean</span>
         <span><span class="legend-swatch" style="background:#A78BFA;"></span>Toss-up</span>
-        <span><span class="legend-swatch" style="background:#F87171;"></span>Leaning Harapan</span>
-        <span><span class="legend-swatch" style="background:#DC2626;"></span>Safe Harapan</span>
-        <span style="color:#6B7280; font-size:12px;">— Melaka, Selangor, Perak</span>
+        <span><span class="legend-swatch" style="background:#F87171;"></span>Harapan lean</span>
+        <span><span class="legend-swatch" style="background:#DC2626;"></span>Harapan strong</span>
+        <span><span class="legend-swatch" style="background:#4B5563;"></span>No forecast yet</span>
     </div>
 </div>
 """, unsafe_allow_html=True)
 
-st.caption("Hover any seat on the map for details. Forecast seats use a lighter, "
-          "confirmed outcomes from model predictions.")
+caption = ("Hover a seat for its probability. Many seats use the model's fallback to the seat's own history "
+           "(see Methodology, limitations), so 'strong' means the forecast is far from 50%, not that it is certain.")
+if use_sentiment:
+    caption += f" Seats whose call changes with sentiment: {changed_total}."
+st.caption(caption)
 
+unmatched = int(gdf.loc[gdf['state'].isin(has_forecast), 'probability'].isna().sum())
+if unmatched:
+    st.warning(f"{unmatched} forecast-state seats on the map could not be matched to a forecast (seat names differ). "
+               "Check seat_key() against the 'dun' column of map_data.geojson.")
 st.divider()
 
-# ── State-by-state summary ─────────────────────────────────────────
-
-# ═══════════════════════════════════════════════════════════════
-# FIX 1: Change 📍 to 📊 for State-by-State Summary header
-# FIX 2: Add red "wrong predictions" callout box for Johor/NS
-# FIX 3: Add bolded TL;DR line to each Key Finding card
-# FIX 4: Add direct navigation button/link from Selangor callout
-#        to Election Result page with Selangor pre-selected
-# ═══════════════════════════════════════════════════════════════
+# ── 4. State-by-state summary ───────────────────────────────────────────────────
 
 st.subheader("📊 State-by-State Summary")
-st.caption("For seat-by-seat detail, wrong predictions, and risk breakdowns → **Election Result** page")
+summary_view = st.radio("Summary:", ["Validated", "Upcoming Forecast"], horizontal=True,
+                        help="Validated: states that have voted, checked against the real result. "
+                             "Forecast: predictions for states that have not voted yet.")
 
-c1, c2, c3, c4, c5 = st.columns(5)
 
-with c1:
-    st.markdown("**Johor**")
+def validated_card(key: str):
+    s = validation_summary(key)
+    st.markdown(f"**{STATES[key]}**")
     st.markdown("🟢 Validated")
     st.markdown(f"""
     <div class="stat-card" style="text-align:left; padding:14px;">
         <div style="display:flex; justify-content:space-between; margin-bottom:2px;">
             <span style="color:#4ADE80; font-size:12px;">Accuracy</span>
-            <span style="font-weight:700;">94.64%</span>
-        </div>
-        <div style="font-size:11px; color:#6B7280; margin-bottom:8px;">
-            53/56 seats correct
-        </div>
-        <div style="display:flex; justify-content:space-between; margin-bottom:2px;
-                    background:#450A0A; border-radius:6px; padding:6px 8px;">
+            <span style="font-weight:700;">{s['accuracy']:.2%}</span></div>
+        <div style="font-size:11px; color:#6B7280; margin-bottom:8px;">{s['correct']}/{s['total']} seats correct</div>
+        <div style="display:flex; justify-content:space-between; background:#450A0A; border-radius:6px; padding:6px 8px;">
             <span style="color:#FCA5A5; font-size:12px;">Wrong predictions</span>
-            <span style="font-weight:700; color:#FCA5A5; font-size:12px;">3 (5%)</span>
-        </div>
-    </div>
-    """, unsafe_allow_html=True)
-    st.write("") 
-    if st.button("→ View details", key="johor_link", use_container_width=True):
-            st.session_state['jump_to_state'] = 'johor'
-            st.switch_page("pages/1_Prediction_Analysis.py")
+            <span style="font-weight:700; color:#FCA5A5; font-size:12px;">{s['wrong']} ({s['wrong'] / s['total']:.0%})</span></div>
+    </div>""", unsafe_allow_html=True)
 
-with c2:
-    st.markdown("**Negeri Sembilan**")
-    st.markdown("🟢 Validated")
-    st.markdown(f"""
-    <div class="stat-card" style="text-align:left; padding:14px;">
-        <div style="display:flex; justify-content:space-between; margin-bottom:2px;">
-            <span style="color:#4ADE80; font-size:12px;">Accuracy</span>
-            <span style="font-weight:700;">91.67%</span>
-        </div>
-        <div style="font-size:11px; color:#6B7280; margin-bottom:8px;">
-            33/36 seats correct
-        </div>
-        <div style="display:flex; justify-content:space-between; margin-bottom:2px;
-                    background:#450A0A; border-radius:6px; padding:6px 8px;">
-            <span style="color:#FCA5A5; font-size:12px;">Wrong predictions</span>
-            <span style="font-weight:700; color:#FCA5A5; font-size:12px;">3 (8%)</span>
-        </div>
-    </div>
-    """, unsafe_allow_html=True)
 
-    st.write("") 
-    if st.button("→ View details", key="negeri_sembilan_link", use_container_width=True):
-            st.session_state['jump_to_state'] = 'negeri_sembilan'
-            st.switch_page("pages/1_Prediction_Analysis.py")
-
-with c3:
-    st.markdown("**Melaka**")
+def forecast_card(key: str):
+    st.markdown(f"**{STATES[key]}**")
+    forecast, _ = latest_frozen(key)
+    if forecast is None:
+        st.markdown("⚪ Not available yet")
+        st.markdown("""<div class="stat-card" style="text-align:left; padding:14px; color:#9CA3AF; font-size:12px;">
+            Forecast data not available yet.</div>""", unsafe_allow_html=True)
+        return
+    harapan = int((forecast['probability'] >= 0.5).sum())
+    total = len(forecast)
+    govt = total - harapan
+    delta = change_vs_last_election(key)          # TODO (you), see the function above
+    d_h = f"{delta['harapan']:+d} vs last election" if delta else "change vs last election: not computed yet"
+    d_g = f"{delta['govt']:+d} vs last election" if delta else "change vs last election: not computed yet"
     st.markdown("🟡 Forecast")
-    melaka = STATE_TOTALS.get('Melaka', {})
-    govt_pct = melaka.get('govt', 0) / melaka.get('total', 1) * 100
-
-    govt_2021 = 23  # BN(21) + PN(2)
-    harapan_2021 = 5
-    govt_change = melaka.get('govt', 0) - govt_2021
-    harapan_change = melaka.get('harapan', 0) - harapan_2021
-
-    govt_delta = f"+{govt_change}" if govt_change > 0 else str(govt_change) if govt_change != 0 else "±0"
-    harapan_delta = f"+{harapan_change}" if harapan_change > 0 else str(harapan_change) if harapan_change != 0 else "±0"
-
     st.markdown(f"""
     <div class="stat-card" style="text-align:left; padding:14px;">
         <div style="display:flex; justify-content:space-between; margin-bottom:2px;">
-            <span style="color:#93C5FD; font-size:12px;">BN+PN Pact</span>
-            <span style="font-weight:700;">{melaka.get('govt','-')} ({govt_pct:.0f}%)</span>
-        </div>
-        <div style="font-size:11px; color:#6B7280; margin-bottom:8px;">
-            {govt_delta} seats compared to latest election ({govt_2021})
-        </div>
+            <span style="color:#93C5FD; font-size:12px;">BN+PN</span>
+            <span style="font-weight:700;">{govt} ({govt / total:.0%})</span></div>
+        <div style="font-size:11px; color:#6B7280; margin-bottom:8px;">{d_g}</div>
         <div style="display:flex; justify-content:space-between; margin-bottom:2px;">
             <span style="color:#FCA5A5; font-size:12px;">Harapan</span>
-            <span style="font-weight:700;">{melaka.get('harapan','-')} ({100-govt_pct:.0f}%)</span>
-        </div>
-        <div style="font-size:11px; color:#6B7280;">
-            {harapan_delta} seats compared to latest election ({harapan_2021})
-        </div>
-    </div>
-    """, unsafe_allow_html=True)
-    if st.button("→ View details", key="melaka_link", use_container_width=True):
-            st.session_state['jump_to_state'] = 'melaka'
+            <span style="font-weight:700;">{harapan} ({harapan / total:.0%})</span></div>
+        <div style="font-size:11px; color:#6B7280;">{d_h}</div>
+    </div>""", unsafe_allow_html=True)
+
+
+keys = VALIDATED if summary_view == "Validated" else list(STATES)
+for col, key in zip(st.columns(len(keys)), keys):
+    with col:
+        (validated_card if summary_view == "Validated" else forecast_card)(key)
+        st.write("")
+        if st.button("→ View details", key=f"detail_{summary_view}_{key}", use_container_width=True):
             st.switch_page("pages/1_Prediction_Analysis.py")
 
-with c4:
-    st.markdown("**Selangor**")
-    st.markdown("🟡 Forecast")
-    
-    selangor_df = pd.read_csv(ROOT / "data/processed/selangor_2026_bluwave.csv")
-    sel_govt = (selangor_df['harapan_holds_probability'] < 0.5).sum()
-    sel_harapan = (selangor_df['harapan_holds_probability'] >= 0.5).sum()
-    sel_total = len(selangor_df)
-    govt_pct = sel_govt / sel_total * 100
-    
-    govt_2023 = 24  # PN(22) + BN(2)
-    harapan_2023 = 32
-    govt_change = sel_govt - govt_2023
-    harapan_change = sel_harapan - harapan_2023
-    
-    govt_delta = f"+{govt_change}" if govt_change > 0 else str(govt_change) if govt_change != 0 else "±0"
-    harapan_delta = f"+{harapan_change}" if harapan_change > 0 else str(harapan_change) if harapan_change != 0 else "±0"
-    
-    st.markdown(f"""
-    <div class="stat-card" style="text-align:left; padding:14px;">
-        <div style="display:flex; justify-content:space-between; margin-bottom:2px;">
-            <span style="color:#93C5FD; font-size:12px;">BN+PN Pact</span>
-            <span style="font-weight:700;">{sel_govt} ({govt_pct:.0f}%)</span>
-        </div>
-        <div style="font-size:11px; color:#6B7280; margin-bottom:8px;">
-            {govt_delta} seats compared to latest election ({govt_2023})
-        </div>
-        <div style="display:flex; justify-content:space-between; margin-bottom:2px;">
-            <span style="color:#FCA5A5; font-size:12px;">Harapan</span>
-            <span style="font-weight:700;">{sel_harapan} ({100-govt_pct:.0f}%)</span>
-        </div>
-        <div style="font-size:11px; color:#6B7280;">
-            {harapan_delta} seats compared to latest election ({harapan_2023})
-        </div>
-    </div>
-    """, unsafe_allow_html=True)
-    st.write("")
-    if st.button("→ View details", key="selangor_link", use_container_width=True):
-        st.switch_page("pages/1_Prediction_Analysis.py")
-
-with c5:
-    st.markdown("**Perak**")
-    st.markdown("🟡 Forecast")
-    
-    perak_df = pd.read_csv(ROOT / "data/processed/perak_2026_prediction.csv")
-    perak_govt = (perak_df['probability'] < 0.5).sum()
-    perak_harapan = (perak_df['probability'] >= 0.5).sum()
-    perak_total = len(perak_df)
-    govt_pct = perak_govt / perak_total * 100
-    
-    govt_2022 = 35  # PN(26) + BN(9)
-    harapan_2022 = 24
-    govt_change = perak_govt - govt_2022
-    harapan_change = perak_harapan - harapan_2022
-    
-    govt_delta = f"+{govt_change}" if govt_change > 0 else str(govt_change) if govt_change != 0 else "±0"
-    harapan_delta = f"+{harapan_change}" if harapan_change > 0 else str(harapan_change) if harapan_change != 0 else "±0"
-    
-    st.markdown(f"""
-    <div class="stat-card" style="text-align:left; padding:14px;">
-        <div style="display:flex; justify-content:space-between; margin-bottom:2px;">
-            <span style="color:#93C5FD; font-size:12px;">BN+PN Pact</span>
-            <span style="font-weight:700;">{perak_govt} ({govt_pct:.0f}%)</span>
-        </div>
-        <div style="font-size:11px; color:#6B7280; margin-bottom:8px;">
-            {govt_delta} seats compared to latest election ({govt_2022})
-        </div>
-        <div style="display:flex; justify-content:space-between; margin-bottom:2px;">
-            <span style="color:#FCA5A5; font-size:12px;">Harapan</span>
-            <span style="font-weight:700;">{perak_harapan} ({100-govt_pct:.0f}%)</span>
-        </div>
-        <div style="font-size:11px; color:#6B7280;">
-            {harapan_delta} seats compared to latest election ({harapan_2022})
-        </div>
-    </div>
-    """, unsafe_allow_html=True)
-    st.write("")
-    if st.button("→ View details", key="perak_link", use_container_width=True):
-        st.session_state['jump_to_state'] = 'perak'
-        st.switch_page("pages/1_Prediction_Analysis.py")
-
+# ── 5. Disclaimer and navigation ────────────────────────────────────────────────
 
 st.divider()
-
-st.caption("""
-⚠️ **Personal portfolio project** demonstrating data science methodology —
-not an official or authoritative election prediction service.
-""")
-
-st.markdown("""
-**Navigation:** **Election Result** for detailed seat tables ·
-**Chatbot** to ask questions · **Custom Predictor** for scenario simulation
-""")
+st.caption("⚠️ **Personal portfolio project** demonstrating data science methodology. "
+           "Not an official or authoritative election prediction service.")
+st.markdown("**Pages:** **Prediction Analysis** (seat tables, validation and forecasts) · "
+            "**Sentiment Analysis** (the experimental news layer) · **Chatbot** (ask questions) · "
+            "**Methodology** (models, baselines and limitations)")
