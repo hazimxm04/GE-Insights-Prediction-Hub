@@ -319,15 +319,19 @@ st.divider()
 # ── 3. Map: forecast only ───────────────────────────────────────────────────────
 
 st.subheader("🗺️ Map of State Legislative Seats (DUN): forecast")
-map_view = st.radio("Map view:", ["Prediction (Model)", "Prediction (Model + Sentiment)"], horizontal=True)
-use_sentiment = map_view.startswith("Prediction +")
+OPT_MODEL = "Prediction (Model)"
+OPT_NEWS = "Prediction (Model + Sentiment)"
+map_view = st.radio("Map view:", [OPT_MODEL, OPT_NEWS], horizontal=True)
+use_sentiment = map_view == OPT_NEWS
+st.caption("Sentiment is scored from recent news headlines and applied as an adjustment to the model's "
+           "probabilities. Experimental, no accuracy claimed.")
 
 windows = None
 if use_sentiment:
     windows = sa.load_windows()
     ok, message = (False, "No sentiment data yet.") if windows is None else sa.data_status(*windows)
     if not ok:
-        st.warning(f"{message} Showing the prediction without sentiment.")
+        st.warning(f"{message} Showing Prediction (Model).")
         use_sentiment, windows = False, None
     else:
         st.caption(sa.freshness(*windows)['text'] + " Experimental: the effect sizes are assumptions, and no "
