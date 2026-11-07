@@ -16,7 +16,6 @@ from itertools import combinations
 
 NUM_RE = re.compile(r"(?<![\w.])-?\d+(?:\.\d+)?%?")
 SEAT_ID_RE = re.compile(r"\bN\.?\s?\d{1,2}\b", re.I)          # N.12 is a name, not a figure
-YEAR_RE = re.compile(r"^(19|20)\d{2}$")
 DATE_RE = re.compile(r"\b\d{4}-\d{2}-\d{2}\b")
 LIST_MARKER_RE = re.compile(r"(?m)^\s*\d+[.)]\s")             # "1. " at the start of a line
 TOL = 0.051                                                    # one decimal place of rounding
@@ -75,7 +74,8 @@ def _safe_json(s):
 
 def check_answer(answer: str, steps: list, question: str = "") -> dict:
     """{'ok': bool, 'unsupported': [numbers as written], 'checked': n}.
-    An answer with no numbers is ok. A number is skipped if it is a year."""
+    An answer with no numbers is ok. Years are checked like any other number (the model once wrote 2021 for
+    Johor's previous election, which was 2022), except 2026, the election cycle the project is about."""
     vals = _supported_values(question, steps or [])
     bad, checked = [], 0
     for tok in NUM_RE.findall(DATE_RE.sub(" ", SEAT_ID_RE.sub(" ", LIST_MARKER_RE.sub("", answer or "")))):
@@ -83,7 +83,7 @@ def check_answer(answer: str, steps: list, question: str = "") -> dict:
             x = float(tok.rstrip("%"))
         except ValueError:
             continue
-        if YEAR_RE.match(tok.lstrip("-")) and "." not in tok:
+        if tok == "2026":                                  # the election cycle this whole project is about
             continue
         checked += 1
         if not any(abs(x - v) <= TOL for v in vals):

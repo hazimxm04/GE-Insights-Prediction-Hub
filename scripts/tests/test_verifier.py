@@ -94,3 +94,10 @@ def test_good_answer_is_not_retried():
     c = Fake([_tool('get_validation', {'state': 'johor'}), _text('48 of 56')])
     r = agent.run_agent('q', client=c, model='m', verify=True)
     assert r['verification'] == {'ok': True, 'unsupported': [], 'checked': 2, 'retried': False} and len(c.sent) == 2
+
+
+def test_a_wrong_year_is_caught():
+    steps = [{'tool': 'list_flips', 'arguments': '{}', 'result': {'previous_election_year': 2022, 'count': 6}}]
+    assert not check_answer('Compared with the 2021 election, 6 seats flipped.', steps)['ok']
+    assert check_answer('Compared with the 2022 election, 6 seats flipped.', steps)['ok']
+    assert check_answer('In the 2026 election, 6 seats flipped.', steps)['ok']

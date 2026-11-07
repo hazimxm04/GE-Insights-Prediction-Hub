@@ -144,6 +144,19 @@ def _pick_view(key: str, view):
     return None, None, _unavailable(key, view)
 
 
+def _prev_year(key: str, kind: str):
+    """Year of the election 'last time' means: the one the model was trained up to (validated), or the last
+    election before a frozen forecast. None if unknown."""
+    try:
+        if kind == 'forecast':
+            _, info = _forecast(key)
+            return int(info['forecasting_election_after']) if info else None
+        meta = json.loads((MODELS_DIR / key / 'metadata.json').read_text(encoding='utf-8'))
+        return int(meta['training_cutoff_year'])
+    except (OSError, KeyError, ValueError, TypeError):
+        return None
+
+
 def _count(frame, col, value) -> int:
     return int((frame[col] == value).sum())
 
@@ -195,11 +208,13 @@ def get_seat(state: str, seat: str, view: str = None) -> dict:
         return _clean({
             'state': STATE_NAMES[key], 'seat': row['seat_name'], 'kind': 'forecast',
             'p_harapan': row['probability'], 'forecast_side': row['now_side'],
-            'last_election_side': row['last_side'], 'changes_side': bool(row['now_side'] != row['last_side']),
+            'last_election_side': row['last_side'], 'previous_election_year': _prev_year(key, 'forecast'),
+            'changes_side': bool(row['now_side'] != row['last_side']),
             'uses_fallback': 'base_rate' in str(row['model_used']), 'note': TARGET_NOTE,
         })
     return _clean({
         'state': STATE_NAMES[key], 'seat': row['seat_name'], 'kind': 'validated against the real 2026 result',
+        'previous_election_year': _prev_year(key, 'validated'),
         'last_election_winner': row['winner_coalition_a'], 'actual_2026_winner': row['winner_coalition_b'],
         'model_side': row['model_side'], 'p_harapan': row['probability'], 'model_correct': bool(row['correct']),
         'changed_side': bool(row['now_side'] != row['last_side']),
@@ -218,7 +233,8 @@ def list_flips(state: str, view: str = None) -> dict:
         return err
     ch = frame[frame['now_side'] != frame['last_side']]
     out = {'state': STATE_NAMES[key], 'count': len(ch), 'to_Harapan': int((ch['now_side'] == 'Harapan').sum()),
-           'to_BN_PN': int((ch['now_side'] == 'BN/PN').sum()), 'truncated': len(ch) > MAX_ROWS}
+           'to_BN_PN': int((ch['now_side'] == 'BN/PN').sum()), 'truncated': len(ch) > MAX_ROWS,
+           'previous_election_year': _prev_year(key, kind)}
     if kind == 'forecast':
         out['kind'] = 'forecast'
         out['seats'] = [{'seat': r['seat_name'], 'from': r['last_side'], 'to': r['now_side'], 'p_harapan': r['probability']}
@@ -247,8 +263,10 @@ def compare_last_election(state: str, seat: str = None, view: str = None) -> dic
             return err
         return _clean({'state': STATE_NAMES[key], 'seat': row['seat_name'], 'last_election': row['last_side'],
                        'now': row['now_side'], 'now_means': now_label,
+                       'previous_election_year': _prev_year(key, kind),
                        'changed_side': bool(row['now_side'] != row['last_side'])})
     return _clean({'state': STATE_NAMES[key], 'now_means': now_label, 'seats': len(frame),
+                   'previous_election_year': _prev_year(key, kind),
                    'last_election': {'Harapan': _count(frame, 'last_side', 'Harapan'),
                                      'BN/PN': _count(frame, 'last_side', 'BN/PN')},
                    'now': {'Harapan': _count(frame, 'now_side', 'Harapan'), 'BN/PN': _count(frame, 'now_side', 'BN/PN')},
@@ -293,7 +311,7 @@ def get_validation(state: str) -> dict:
     h_calls = v[v['predicted_non_bn'] == 1]
     wrong = v[~v['correct'].astype(bool)]
     return _clean({
-        'state': STATE_NAMES[key], 'seats': n, 'correct': int(v['correct'].astype(bool).sum()),
+        'state': STATE_NAMES[key], 'previous_election_year': _prev_year(key, 'validated'), 'seats': n, 'correct': int(v['correct'].astype(bool).sum()),
         'accuracy': float(v['correct'].astype(bool).mean()),
         'baselines_correct': {'Opposition never wins': int((v['actual_non_bn'] == 0).sum()),
                               'Same result as previous election': int((last_int == v['actual_non_bn']).sum())},

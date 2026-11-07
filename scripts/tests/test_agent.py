@@ -101,3 +101,8 @@ def test_extra_tool_can_be_added():
 def test_what_if_rejects_absurd_swing_and_bad_state():
     assert 'error' in agent.what_if_seat('johor', 'N.01', turnout_change_pp=90)
     assert 'error' in agent.what_if_seat('mars', 'N.01')
+
+
+def test_api_key_is_read_from_the_environment_or_dotenv(monkeypatch):
+    monkeypatch.setenv('GROQ_API_KEY', 'abc')
+    assert agent._api_key() == 'abc'

@@ -46,8 +46,10 @@ base rate. Never state a confidence level; the tools do not provide one.
 4. Sentiment is experimental: say so when you use it, and give the window dates.
 5. For "how" and "why" questions (how the model works, what a fallback seat is, why there is no confidence level, \
 how sentiment is used) call search_docs. Its passages hold no figures; get figures from the data tools.
-6. Use as many tool calls as you need, but no more. If a question is outside what the tools cover, say so.
-7. Keep the answer short and specific. Name the tool results you used (state, seat, forecast or validated)."""
+6. Answer every part of the question. "How did the model do" needs get_validation (accuracy and the baselines), \
+not only the flips. Years: use only the previous_election_year a tool gives; never guess one.
+7. Use as many tool calls as you need, but no more. If a question is outside what the tools cover, say so.
+8. Keep the answer short and specific. Name the tool results you used (state, seat, forecast or validated)."""
 
 WHAT_IF_SCHEMA = {
     "type": "function",
@@ -136,12 +138,29 @@ def _to_message_text(result: dict) -> str:
     return text
 
 
-def _default_client():
+def _api_key():
+    """GROQ_API_KEY from the environment, backend/.env, or Streamlit secrets (same places rag_chain uses)."""
     import os
-    from groq import Groq
+    try:
+        from dotenv import load_dotenv
+        load_dotenv(ROOT / "backend" / ".env")
+    except ImportError:
+        pass
     key = os.getenv("GROQ_API_KEY")
     if not key:
-        raise ValueError("GROQ_API_KEY is not set")
+        try:
+            import streamlit as st
+            key = st.secrets["GROQ_API_KEY"]
+        except Exception:
+            key = None
+    return key
+
+
+def _default_client():
+    from groq import Groq
+    key = _api_key()
+    if not key:
+        raise ValueError("GROQ_API_KEY not found in the environment, backend/.env or Streamlit secrets")
     return Groq(api_key=key)
 
 

@@ -184,3 +184,15 @@ def test_view_is_offered_to_the_model_on_the_seat_tools():
     for tool in ('get_seat', 'list_flips', 'compare_last_election'):
         assert 'view' in names[tool]
     assert 'Melaka' not in json.dumps(T.TOOL_SCHEMAS)                                     # no hard-coded state list
+
+
+def test_every_view_says_which_election_last_time_was():
+    assert T.get_validation('johor')['previous_election_year'] == 2022
+    assert T.get_validation('neg_sembilan')['previous_election_year'] == 2023
+    assert T.list_flips('johor')['previous_election_year'] == 2022
+    assert T.get_seat('johor', 'N.12')['previous_election_year'] == 2022
+    assert T.compare_last_election('johor')['previous_election_year'] == 2022
+    assert T.compare_last_election('johor', 'N.12')['previous_election_year'] == 2022
+    assert T.get_state_forecast('melaka')['last_election_before_forecast'] == 2021
+    assert T.list_flips('melaka')['previous_election_year'] == 2021
+    assert T.get_seat('perak', 'N.09')['previous_election_year'] == 2022
