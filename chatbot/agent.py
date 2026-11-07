@@ -13,8 +13,8 @@ Rules built into the loop (not left to the model):
   * every call is recorded in `steps`, so the page can show what the agent did and tests can check it
   * the client is passed in, so the loop is tested with a fake model and no API key
 
-Tools: the data tools in chatbot/tools.py plus `what_if_seat` (live model call). A document search
-tool can be added with `extra_tools` once the knowledge base is rebuilt.
+Tools: the data tools in chatbot/tools.py, `what_if_seat` (live model call) and `search_docs`
+(written explanations in chatbot/knowledge_base/docs/, no figures). More can be added with `extra_tools`.
 """
 import json
 import sys
@@ -25,6 +25,7 @@ if str(ROOT) not in sys.path:
     sys.path.insert(0, str(ROOT))
 
 from chatbot import tools as data_tools                      # noqa: E402
+from chatbot.docs_search import SEARCH_DOCS_SCHEMA, search_docs  # noqa: E402
 from chatbot.chain.scenario_utils import pp_to_fraction      # noqa: E402
 
 MAX_STEPS = 6
@@ -42,8 +43,10 @@ plainly that it is unavailable. Do not substitute the other one without saying s
 3. If a result has uses_fallback true, say the model had no reliable basis for that seat and used a simple \
 base rate. Never state a confidence level; the tools do not provide one.
 4. Sentiment is experimental: say so when you use it, and give the window dates.
-5. Use as many tool calls as you need, but no more. If a question is outside what the tools cover, say so.
-6. Keep the answer short and specific. Name the tool results you used (state, seat, forecast or validated)."""
+5. For "how" and "why" questions (how the model works, what a fallback seat is, why there is no confidence level, \
+how sentiment is used) call search_docs. Its passages hold no figures; get figures from the data tools.
+6. Use as many tool calls as you need, but no more. If a question is outside what the tools cover, say so.
+7. Keep the answer short and specific. Name the tool results you used (state, seat, forecast or validated)."""
 
 WHAT_IF_SCHEMA = {
     "type": "function",
@@ -100,9 +103,10 @@ def what_if_seat(state: str, seat: str, turnout_change_pp=None, margin_change_pp
 
 
 def _registry(extra_tools=None):
-    schemas = list(data_tools.TOOL_SCHEMAS) + [WHAT_IF_SCHEMA]
+    schemas = list(data_tools.TOOL_SCHEMAS) + [WHAT_IF_SCHEMA, SEARCH_DOCS_SCHEMA]
     funcs = dict(data_tools.TOOL_FUNCS)
     funcs["what_if_seat"] = what_if_seat
+    funcs["search_docs"] = search_docs
     for schema, func in (extra_tools or []):
         schemas.append(schema)
         funcs[schema["function"]["name"]] = func
@@ -131,29 +135,12 @@ def _to_message_text(result: dict) -> str:
     return text
 
 
-def _api_key():
-    """GROQ_API_KEY from the environment, backend/.env, or Streamlit secrets (same places rag_chain uses)."""
+def _default_client():
     import os
-    try:
-        from dotenv import load_dotenv
-        load_dotenv(ROOT / "backend" / ".env")
-    except ImportError:
-        pass
+    from groq import Groq
     key = os.getenv("GROQ_API_KEY")
     if not key:
-        try:
-            import streamlit as st
-            key = st.secrets["GROQ_API_KEY"]
-        except Exception:
-            key = None
-    return key
-
-
-def _default_client():
-    from groq import Groq
-    key = _api_key()
-    if not key:
-        raise ValueError("GROQ_API_KEY not found in the environment, backend/.env or Streamlit secrets")
+        raise ValueError("GROQ_API_KEY is not set")
     return Groq(api_key=key)
 
 
