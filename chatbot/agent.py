@@ -131,12 +131,29 @@ def _to_message_text(result: dict) -> str:
     return text
 
 
-def _default_client():
+def _api_key():
+    """GROQ_API_KEY from the environment, backend/.env, or Streamlit secrets (same places rag_chain uses)."""
     import os
-    from groq import Groq
+    try:
+        from dotenv import load_dotenv
+        load_dotenv(ROOT / "backend" / ".env")
+    except ImportError:
+        pass
     key = os.getenv("GROQ_API_KEY")
     if not key:
-        raise ValueError("GROQ_API_KEY is not set")
+        try:
+            import streamlit as st
+            key = st.secrets["GROQ_API_KEY"]
+        except Exception:
+            key = None
+    return key
+
+
+def _default_client():
+    from groq import Groq
+    key = _api_key()
+    if not key:
+        raise ValueError("GROQ_API_KEY not found in the environment, backend/.env or Streamlit secrets")
     return Groq(api_key=key)
 
 
