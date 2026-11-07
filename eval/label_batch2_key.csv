@@ -1,0 +1,521 @@
+id,query,query_theme
+1,Melaka state election,malay_unity
+2,Malaysia subsidy rationalisation RON95,cost_living
+3,Islam Malaysia politics threat,islam_threat
+4,Madani economy Malaysia reforms,govt_performance
+5,Malaysia government failed to deliver,govt_performance
+6,unity government performance Malaysia,govt_performance
+7,Malaysia subsidy rationalisation RON95,cost_living
+8,Madani economy Malaysia reforms,govt_performance
+9,Islam Malaysia politics threat,islam_threat
+10,Malaysia government failed to deliver,govt_performance
+11,Melaka state election,malay_unity
+12,hudud Malaysia,islam_threat
+13,MACC Malaysia bribery,corruption
+14,Melaka state election,malay_unity
+15,Umno PAS cooperation,malay_unity
+16,cost of living Malaysia,cost_living
+17,Madani economy Malaysia reforms,govt_performance
+18,Malaysia wages salary minimum wage,cost_living
+19,Malaysia wages salary minimum wage,cost_living
+20,Malaysia money politics vote buying,corruption
+21,Malaysia money politics vote buying,corruption
+22,Umno PAS cooperation,malay_unity
+23,Selangor politics Perikatan Barisan,malay_unity
+24,3R race religion royalty Malaysia,islam_threat
+25,prestasi kerajaan Madani,govt_performance
+26,Malaysia government failed to deliver,govt_performance
+27,Madani economy Malaysia reforms,govt_performance
+28,MACC Malaysia bribery,corruption
+29,hudud Malaysia,islam_threat
+30,MACC Malaysia bribery,corruption
+31,unity government performance Malaysia,govt_performance
+32,MACC Malaysia bribery,corruption
+33,cost of living Malaysia,cost_living
+34,unity government performance Malaysia,govt_performance
+35,Melaka state election,malay_unity
+36,Madani economy Malaysia reforms,govt_performance
+37,Melaka state election,malay_unity
+38,Melaka state election,malay_unity
+39,Malaysia corruption politician scandal,corruption
+40,Malaysia money politics vote buying,corruption
+41,Malaysia prices inflation households,cost_living
+42,Islam Malaysia politics threat,islam_threat
+43,MACC Malaysia bribery,corruption
+44,Selangor politics Perikatan Barisan,malay_unity
+45,Anwar government delivery promises,govt_performance
+46,cost of living Malaysia,cost_living
+47,Islam Malaysia politics threat,islam_threat
+48,MACC Malaysia bribery,corruption
+49,hudud Malaysia,islam_threat
+50,Malaysia corruption politician scandal,corruption
+51,Melaka state election,malay_unity
+52,unity government performance Malaysia,govt_performance
+53,Malaysia prices inflation households,cost_living
+54,Melaka state election,malay_unity
+55,Malaysia prices inflation households,cost_living
+56,Madani economy Malaysia reforms,govt_performance
+57,Malaysia corruption politician scandal,corruption
+58,Malaysia government failed to deliver,govt_performance
+59,unity government performance Malaysia,govt_performance
+60,Malaysia non-Muslims fear Islamisation,islam_threat
+61,Malaysia government failed to deliver,govt_performance
+62,Selangor politics Perikatan Barisan,malay_unity
+63,Madani economy Malaysia reforms,govt_performance
+64,Umno PAS cooperation,malay_unity
+65,Madani economy Malaysia reforms,govt_performance
+66,Malaysia prices inflation households,cost_living
+67,Madani economy Malaysia reforms,govt_performance
+68,Islam Malaysia politics threat,islam_threat
+69,Malaysia wages salary minimum wage,cost_living
+70,cost of living Malaysia,cost_living
+71,Malaysia prices inflation households,cost_living
+72,Anwar government delivery promises,govt_performance
+73,unity government performance Malaysia,govt_performance
+74,unity government performance Malaysia,govt_performance
+75,Islam Malaysia politics threat,islam_threat
+76,Selangor politics Perikatan Barisan,malay_unity
+77,Islam Malaysia politics threat,islam_threat
+78,MACC Malaysia bribery,corruption
+79,Malaysia corruption politician scandal,corruption
+80,Malaysia wages salary minimum wage,cost_living
+81,Malaysia money politics vote buying,corruption
+82,cost of living Malaysia,cost_living
+83,MACC Malaysia bribery,corruption
+84,Umno PAS cooperation,malay_unity
+85,Anwar government delivery promises,govt_performance
+86,Malaysia wages salary minimum wage,cost_living
+87,MACC Malaysia bribery,corruption
+88,cost of living Malaysia,cost_living
+89,MACC Malaysia bribery,corruption
+90,Malaysia government failed to deliver,govt_performance
+91,MACC Malaysia bribery,corruption
+92,MACC Malaysia bribery,corruption
+93,Umno PAS cooperation,malay_unity
+94,Madani economy Malaysia reforms,govt_performance
+95,Malaysia prices inflation households,cost_living
+96,Umno PAS cooperation,malay_unity
+97,Islam Malaysia politics threat,islam_threat
+98,Umno PAS cooperation,malay_unity
+99,Malaysia money politics vote buying,corruption
+100,Selangor politics Perikatan Barisan,malay_unity
+101,Anwar government delivery promises,govt_performance
+102,Islam Malaysia politics threat,islam_threat
+103,Malaysia government failed to deliver,govt_performance
+104,Melaka state election,malay_unity
+105,cost of living Malaysia,cost_living
+106,Islam Malaysia politics threat,islam_threat
+107,MACC Malaysia bribery,corruption
+108,Melaka state election,malay_unity
+109,Malaysia prices inflation households,cost_living
+110,Malaysia wages salary minimum wage,cost_living
+111,Malaysia prices inflation households,cost_living
+112,cost of living Malaysia,cost_living
+113,Umno PAS cooperation,malay_unity
+114,Melaka state election,malay_unity
+115,Melaka state election,malay_unity
+116,Madani economy Malaysia reforms,govt_performance
+117,MACC Malaysia bribery,corruption
+118,Islam Malaysia politics threat,islam_threat
+119,Malaysia government failed to deliver,govt_performance
+120,Malaysia government failed to deliver,govt_performance
+121,Malaysia government failed to deliver,govt_performance
+122,hudud Malaysia,islam_threat
+123,MACC Malaysia bribery,corruption
+124,Malaysia corruption politician scandal,corruption
+125,Melaka state election,malay_unity
+126,Malaysia government failed to deliver,govt_performance
+127,unity government performance Malaysia,govt_performance
+128,hudud Malaysia,islam_threat
+129,Malaysia prices inflation households,cost_living
+130,Umno PAS cooperation,malay_unity
+131,hudud Malaysia,islam_threat
+132,Malaysia corruption politician scandal,corruption
+133,Islam Malaysia politics threat,islam_threat
+134,Malaysia prices inflation households,cost_living
+135,unity government performance Malaysia,govt_performance
+136,Malaysia wages salary minimum wage,cost_living
+137,Umno PAS cooperation,malay_unity
+138,Islam Malaysia politics threat,islam_threat
+139,Islam Malaysia politics threat,islam_threat
+140,3R race religion royalty Malaysia,islam_threat
+141,Selangor politics Perikatan Barisan,malay_unity
+142,cost of living Malaysia,cost_living
+143,Malaysia wages salary minimum wage,cost_living
+144,Malaysia government failed to deliver,govt_performance
+145,cost of living Malaysia,cost_living
+146,Malaysia money politics vote buying,corruption
+147,Selangor politics Perikatan Barisan,malay_unity
+148,Malaysia government failed to deliver,govt_performance
+149,Islam Malaysia politics threat,islam_threat
+150,Malaysia prices inflation households,cost_living
+151,Anwar government delivery promises,govt_performance
+152,Melaka state election,malay_unity
+153,Malaysia corruption politician scandal,corruption
+154,Madani economy Malaysia reforms,govt_performance
+155,Malaysia non-Muslims fear Islamisation,islam_threat
+156,Selangor politics Perikatan Barisan,malay_unity
+157,Melaka state election,malay_unity
+158,MACC Malaysia bribery,corruption
+159,Umno PAS cooperation,malay_unity
+160,Malaysia corruption politician scandal,corruption
+161,Islam Malaysia politics threat,islam_threat
+162,Anwar government delivery promises,govt_performance
+163,Anwar government delivery promises,govt_performance
+164,Melaka state election,malay_unity
+165,Malaysia subsidy rationalisation RON95,cost_living
+166,Malaysia corruption politician scandal,corruption
+167,Selangor politics Perikatan Barisan,malay_unity
+168,Selangor politics Perikatan Barisan,malay_unity
+169,Malaysia government failed to deliver,govt_performance
+170,MACC Malaysia bribery,corruption
+171,MACC Malaysia bribery,corruption
+172,unity government performance Malaysia,govt_performance
+173,Malaysia wages salary minimum wage,cost_living
+174,Malaysia corruption politician scandal,corruption
+175,Malaysia corruption politician scandal,corruption
+176,Malaysia wages salary minimum wage,cost_living
+177,Malaysia wages salary minimum wage,cost_living
+178,Islam Malaysia politics threat,islam_threat
+179,Malaysia money politics vote buying,corruption
+180,Malaysia non-Muslims fear Islamisation,islam_threat
+181,cost of living Malaysia,cost_living
+182,hudud Malaysia,islam_threat
+183,Anwar government delivery promises,govt_performance
+184,Madani economy Malaysia reforms,govt_performance
+185,Malaysia non-Muslims fear Islamisation,islam_threat
+186,hudud Malaysia,islam_threat
+187,Malaysia government failed to deliver,govt_performance
+188,Melaka state election,malay_unity
+189,MACC Malaysia bribery,corruption
+190,Malaysia prices inflation households,cost_living
+191,Malaysia wages salary minimum wage,cost_living
+192,Malaysia prices inflation households,cost_living
+193,Selangor politics Perikatan Barisan,malay_unity
+194,Malaysia wages salary minimum wage,cost_living
+195,MACC Malaysia bribery,corruption
+196,Malaysia prices inflation households,cost_living
+197,Anwar government delivery promises,govt_performance
+198,Malaysia government failed to deliver,govt_performance
+199,Malaysia wages salary minimum wage,cost_living
+200,Malaysia subsidy rationalisation RON95,cost_living
+201,Malaysia prices inflation households,cost_living
+202,Malaysia money politics vote buying,corruption
+203,Malaysia wages salary minimum wage,cost_living
+204,Malaysia money politics vote buying,corruption
+205,Malaysia subsidy rationalisation RON95,cost_living
+206,Melaka state election,malay_unity
+207,3R race religion royalty Malaysia,islam_threat
+208,unity government performance Malaysia,govt_performance
+209,Madani economy Malaysia reforms,govt_performance
+210,MACC Malaysia bribery,corruption
+211,Malaysia corruption politician scandal,corruption
+212,cost of living Malaysia,cost_living
+213,Malaysia prices inflation households,cost_living
+214,Malaysia wages salary minimum wage,cost_living
+215,Melaka state election,malay_unity
+216,Islam Malaysia politics threat,islam_threat
+217,Madani economy Malaysia reforms,govt_performance
+218,Madani economy Malaysia reforms,govt_performance
+219,MACC Malaysia bribery,corruption
+220,Malaysia corruption politician scandal,corruption
+221,Anwar government delivery promises,govt_performance
+222,cost of living Malaysia,cost_living
+223,Malaysia corruption politician scandal,corruption
+224,Malaysia prices inflation households,cost_living
+225,Malaysia government failed to deliver,govt_performance
+226,Melaka state election,malay_unity
+227,3R race religion royalty Malaysia,islam_threat
+228,MACC Malaysia bribery,corruption
+229,Malaysia subsidy rationalisation RON95,cost_living
+230,Islam Malaysia politics threat,islam_threat
+231,unity government performance Malaysia,govt_performance
+232,Umno PAS cooperation,malay_unity
+233,Madani economy Malaysia reforms,govt_performance
+234,Madani economy Malaysia reforms,govt_performance
+235,Madani economy Malaysia reforms,govt_performance
+236,Malaysia government failed to deliver,govt_performance
+237,Malaysia wages salary minimum wage,cost_living
+238,Malaysia wages salary minimum wage,cost_living
+239,Umno PAS cooperation,malay_unity
+240,Umno PAS cooperation,malay_unity
+241,Malaysia corruption politician scandal,corruption
+242,hudud Malaysia,islam_threat
+243,Islam Malaysia politics threat,islam_threat
+244,Malaysia wages salary minimum wage,cost_living
+245,Malaysia subsidy rationalisation RON95,cost_living
+246,Malaysia corruption politician scandal,corruption
+247,Madani economy Malaysia reforms,govt_performance
+248,Melaka state election,malay_unity
+249,unity government performance Malaysia,govt_performance
+250,cost of living Malaysia,cost_living
+251,hudud Malaysia,islam_threat
+252,Malaysia non-Muslims fear Islamisation,islam_threat
+253,cost of living Malaysia,cost_living
+254,Melaka state election,malay_unity
+255,Madani economy Malaysia reforms,govt_performance
+256,cost of living Malaysia,cost_living
+257,Selangor politics Perikatan Barisan,malay_unity
+258,Malaysia corruption politician scandal,corruption
+259,Madani economy Malaysia reforms,govt_performance
+260,Melaka state election,malay_unity
+261,Umno PAS cooperation,malay_unity
+262,Malaysia money politics vote buying,corruption
+263,cost of living Malaysia,cost_living
+264,Islam Malaysia politics threat,islam_threat
+265,Melaka state election,malay_unity
+266,Malaysia corruption politician scandal,corruption
+267,Malaysia corruption politician scandal,corruption
+268,Malaysia prices inflation households,cost_living
+269,cost of living Malaysia,cost_living
+270,Malaysia non-Muslims fear Islamisation,islam_threat
+271,Selangor politics Perikatan Barisan,malay_unity
+272,hudud Malaysia,islam_threat
+273,Anwar government delivery promises,govt_performance
+274,Malaysia government failed to deliver,govt_performance
+275,MACC Malaysia bribery,corruption
+276,hudud Malaysia,islam_threat
+277,Umno PAS cooperation,malay_unity
+278,Islam Malaysia politics threat,islam_threat
+279,Madani economy Malaysia reforms,govt_performance
+280,Madani economy Malaysia reforms,govt_performance
+281,hudud Malaysia,islam_threat
+282,unity government performance Malaysia,govt_performance
+283,Malaysia corruption politician scandal,corruption
+284,Islam Malaysia politics threat,islam_threat
+285,cost of living Malaysia,cost_living
+286,cost of living Malaysia,cost_living
+287,Malaysia prices inflation households,cost_living
+288,3R race religion royalty Malaysia,islam_threat
+289,Malaysia corruption politician scandal,corruption
+290,Islam Malaysia politics threat,islam_threat
+291,Malaysia prices inflation households,cost_living
+292,Malaysia corruption politician scandal,corruption
+293,Malaysia prices inflation households,cost_living
+294,Malaysia government failed to deliver,govt_performance
+295,Malaysia non-Muslims fear Islamisation,islam_threat
+296,hudud Malaysia,islam_threat
+297,Madani economy Malaysia reforms,govt_performance
+298,MACC Malaysia bribery,corruption
+299,Malaysia government failed to deliver,govt_performance
+300,cost of living Malaysia,cost_living
+301,Malaysia government failed to deliver,govt_performance
+302,unity government performance Malaysia,govt_performance
+303,Islam Malaysia politics threat,islam_threat
+304,Malaysia money politics vote buying,corruption
+305,MACC Malaysia bribery,corruption
+306,Melaka state election,malay_unity
+307,Umno PAS cooperation,malay_unity
+308,Malaysia wages salary minimum wage,cost_living
+309,Madani economy Malaysia reforms,govt_performance
+310,MACC Malaysia bribery,corruption
+311,Madani economy Malaysia reforms,govt_performance
+312,Malaysia government failed to deliver,govt_performance
+313,Islam Malaysia politics threat,islam_threat
+314,unity government performance Malaysia,govt_performance
+315,Malaysia prices inflation households,cost_living
+316,Melaka state election,malay_unity
+317,Malaysia wages salary minimum wage,cost_living
+318,3R race religion royalty Malaysia,islam_threat
+319,Melaka state election,malay_unity
+320,Islam Malaysia politics threat,islam_threat
+321,Anwar government delivery promises,govt_performance
+322,unity government performance Malaysia,govt_performance
+323,MACC Malaysia bribery,corruption
+324,Malaysia corruption politician scandal,corruption
+325,Malaysia wages salary minimum wage,cost_living
+326,Selangor politics Perikatan Barisan,malay_unity
+327,Umno PAS cooperation,malay_unity
+328,cost of living Malaysia,cost_living
+329,Umno PAS cooperation,malay_unity
+330,Malaysia prices inflation households,cost_living
+331,cost of living Malaysia,cost_living
+332,Madani economy Malaysia reforms,govt_performance
+333,Malaysia prices inflation households,cost_living
+334,Anwar government delivery promises,govt_performance
+335,unity government performance Malaysia,govt_performance
+336,Malaysia corruption politician scandal,corruption
+337,Melaka state election,malay_unity
+338,hudud Malaysia,islam_threat
+339,Umno PAS cooperation,malay_unity
+340,Malaysia subsidy rationalisation RON95,cost_living
+341,Malaysia government failed to deliver,govt_performance
+342,MACC Malaysia bribery,corruption
+343,Madani economy Malaysia reforms,govt_performance
+344,Malaysia wages salary minimum wage,cost_living
+345,Malaysia government failed to deliver,govt_performance
+346,Malaysia prices inflation households,cost_living
+347,Anwar government delivery promises,govt_performance
+348,Malaysia wages salary minimum wage,cost_living
+349,Madani economy Malaysia reforms,govt_performance
+350,Malaysia prices inflation households,cost_living
+351,Malaysia non-Muslims fear Islamisation,islam_threat
+352,Islam Malaysia politics threat,islam_threat
+353,Malaysia non-Muslims fear Islamisation,islam_threat
+354,Malaysia prices inflation households,cost_living
+355,Islam Malaysia politics threat,islam_threat
+356,Anwar government delivery promises,govt_performance
+357,Selangor politics Perikatan Barisan,malay_unity
+358,Malaysia corruption politician scandal,corruption
+359,Melaka state election,malay_unity
+360,Malaysia government failed to deliver,govt_performance
+361,Malaysia wages salary minimum wage,cost_living
+362,Anwar government delivery promises,govt_performance
+363,Malaysia non-Muslims fear Islamisation,islam_threat
+364,Malaysia wages salary minimum wage,cost_living
+365,Selangor politics Perikatan Barisan,malay_unity
+366,cost of living Malaysia,cost_living
+367,Umno PAS cooperation,malay_unity
+368,Umno PAS cooperation,malay_unity
+369,MACC Malaysia bribery,corruption
+370,Malaysia corruption politician scandal,corruption
+371,Anwar government delivery promises,govt_performance
+372,cost of living Malaysia,cost_living
+373,MACC Malaysia bribery,corruption
+374,Islam Malaysia politics threat,islam_threat
+375,Umno PAS cooperation,malay_unity
+376,Malaysia prices inflation households,cost_living
+377,Selangor politics Perikatan Barisan,malay_unity
+378,Malaysia government failed to deliver,govt_performance
+379,Malaysia non-Muslims fear Islamisation,islam_threat
+380,unity government performance Malaysia,govt_performance
+381,Anwar government delivery promises,govt_performance
+382,Malaysia corruption politician scandal,corruption
+383,Malaysia wages salary minimum wage,cost_living
+384,Umno PAS cooperation,malay_unity
+385,cost of living Malaysia,cost_living
+386,Selangor politics Perikatan Barisan,malay_unity
+387,Anwar government delivery promises,govt_performance
+388,Malaysia government failed to deliver,govt_performance
+389,Umno PAS cooperation,malay_unity
+390,Malaysia wages salary minimum wage,cost_living
+391,Malaysia money politics vote buying,corruption
+392,Selangor politics Perikatan Barisan,malay_unity
+393,Malaysia prices inflation households,cost_living
+394,Malaysia corruption politician scandal,corruption
+395,unity government performance Malaysia,govt_performance
+396,Umno PAS cooperation,malay_unity
+397,Malaysia prices inflation households,cost_living
+398,Malaysia government failed to deliver,govt_performance
+399,Madani economy Malaysia reforms,govt_performance
+400,Melaka state election,malay_unity
+401,3R race religion royalty Malaysia,islam_threat
+402,Islam Malaysia politics threat,islam_threat
+403,Selangor politics Perikatan Barisan,malay_unity
+404,hudud Malaysia,islam_threat
+405,unity government performance Malaysia,govt_performance
+406,Malaysia wages salary minimum wage,cost_living
+407,Islam Malaysia politics threat,islam_threat
+408,Islam Malaysia politics threat,islam_threat
+409,Selangor politics Perikatan Barisan,malay_unity
+410,cost of living Malaysia,cost_living
+411,Malaysia prices inflation households,cost_living
+412,Madani economy Malaysia reforms,govt_performance
+413,Malaysia wages salary minimum wage,cost_living
+414,Malaysia prices inflation households,cost_living
+415,Malaysia prices inflation households,cost_living
+416,Selangor politics Perikatan Barisan,malay_unity
+417,Malaysia money politics vote buying,corruption
+418,Melaka state election,malay_unity
+419,Malaysia corruption politician scandal,corruption
+420,MACC Malaysia bribery,corruption
+421,Malaysia prices inflation households,cost_living
+422,Malaysia corruption politician scandal,corruption
+423,MACC Malaysia bribery,corruption
+424,unity government performance Malaysia,govt_performance
+425,Melaka state election,malay_unity
+426,Malaysia wages salary minimum wage,cost_living
+427,Anwar government delivery promises,govt_performance
+428,Malaysia non-Muslims fear Islamisation,islam_threat
+429,cost of living Malaysia,cost_living
+430,Malaysia money politics vote buying,corruption
+431,Malaysia corruption politician scandal,corruption
+432,Umno PAS cooperation,malay_unity
+433,Malaysia corruption politician scandal,corruption
+434,Islam Malaysia politics threat,islam_threat
+435,cost of living Malaysia,cost_living
+436,Malaysia wages salary minimum wage,cost_living
+437,Malaysia wages salary minimum wage,cost_living
+438,cost of living Malaysia,cost_living
+439,unity government performance Malaysia,govt_performance
+440,Umno PAS cooperation,malay_unity
+441,cost of living Malaysia,cost_living
+442,cost of living Malaysia,cost_living
+443,Malaysia corruption politician scandal,corruption
+444,MACC Malaysia bribery,corruption
+445,Umno PAS cooperation,malay_unity
+446,Umno PAS cooperation,malay_unity
+447,Malaysia corruption politician scandal,corruption
+448,Malaysia prices inflation households,cost_living
+449,Malaysia government failed to deliver,govt_performance
+450,hudud Malaysia,islam_threat
+451,cost of living Malaysia,cost_living
+452,Melaka state election,malay_unity
+453,MACC Malaysia bribery,corruption
+454,3R race religion royalty Malaysia,islam_threat
+455,Malaysia wages salary minimum wage,cost_living
+456,Madani economy Malaysia reforms,govt_performance
+457,MACC Malaysia bribery,corruption
+458,MACC Malaysia bribery,corruption
+459,Madani economy Malaysia reforms,govt_performance
+460,Malaysia prices inflation households,cost_living
+461,Umno PAS cooperation,malay_unity
+462,hudud Malaysia,islam_threat
+463,Malaysia money politics vote buying,corruption
+464,MACC Malaysia bribery,corruption
+465,unity government performance Malaysia,govt_performance
+466,Islam Malaysia politics threat,islam_threat
+467,Malaysia prices inflation households,cost_living
+468,unity government performance Malaysia,govt_performance
+469,cost of living Malaysia,cost_living
+470,Islam Malaysia politics threat,islam_threat
+471,MACC Malaysia bribery,corruption
+472,unity government performance Malaysia,govt_performance
+473,Malaysia wages salary minimum wage,cost_living
+474,3R race religion royalty Malaysia,islam_threat
+475,Malaysia wages salary minimum wage,cost_living
+476,Umno PAS cooperation,malay_unity
+477,Anwar government delivery promises,govt_performance
+478,Islam Malaysia politics threat,islam_threat
+479,Malaysia corruption politician scandal,corruption
+480,Islam Malaysia politics threat,islam_threat
+481,Malaysia government failed to deliver,govt_performance
+482,cost of living Malaysia,cost_living
+483,Anwar government delivery promises,govt_performance
+484,Malaysia wages salary minimum wage,cost_living
+485,Umno PAS cooperation,malay_unity
+486,Malaysia wages salary minimum wage,cost_living
+487,cost of living Malaysia,cost_living
+488,cost of living Malaysia,cost_living
+489,cost of living Malaysia,cost_living
+490,hudud Malaysia,islam_threat
+491,Umno PAS cooperation,malay_unity
+492,cost of living Malaysia,cost_living
+493,Anwar government delivery promises,govt_performance
+494,Malaysia subsidy rationalisation RON95,cost_living
+495,unity government performance Malaysia,govt_performance
+496,Anwar government delivery promises,govt_performance
+497,Madani economy Malaysia reforms,govt_performance
+498,unity government performance Malaysia,govt_performance
+499,Islam Malaysia politics threat,islam_threat
+500,Melaka state election,malay_unity
+501,Malaysia corruption politician scandal,corruption
+502,Anwar government delivery promises,govt_performance
+503,cost of living Malaysia,cost_living
+504,Anwar government delivery promises,govt_performance
+505,Madani economy Malaysia reforms,govt_performance
+506,Umno PAS cooperation,malay_unity
+507,Malaysia government failed to deliver,govt_performance
+508,hudud Malaysia,islam_threat
+509,Malaysia prices inflation households,cost_living
+510,Malaysia prices inflation households,cost_living
+511,MACC Malaysia bribery,corruption
+512,Umno PAS cooperation,malay_unity
+513,Malaysia wages salary minimum wage,cost_living
+514,Malaysia corruption politician scandal,corruption
+515,Melaka state election,malay_unity
+516,Malaysia corruption politician scandal,corruption
+517,Malaysia corruption politician scandal,corruption
+518,Melaka state election,malay_unity
+519,Melaka state election,malay_unity
+520,Melaka state election,malay_unity
