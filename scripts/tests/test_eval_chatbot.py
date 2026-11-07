@@ -108,3 +108,10 @@ def test_main_saves_progress_and_resumes(tmp_path, monkeypatch):
     assert len(pd.read_csv(ev.RESULTS)) == 3 and (tmp_path / 's.md').exists()
     assert ev.main(['--modes', 'agent', '--limit', '5', '--sleep', '0']) == 0     # resumes: 2 new rows
     assert len(pd.read_csv(ev.RESULTS)) == 5
+
+
+def test_summary_reports_plan_followed():
+    res = pd.DataFrame([
+        {'id': 'a', 'mode': 'agent_planned', 'category': 'v', 'pass': True, 'cause': '', 'plan_followed': '1.0'},
+        {'id': 'b', 'mode': 'agent_planned', 'category': 'v', 'pass': True, 'cause': '', 'plan_followed': '0.5'}])
+    assert '75% of the planned tool steps' in ev.summarise(res)

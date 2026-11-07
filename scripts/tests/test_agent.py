@@ -25,7 +25,7 @@ class FakeClient:
 
 
 def test_answers_without_tools_when_none_needed():
-    r = agent.run_agent('hi', client=FakeClient([_resp('Hello')]), model='m')
+    r = agent.run_agent('what is the model', client=FakeClient([_resp('Hello')]), model='m')
     assert r['answer'] == 'Hello' and r['steps'] == [] and r['stopped'] == 'answered'
 
 
@@ -41,7 +41,7 @@ def test_calls_a_tool_then_answers_with_its_result():
 def test_can_chain_two_tools():
     c = FakeClient([_resp(calls=[_call('get_validation', {'state': 'johor'})]),
                     _resp(calls=[_call('list_flips', {'state': 'johor'})]), _resp('done')])
-    r = agent.run_agent('q', client=c, model='m')
+    r = agent.run_agent('johor q', client=c, model='m')
     assert r['tools_used'] == ['get_validation', 'list_flips']
 
 
@@ -54,35 +54,35 @@ def test_unavailable_forecast_is_passed_to_the_model_not_hidden():
 
 def test_unknown_tool_and_bad_arguments_do_not_crash():
     c = FakeClient([_resp(calls=[_call('nope', {})]), _resp(calls=[_call('get_seat', {'wrong': 1})]), _resp('ok')])
-    r = agent.run_agent('q', client=c, model='m')
+    r = agent.run_agent('johor q', client=c, model='m')
     assert 'error' in r['steps'][0]['result'] and 'error' in r['steps'][1]['result']
     assert r['stopped'] == 'answered'
 
 
 def test_stops_at_the_step_limit():
     c = FakeClient([_resp(calls=[_call('get_sentiment', {})]) for _ in range(10)])
-    r = agent.run_agent('q', client=c, model='m', max_steps=3)
+    r = agent.run_agent('johor q', client=c, model='m', max_steps=3)
     assert r['stopped'] == 'step_limit' and len(r['steps']) == 3
 
 
 def test_model_failure_is_reported_not_raised():
     class Boom:
         chat = NS(completions=NS(create=lambda **k: (_ for _ in ()).throw(RuntimeError('rate limit'))))
-    r = agent.run_agent('q', client=Boom(), model='m')
+    r = agent.run_agent('johor q', client=Boom(), model='m')
     assert r['stopped'] == 'error' and 'rate limit' in r['answer']
 
 
 def test_empty_model_answer_gets_a_message():
-    r = agent.run_agent('q', client=FakeClient([_resp('')]), model='m')
+    r = agent.run_agent('johor q', client=FakeClient([_resp('')]), model='m')
     assert 'empty' in r['answer']
 
 
 def test_history_is_sent_and_system_prompt_first():
     c = FakeClient([_resp('x')])
-    agent.run_agent('q', client=c, model='m', history=[{'role': 'user', 'content': 'a'},
+    agent.run_agent('johor q', client=c, model='m', history=[{'role': 'user', 'content': 'a'},
                                                        {'role': 'assistant', 'content': 'b'}])
     msgs = c.sent[0]['messages']
-    assert msgs[0]['role'] == 'system' and [m['content'] for m in msgs[1:]] == ['a', 'b', 'q']
+    assert msgs[0]['role'] == 'system' and [m['content'] for m in msgs[1:]] == ['a', 'b', 'johor q']
 
 
 def test_long_tool_result_is_cut():
@@ -93,7 +93,7 @@ def test_extra_tool_can_be_added():
     schema = {'type': 'function', 'function': {'name': 'search_docs', 'description': 'd',
                                                'parameters': {'type': 'object', 'properties': {}}}}
     c = FakeClient([_resp(calls=[_call('search_docs', {})]), _resp('ok')])
-    r = agent.run_agent('q', client=c, model='m', extra_tools=[(schema, lambda: {'hits': 1})])
+    r = agent.run_agent('johor q', client=c, model='m', extra_tools=[(schema, lambda: {'hits': 1})])
     assert r['steps'][0]['result'] == {'hits': 1}
     assert any(t['function']['name'] == 'search_docs' for t in c.sent[0]['tools'])
 

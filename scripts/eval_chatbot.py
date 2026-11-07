@@ -7,6 +7,7 @@ Runs the question set (eval/chatbot_questions.csv) through up to four chatbot se
   router          code picks ONE tool by keywords, the model only writes the answer from it
   agent           the model picks tools in a loop (chatbot/agent.py)
   agent_verified  the agent plus the number check (chatbot/verifier.py)
+  agent_planned   the agent plus a written plan first (chatbot/planner.py); also records how much of the plan it followed
 
 Scoring is automatic and deliberately plain:
   content_pass   every word in must_contain appears, at least one of must_contain_any appears,
@@ -37,9 +38,9 @@ sys.path.insert(0, str(ROOT))
 QUESTIONS = ROOT / "eval" / "chatbot_questions.csv"
 RESULTS = ROOT / "eval" / "chatbot_eval_results.csv"
 SUMMARY = ROOT / "eval" / "chatbot_eval_summary.md"
-ALL_MODES = ["old", "router", "agent", "agent_verified"]
+ALL_MODES = ["old", "router", "agent", "agent_verified", "agent_planned"]
 COLS = ["id", "mode", "category", "answer", "tools_used", "content_pass", "tool_pass", "pass", "cause",
-        "unsupported", "seconds"]
+        "unsupported", "plan_followed", "seconds"]
 RATE_LIMIT_WORDS = ("rate limit", "429", "rate_limit", "tokens per day", "tpd")
 
 
@@ -137,7 +138,8 @@ def run_mode(mode: str, question: str, client=None, model=None) -> dict:
         return run_old(question)
     if mode == "router":
         return run_router(question, client, model)
-    return agent.run_agent(question, client=client, model=model, verify=(mode == "agent_verified"))
+    return agent.run_agent(question, client=client, model=model, verify=(mode == "agent_verified"),
+                           plan=(mode == "agent_planned"))
 
 
 # ── one row ─────────────────────────────────────────────────────────────────────
@@ -164,6 +166,7 @@ def evaluate_one(q: dict, mode: str, runner=run_mode) -> dict:
     return {"id": q["id"], "mode": mode, "category": q.get("category", ""), "answer": answer,
             "tools_used": ",".join(used), "content_pass": content_ok, "tool_pass": tool_ok, "pass": passed,
             "cause": "" if passed else cause, "unsupported": ",".join(unsupported),
+            "plan_followed": r.get("plan_followed", ""),
             "seconds": round(time.time() - t0, 1)}
 
 
@@ -176,6 +179,10 @@ def summarise(res: pd.DataFrame) -> str:
     for mode in [m for m in ALL_MODES if m in set(res["mode"])]:
         g = res[res["mode"] == mode]
         lines.append(f"| {mode} | {len(g)} | {int(g['pass'].sum())} | {g['pass'].mean():.0%} |")
+    if "plan_followed" in res and (res["mode"] == "agent_planned").any():
+        pf = pd.to_numeric(res.loc[res["mode"] == "agent_planned", "plan_followed"], errors="coerce").dropna()
+        if len(pf):
+            lines += ["", f"Plan followed (agent_planned): on average {pf.mean():.0%} of the planned tool steps were called."]
     fails = res[~res["pass"]]
     if len(fails):
         lines += ["", "## Why answers failed", "", "| set-up | cause | count |", "|---|---|---|"]

@@ -28,7 +28,7 @@ ROOT = Path(__file__).resolve().parent.parent
 sys.path.insert(0, str(ROOT))
 
 from backend.core import sentiment_adjustment as sa
-from backend.core.frozen_forecast import latest_frozen
+from backend.core.frozen_forecast import latest_frozen, side_changes, result_changes
 from utils.api import health_check
 
 st.set_page_config(page_title="MYRamalan", page_icon="🗳️", layout="wide", initial_sidebar_state="expanded")
@@ -225,12 +225,13 @@ COLOR_MAP = {
 }
 
 
-def change_vs_last_election(key: str):
-    """TODO (you): how many seats change side compared with the last election, for the summary card.
-    Hint: pages/1_Prediction_Analysis.py already does `df['last_side'] = last_side(df)` with
-    `from backend.core.frozen_forecast import latest_frozen, last_side`. Return e.g. {'harapan': +3, 'govt': -3},
-    or None while this is not written. The card shows a dash for None."""
-    return None
+@st.cache_data(ttl=300)
+def validation_frame(key: str) -> pd.DataFrame:
+    return pd.read_csv(ROOT / f"backend/models/{key}/validation_2026.csv")
+
+
+def fmt_delta(n: int) -> str:
+    return "±0" if n == 0 else f"{n:+d}"
 
 
 # ── 1. Title and level ──────────────────────────────────────────────────────────
@@ -404,6 +405,7 @@ summary_view = st.radio("Summary:", ["Validated", "Upcoming Forecast"], horizont
 
 def validated_card(key: str):
     s = validation_summary(key)
+    ch = result_changes(validation_frame(key))
     st.markdown(f"**{STATES[key]}**")
     st.markdown("🟢 Validated")
     st.markdown(f"""
@@ -415,6 +417,13 @@ def validated_card(key: str):
         <div style="display:flex; justify-content:space-between; background:#450A0A; border-radius:6px; padding:6px 8px;">
             <span style="color:#FCA5A5; font-size:12px;">Wrong predictions</span>
             <span style="font-weight:700; color:#FCA5A5; font-size:12px;">{s['wrong']} ({s['wrong'] / s['total']:.0%})</span></div>
+        <div style="font-size:11px; color:#9CA3AF; margin:12px 0 4px;">Real 2026 result vs the previous election</div>
+        <div style="display:flex; justify-content:space-between;">
+            <span style="color:#93C5FD; font-size:12px;">BN+PN</span>
+            <span style="font-weight:700; font-size:13px;">{ch['now_bnpn']} <span style="color:#6B7280; font-weight:400;">({fmt_delta(ch['delta_bnpn'])} vs {ch['last_bnpn']})</span></span></div>
+        <div style="display:flex; justify-content:space-between;">
+            <span style="color:#FCA5A5; font-size:12px;">Harapan</span>
+            <span style="font-weight:700; font-size:13px;">{ch['now_harapan']} <span style="color:#6B7280; font-weight:400;">({fmt_delta(ch['delta_harapan'])} vs {ch['last_harapan']})</span></span></div>
     </div>""", unsafe_allow_html=True)
 
 
@@ -426,23 +435,24 @@ def forecast_card(key: str):
         st.markdown("""<div class="stat-card" style="text-align:left; padding:14px; color:#9CA3AF; font-size:12px;">
             Forecast data not available yet.</div>""", unsafe_allow_html=True)
         return
-    harapan = int((forecast['probability'] >= 0.5).sum())
-    total = len(forecast)
-    govt = total - harapan
-    delta = change_vs_last_election(key)          # TODO (you), see the function above
-    d_h = f"{delta['harapan']:+d} vs last election" if delta else "change vs last election: not computed yet"
-    d_g = f"{delta['govt']:+d} vs last election" if delta else "change vs last election: not computed yet"
+    ch = side_changes(forecast)                      # same function as the Prediction Analysis page
+    total = ch['total']
     st.markdown("🟡 Forecast")
     st.markdown(f"""
     <div class="stat-card" style="text-align:left; padding:14px;">
         <div style="display:flex; justify-content:space-between; margin-bottom:2px;">
             <span style="color:#93C5FD; font-size:12px;">BN+PN</span>
-            <span style="font-weight:700;">{govt} ({govt / total:.0%})</span></div>
-        <div style="font-size:11px; color:#6B7280; margin-bottom:8px;">{d_g}</div>
+            <span style="font-weight:700;">{ch['now_bnpn']} ({ch['now_bnpn'] / total:.0%})</span></div>
+        <div style="font-size:11px; color:#6B7280; margin-bottom:8px;">
+            {fmt_delta(ch['delta_bnpn'])} seats vs last election ({ch['last_bnpn']})</div>
         <div style="display:flex; justify-content:space-between; margin-bottom:2px;">
             <span style="color:#FCA5A5; font-size:12px;">Harapan</span>
-            <span style="font-weight:700;">{harapan} ({harapan / total:.0%})</span></div>
-        <div style="font-size:11px; color:#6B7280;">{d_h}</div>
+            <span style="font-weight:700;">{ch['now_harapan']} ({ch['now_harapan'] / total:.0%})</span></div>
+        <div style="font-size:11px; color:#6B7280; margin-bottom:8px;">
+            {fmt_delta(ch['delta_harapan'])} seats vs last election ({ch['last_harapan']})</div>
+        <div style="font-size:11px; color:#9CA3AF;">Seats changing side:
+            <span style="color:#FCA5A5;">↑ Harapan {len(ch['to_harapan'])}</span> ·
+            <span style="color:#93C5FD;">↑ BN/PN {len(ch['to_bnpn'])}</span></div>
     </div>""", unsafe_allow_html=True)
 
 
@@ -452,7 +462,51 @@ for col, key in zip(st.columns(len(keys)), keys):
         (validated_card if summary_view == "Validated" else forecast_card)(key)
         st.write("")
         if st.button("→ View details", key=f"detail_{summary_view}_{key}", use_container_width=True):
+            validated = summary_view == "Validated"
+            st.session_state["page1_category"] = "Validated" if validated else "Upcoming Forecasts"
+            st.session_state["state_val" if validated else "state_fc"] = key     # keys used by Prediction Analysis
             st.switch_page("pages/1_Prediction_Analysis.py")
+
+# ── Seats that changed side ─────────────────────────────────────────────────────
+
+st.write("")
+st.markdown("#### 🔄 Seats that change side")
+st.caption("BN and PN are counted together as one group, so every comparison is Harapan against the rest, "
+           "whichever coalitions stood at the time.")
+
+
+def show_changes(ch: dict, cols: list, rename: dict):
+    c1, c2 = st.columns(2)
+    for col, title, frame in [(c1, "📈 **Harapan gains** (BN/PN → Harapan)", ch['to_harapan']),
+                              (c2, "📊 **BN/PN gains** (Harapan → BN/PN)", ch['to_bnpn'])]:
+        with col:
+            st.markdown(title)
+            if frame.empty:
+                st.caption("None.")
+            else:
+                st.dataframe(frame[cols].rename(columns=rename).round(2), use_container_width=True, hide_index=True)
+
+
+if summary_view == "Validated":
+    for key in VALIDATED:
+        df = validation_frame(key)
+        ch = result_changes(df)
+        n = len(ch['to_harapan']) + len(ch['to_bnpn'])
+        with st.expander(f"{STATES[key]}: {n} seats changed side in the real 2026 result vs the previous election"):
+            for side in ('to_harapan', 'to_bnpn'):
+                ch[side] = ch[side].assign(model_called_it=ch[side]['correct'].map({True: '✓', False: '✗'}))
+            show_changes(ch, ['seat', 'winner_coalition_a', 'winner_coalition_b', 'model_called_it'],
+                         {'seat': 'seat', 'winner_coalition_a': 'previous winner', 'winner_coalition_b': '2026 winner',
+                          'model_called_it': 'model called it'})
+else:
+    for key in STATES:
+        forecast, _ = latest_frozen(key)
+        if forecast is None:
+            continue
+        ch = side_changes(forecast)
+        n = len(ch['to_harapan']) + len(ch['to_bnpn'])
+        with st.expander(f"{STATES[key]}: {n} seats predicted to change side vs the last election"):
+            show_changes(ch, ['seat_name', 'probability'], {'seat_name': 'seat', 'probability': 'P(Harapan)'})
 
 # ── 5. Disclaimer and navigation ────────────────────────────────────────────────
 

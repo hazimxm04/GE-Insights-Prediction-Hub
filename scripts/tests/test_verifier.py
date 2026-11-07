@@ -73,7 +73,7 @@ def _text(t):
 
 def test_unverified_run_does_not_check():
     c = Fake([_tool('get_validation', {'state': 'johor'}), _text('Got 99 right')])
-    r = agent.run_agent('q', client=c, model='m')
+    r = agent.run_agent('johor q', client=c, model='m')
     assert 'verification' not in r and r['answer'] == 'Got 99 right'
 
 
@@ -86,13 +86,13 @@ def test_bad_number_is_sent_back_once_and_fixed():
 
 def test_still_wrong_after_retry_gets_a_warning():
     c = Fake([_tool('get_validation', {'state': 'johor'}), _text('77 right'), _text('76 right')])
-    r = agent.run_agent('q', client=c, model='m', verify=True)
+    r = agent.run_agent('johor q', client=c, model='m', verify=True)
     assert 'Not verified' in r['answer'] and '76' in r['answer'] and not r['verification']['ok']
 
 
 def test_good_answer_is_not_retried():
     c = Fake([_tool('get_validation', {'state': 'johor'}), _text('48 of 56')])
-    r = agent.run_agent('q', client=c, model='m', verify=True)
+    r = agent.run_agent('johor q', client=c, model='m', verify=True)
     assert r['verification'] == {'ok': True, 'unsupported': [], 'checked': 2, 'retried': False} and len(c.sent) == 2
 
 

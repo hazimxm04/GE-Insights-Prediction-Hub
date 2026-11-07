@@ -119,7 +119,7 @@ if "Parliament" in level:
 category = st.radio(
     "Category:",
     ["Validated", "Upcoming Forecasts"],
-    horizontal=True
+    horizontal=True, key="page1_category"      # keyed so the home page can open the right category
 )
 
 from backend.core.frozen_forecast import latest_frozen
@@ -418,7 +418,7 @@ if status == 'validated':
 # ══════════════════════════════════════════════════════════════════
 
 else:
-    from backend.core.frozen_forecast import latest_frozen, last_side
+    from backend.core.frozen_forecast import latest_frozen, last_side, side_changes
     df, frozen_info = latest_frozen(state)
     if df is None:
         st.error(f"No frozen forecast found for {state}. Run scripts/freeze_forecasts.py first.")
@@ -607,15 +607,10 @@ else:
     st.caption(f"Comparing the predicted side to who held the seat at the last election "
                f"({frozen_info['forecasting_election_after']})")
 
-    df_flip = df.copy()
-    df_flip['predicted_winner'] = df_flip[prob_col].apply(
-        lambda x: 'Harapan' if x >= 0.5 else 'BN/PN'
-    )
-    df_flip['actual_side'] = df_flip['last_side']
-
-    flips = df_flip[df_flip['predicted_winner'] != df_flip['actual_side']]
-    harapan_gains = flips[flips['actual_side'] == 'BN/PN']    # BN/PN -> Harapan (Harapan gains)
-    harapan_losses = flips[flips['actual_side'] == 'Harapan']  # Harapan -> BN/PN (BN/PN gains)
+    changes = side_changes(df, prob_col)          # the same function the home page uses
+    harapan_gains = changes['to_harapan']          # BN/PN -> Harapan (Harapan gains)
+    harapan_losses = changes['to_bnpn']            # Harapan -> BN/PN (BN/PN gains)
+    flips = pd.concat([harapan_gains, harapan_losses])
 
     net_change = len(harapan_gains) - len(harapan_losses)
     net_label = f"Harapan +{net_change}" if net_change > 0 else (f"BN/PN +{-net_change}" if net_change < 0 else "±0")

@@ -78,6 +78,12 @@ st.markdown("""
 
 mode = st.sidebar.radio("Chatbot", ["Agent (new)", "Keyword chatbot (old)"],
                         help="The agent picks its own tools. The old chatbot routes by keywords.")
+show_plan_on = st.sidebar.toggle("Plan first", value=True,
+                              help="The agent writes a short plan before it starts, and ticks steps off as it goes. "
+                                   "Costs one extra model call per question.")
+check_numbers = st.sidebar.toggle("Check numbers", value=True,
+                                  help="Every number and year in the answer must appear in a tool result. "
+                                       "One retry if not; otherwise the answer carries a warning.")
 st.sidebar.caption("Forecasts exist only for states that have not voted. States that have voted are "
                    "checked against the real result. If one is missing for a state, the agent says so.")
 
@@ -106,6 +112,16 @@ if 'messages' not in st.session_state:
     st.session_state.messages = []
 
 
+def show_plan(plan):
+    if not plan:
+        return
+    done = sum(1 for p in plan if p["done"])
+    with st.expander(f"📋 Plan ({done} of {len(plan)} steps done)"):
+        for p in plan:
+            tool = f" · `{p['tool']}`" if p["tool"] != "none" else ""
+            st.markdown(f"{'✅' if p['done'] else '⬜'} {p['do']}{tool}")
+
+
 def show_trace(steps):
     if not steps:
         st.caption("No tools used.")
@@ -120,6 +136,7 @@ for msg in st.session_state.messages:
     with st.chat_message(msg['role']):
         st.markdown(msg['content'])
         if msg.get('steps') is not None:
+            show_plan(msg.get('plan'))
             show_trace(msg['steps'])
 
 question = st.chat_input("Ask about the predictions...")
@@ -135,15 +152,28 @@ if question:
         st.markdown(question)
 
     with st.chat_message("assistant"):
-        steps = None
+        steps, plan = None, None
         if mode.startswith("Agent"):
-            with st.spinner("The agent is choosing tools..."):
-                try:
-                    result = run_agent(question, history=history)
-                    answer, steps = result['answer'], result['steps']
-                except Exception as e:                       # e.g. no API key
-                    answer, steps = f"The agent could not start: {e}", []
+            try:
+                with st.status("Thinking...", expanded=True) as status:
+                    def on_event(kind, payload):
+                        if kind == "plan" and payload.get("steps"):
+                            status.update(label="Plan")
+                            for n, p in enumerate(payload["steps"], 1):
+                                tool = f" · `{p['tool']}`" if p["tool"] != "none" else ""
+                                st.markdown(f"**{n}.** {p['do']}{tool}")
+                        elif kind == "tool":
+                            status.update(label=f"Running {payload['tool']}...")
+                            st.markdown(f"🔧 `{payload['tool']}` {payload.get('arguments') or ''}")
+
+                    result = run_agent(question, history=history, plan=show_plan_on, verify=check_numbers,
+                                       on_event=on_event)
+                    status.update(label="Done", state="complete", expanded=False)
+                answer, steps, plan = result['answer'], result['steps'], result.get('plan')
+            except Exception as e:                       # e.g. no API key
+                answer, steps = f"The agent could not start: {e}", []
             st.markdown(answer)
+            show_plan(plan)
             show_trace(steps)
         else:
             sources = []
@@ -159,4 +189,4 @@ if question:
             if sources:
                 st.caption(f"Sources: {', '.join(set(sources))}")
 
-    st.session_state.messages.append({'role': 'assistant', 'content': answer, 'steps': steps})
+    st.session_state.messages.append({'role': 'assistant', 'content': answer, 'steps': steps, 'plan': plan})

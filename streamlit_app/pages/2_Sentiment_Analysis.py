@@ -22,21 +22,17 @@ from backend.core import sentiment_adjustment as sa
 from backend.core.frozen_forecast import latest_frozen
 from sentiment.scoring.score_quality import usable, SCORE_FIELDS
 
-st.set_page_config(page_title="Sentiment Analysis (experimental)", layout="wide")
+st.set_page_config(page_title="Sentiment Scoring Analysis", layout="wide")
 
 STATES = {'johor': 'Johor', 'neg_sembilan': 'Negeri Sembilan', 'selangor': 'Selangor',
           'melaka': 'Melaka', 'perak': 'Perak'}
 THEME_NAMES = {'islam_threat': 'Islam threat', 'malay_unity': 'Malay unity', 'cost_living': 'Cost of living',
                'corruption': 'Corruption', 'govt_performance': 'Government performance (not used)'}
 HARAPAN_RED, GOVT_BLUE, GREY = '#DC2626', '#2563EB', '#6B7280'
+BN_NAVY, PN_DARK_NAVY = '#1E3A8A', '#0A1A4F'
 POOL_FILE = ROOT / 'data/processed/scored_pool.csv'
 
-st.title("Sentiment Analysis (experimental)")
-st.warning(
-    "Research prototype. Headlines are scored by a language model (not by people) and the effects of "
-    "those scores on seats are **assumptions, not fitted to data**. No accuracy is claimed. "
-    "The model forecast is not changed by anything on this page."
-)
+st.title("Sentiment Scoring Analysis (experimental)")
 
 windows = sa.load_windows()
 if windows is None:
@@ -46,35 +42,72 @@ if windows is None:
 
 current, reference = windows
 fresh = sa.freshness(current, reference)
-(st.warning if fresh['stale'] else st.success)(fresh['text'])
 ok, message = sa.data_status(current, reference)
 if not ok:
     st.info(message)
     st.stop()
 
-# ── 1. Where the news leans ─────────────────────────────────────────────────────
-st.subheader("1. Where the latest news leans")
+# ── Current media sentiment ─────────────────────────────────────────────────────
+# "Last updated" is the date of the newest headline scored, read from the data (nothing typed by hand).
+_days = fresh['days_old']
+_ago = "today" if _days == 0 else f"{_days} day{'s' if _days != 1 else ''} ago"
+st.markdown(
+    "<div style='display:flex;align-items:center;justify-content:space-between;gap:12px;flex-wrap:wrap;"
+    "background:linear-gradient(145deg,#334155,#0F172A);color:#fff;border-radius:16px;"
+    "padding:14px 22px;box-shadow:0 6px 18px rgba(0,0,0,.18);margin-bottom:6px'>"
+    "<div style='font-size:.85rem;font-weight:600;letter-spacing:.12em;text-transform:uppercase;opacity:.85'>"
+    "Last updated</div>"
+    f"<div style='font-size:1.6rem;font-weight:800'>{pd.Timestamp(fresh['updated']):%d %b %Y}</div>"
+    f"<div style='font-size:.9rem;opacity:.85'>{_ago}</div></div>",
+    unsafe_allow_html=True)
+if fresh['stale']:
+    st.warning(f"This is more than {sa.STALE_AFTER_DAYS} days old, so treat it as out of date.")
+
+st.subheader("Current Media Sentiment")
+BOXES = [('harapan_sentiment', 'Harapan', HARAPAN_RED, '#7F1D1D'),
+         ('bn_sentiment', 'BN', BN_NAVY, '#172554'),
+         ('pn_sentiment', 'PN', PN_DARK_NAVY, '#050B26')]
+CARD_CSS = """
+<style>
+.sc{border-radius:16px;padding:20px 22px 16px;color:#fff;box-shadow:0 6px 18px rgba(0,0,0,.18)}
+.sc .nm{font-size:.85rem;font-weight:600;letter-spacing:.12em;text-transform:uppercase;opacity:.85}
+.sc .val{font-size:3rem;font-weight:800;line-height:1.1;margin:4px 0 2px;font-variant-numeric:tabular-nums}
+.sc .wd{font-size:.9rem;opacity:.9;margin-bottom:14px}
+.sc .tr{position:relative;height:8px;border-radius:99px;background:rgba(255,255,255,.28)}
+.sc .mid{position:absolute;left:50%;top:-4px;width:2px;height:16px;background:rgba(255,255,255,.7)}
+.sc .dot{position:absolute;top:-5px;width:18px;height:18px;margin-left:-9px;border-radius:50%;
+         background:#fff;border:3px solid rgba(0,0,0,.35)}
+.sc .ax{display:flex;justify-content:space-between;font-size:.72rem;opacity:.75;margin-top:8px}
+</style>
+"""
+
+
+def sentiment_word(v: float) -> str:
+    """Plain-language label for the card. Display only: the cut-offs are not used by the model."""
+    if v <= -0.5: return "Very negative"
+    if v <= -0.15: return "Negative"
+    if v < 0.15: return "Mixed / neutral"
+    if v < 0.5: return "Positive"
+    return "Very positive"
+
+
+st.markdown(CARD_CSS, unsafe_allow_html=True)
+for col, (field, name, top, bottom) in zip(st.columns(3), BOXES):
+    if field in current and pd.notna(current.get(field)):
+        v = float(current[field])
+        pos = min(max((v + 1) / 2 * 100, 0), 100)
+        body = (f"<div class='val'>{v:+.2f}</div><div class='wd'>{sentiment_word(v)}</div>"
+                f"<div class='tr'><div class='mid'></div><div class='dot' style='left:{pos:.1f}%'></div></div>"
+                f"<div class='ax'><span>-1</span><span>0</span><span>+1</span></div>")
+    else:
+        body = "<div class='val'>n/a</div>"
+    col.markdown(f"<div class='sc' style='background:linear-gradient(145deg,{top},{bottom})'>"
+                 f"<div class='nm'>{name}</div>{body}</div>", unsafe_allow_html=True)
 st.caption(f"Latest window: {current.get('label')}. Compared with: {reference.get('label')}. "
            "Scores run from -1 (very negative) to +1 (very positive).")
-cols = st.columns(3)
-for col, (field, name) in zip(cols, [('harapan_sentiment', 'Harapan'), ('bn_sentiment', 'BN'),
-                                      ('pn_sentiment', 'PN')]):
-    if field in current and pd.notna(current.get(field)) and pd.notna(reference.get(field)):
-        now, before = float(current[field]), float(reference[field])
-        col.metric(f"{name} sentiment", f"{now:+.2f}", delta=f"{now - before:+.2f} vs previous", delta_color="off")
-lean_now, lean_before = sa.coalition_lean(current), sa.coalition_lean(reference)
-if lean_now is not None and lean_before is not None:
-    moved = lean_now - lean_before
-    side = "Harapan" if lean_now > 0 else "BN/PN"
-    toward = "toward Harapan" if moved > 0 else "toward BN/PN" if moved < 0 else "not at all"
-    st.markdown(
-        f"**Lean: {side} {abs(lean_now):.2f}** (Harapan sentiment minus the average of BN and PN). "
-        f"Since the previous window it moved **{toward}** by {abs(moved):.2f}. "
-        "Only this *change* is used by the prediction layer, never the level."
-    )
 
 # ── 2. What the news is about ───────────────────────────────────────────────────
-st.subheader("2. What the news is about")
+st.subheader("1. What the news is about")
 change = sa.theme_change(current, reference)
 names = [THEME_NAMES[t] for t in sa.THEMES]
 fig = go.Figure()
@@ -89,7 +122,7 @@ st.dataframe(pd.DataFrame({'theme': names,
              use_container_width=True, hide_index=True)
 
 # ── 3. What it does to each state ───────────────────────────────────────────────
-st.subheader("3. What it does to each state")
+st.subheader("2. What it does to each state")
 st.caption("The same national news is applied to every state through each seat's voter mix "
            "(race and age). Positive move = toward Harapan.")
 rows, detail, voted = [], {}, []
@@ -125,7 +158,7 @@ if detail:
     st.caption("The full seat list for every state is on the Prediction Analysis page.")
 
 # ── 4. The scored headlines ─────────────────────────────────────────────────────
-st.subheader("4. The scored headlines")
+st.subheader("3. The scored headlines")
 st.caption("Each score is a language model's reading of one headline. Check a few yourself.")
 if not POOL_FILE.exists():
     st.info("The scored headlines are not published in this copy of the app.")
