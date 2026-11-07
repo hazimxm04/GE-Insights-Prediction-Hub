@@ -25,6 +25,7 @@ if str(ROOT) not in sys.path:
     sys.path.insert(0, str(ROOT))
 
 from chatbot import tools as data_tools                      # noqa: E402
+from chatbot.verifier import check_answer, retry_message         # noqa: E402
 from chatbot.docs_search import SEARCH_DOCS_SCHEMA, search_docs  # noqa: E402
 from chatbot.chain.scenario_utils import pp_to_fraction      # noqa: E402
 
@@ -145,8 +146,10 @@ def _default_client():
 
 
 def run_agent(question: str, client=None, model: str = None, history=None, extra_tools=None,
-              max_steps: int = MAX_STEPS) -> dict:
-    """Answer one question. Returns {answer, steps, tools_used, stopped}.
+              max_steps: int = MAX_STEPS, verify: bool = False) -> dict:
+    """Answer one question. Returns {answer, steps, tools_used, stopped, verification}.
+    verify=True checks every number in the answer against the tool results (chatbot/verifier.py); one unsupported
+    number sends the model back once to fix it, and if it is still unsupported the answer carries a warning.
     stopped is 'answered', 'step_limit' or 'error'. history is earlier {role, content} turns (text only)."""
     from sentiment.scoring.groq_settings import groq_model, completion_options
     client = client or _default_client()
@@ -157,7 +160,7 @@ def run_agent(question: str, client=None, model: str = None, history=None, extra
     messages += [m for m in (history or []) if m.get("role") in ("user", "assistant") and m.get("content")]
     messages.append({"role": "user", "content": question})
 
-    steps = []
+    steps, retried = [], False
     for _ in range(max_steps):
         try:
             resp = client.chat.completions.create(model=model, messages=messages, tools=schemas,
@@ -170,8 +173,20 @@ def run_agent(question: str, client=None, model: str = None, history=None, extra
         calls = getattr(msg, "tool_calls", None) or []
         if not calls:
             text = (getattr(msg, "content", None) or "").strip()
-            return {"answer": text or "The model returned an empty answer. Please ask again.",
-                    "steps": steps, "tools_used": [s["tool"] for s in steps], "stopped": "answered"}
+            out = {"answer": text or "The model returned an empty answer. Please ask again.",
+                   "steps": steps, "tools_used": [s["tool"] for s in steps], "stopped": "answered"}
+            if verify and text:
+                check = check_answer(text, steps, question)
+                if not check["ok"] and not retried:
+                    retried = True                         # one chance to fix it, then go round the loop again
+                    messages.append({"role": "assistant", "content": text})
+                    messages.append({"role": "user", "content": retry_message(check["unsupported"])})
+                    continue
+                out["verification"] = {**check, "retried": retried}
+                if not check["ok"]:
+                    out["answer"] = (text + "\n\n⚠️ Not verified: these numbers were not found in the tool results: "
+                                     + ", ".join(check["unsupported"]) + ".")
+            return out
         messages.append({"role": "assistant", "content": getattr(msg, "content", None) or "",
                          "tool_calls": [{"id": c.id, "type": "function",
                                          "function": {"name": c.function.name,
