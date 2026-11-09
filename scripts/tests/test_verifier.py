@@ -101,3 +101,17 @@ def test_a_wrong_year_is_caught():
     assert not check_answer('Compared with the 2021 election, 6 seats flipped.', steps)['ok']
     assert check_answer('Compared with the 2022 election, 6 seats flipped.', steps)['ok']
     assert check_answer('In the 2026 election, 6 seats flipped.', steps)['ok']
+
+def test_share_of_two_tool_numbers_passes_but_a_wrong_share_fails():
+    assert check_answer('Repeating the last result got 50 of 56, or 89.3%.', STEPS)['ok']      # 50 / 56
+    assert not check_answer('Repeating the last result got 50 of 56, or 91.0%.', STEPS)['ok']
+
+
+def test_typographic_look_alikes_do_not_create_phantom_numbers():
+    steps = [{'tool': 'get_sentiment', 'arguments': '{}', 'result': {'headlines': {'latest': 392}}}]
+    assert check_answer('Snapshot dated 2026\u201111\u201106 with 392 headlines.', steps)['ok']      # non-breaking hyphens
+
+
+def test_sign_does_not_matter_for_support():
+    steps = [{'tool': 'what_if_seat', 'arguments': '{}', 'result': {'error': 'outside the believable range (+/-50)'}}]
+    assert check_answer('The allowed range is plus or minus 50 points.', steps)['ok']

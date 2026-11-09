@@ -115,3 +115,46 @@ def test_summary_reports_plan_followed():
         {'id': 'a', 'mode': 'agent_planned', 'category': 'v', 'pass': True, 'cause': '', 'plan_followed': '1.0'},
         {'id': 'b', 'mode': 'agent_planned', 'category': 'v', 'pass': True, 'cause': '', 'plan_followed': '0.5'}])
     assert '75% of the planned tool steps' in ev.summarise(res)
+
+
+def test_markdown_emphasis_does_not_hide_a_phrase():
+    assert ev.contains('the model did **not** beat the baseline', 'did not beat')
+    assert ev.contains('see `get_validation`', 'get_validation')
+
+
+def test_typographic_look_alikes_are_ignored_by_the_checker():
+    assert ev.contains('N.17 Bukit\u00a0Katil is forecast to flip', 'Bukit Katil')            # no-break space
+    assert ev.contains('I don\u2019t have forecast data for Kelantan', "don't have")           # curly apostrophe
+
+
+def test_yes_then_contradiction_is_caught_by_the_johor_question():
+    q = pd.read_csv(ev.QUESTIONS, dtype=str).fillna('').set_index('id').loc['q02']
+    good = 'No. The model got 48 seats; repeating the last result got 50, so it did not beat it.'
+    bad = 'Yes. The model got 48 seats; the baseline got 50, so it did not beat it.'
+    assert ev.score_content(good, q['must_contain'], q['must_contain_any'], q['must_not_contain'])[0]
+    assert ev.score_content(bad, q['must_contain'], q['must_contain_any'], q['must_not_contain']) == (False, 'forbidden_phrase')
+
+
+def test_redo_replaces_only_the_named_questions(tmp_path, monkeypatch):
+    monkeypatch.setattr(ev, 'RESULTS', tmp_path / 'r.csv')
+    monkeypatch.setattr(ev, 'SUMMARY', tmp_path / 's.md')
+    seen = []
+
+    def fake_eval(q, m):
+        seen.append(q['id'])
+        return {'id': q['id'], 'mode': m, 'category': q['category'], 'answer': 'x', 'tools_used': '',
+                'content_pass': True, 'tool_pass': True, 'pass': True, 'cause': '', 'unsupported': '', 'seconds': 0}
+    monkeypatch.setattr(ev, 'evaluate_one', fake_eval)
+    assert ev.main(['--modes', 'agent', '--limit', '4', '--sleep', '0']) == 0
+    seen.clear()
+    assert ev.main(['--modes', 'agent', '--ids', 'q02', 'q04', '--redo', '--sleep', '0']) == 0
+    assert seen == ['q02', 'q04'] and len(pd.read_csv(ev.RESULTS)) == 4
+    seen.clear()
+    assert ev.main(['--modes', 'agent', '--ids', 'q02', '--sleep', '0']) == 0          # no --redo: nothing to do
+    assert seen == []
+
+
+def test_kelantan_answer_wording_is_accepted():
+    q = pd.read_csv(ev.QUESTIONS, dtype=str).fillna('').set_index('id').loc['q15']
+    ans = "I\u2019m sorry, but there is no forecast data available for Kelantan in the current dataset."
+    assert ev.score_content(ans, q['must_contain'], q['must_contain_any'], q['must_not_contain'])[0]

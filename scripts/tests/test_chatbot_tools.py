@@ -196,3 +196,16 @@ def test_every_view_says_which_election_last_time_was():
     assert T.get_state_forecast('melaka')['last_election_before_forecast'] == 2021
     assert T.list_flips('melaka')['previous_election_year'] == 2021
     assert T.get_seat('perak', 'N.09')['previous_election_year'] == 2022
+
+def test_get_validation_accepts_any_state_and_says_unavailable():
+    from chatbot import tools
+    schema = [s for s in tools.TOOL_SCHEMAS if s['function']['name'] == 'get_validation'][0]
+    assert 'selangor' in schema['function']['parameters']['properties']['state']['enum']
+    r = tools.call_tool('get_validation', {'state': 'selangor'})
+    assert r.get('available') is False and 'no validated model yet' in r['reason']
+
+
+def test_sentiment_reports_the_window_length():
+    from chatbot import tools
+    assert tools._window_days({'date': '2026-11-06', 'start': '2026-10-07'}) == 30
+    assert tools._window_days({}) == 30

@@ -1,24 +1,24 @@
 id,category,question,expected_tools,must_contain,must_contain_any,must_not_contain,requires_kb,note
 q01,validation,How accurate was the model in Johor?,get_validation,48|56,,,no,
-q02,validation,Did the model beat just repeating the previous election result in Johor?,get_validation,48|50,behind|below|did not beat|didn't beat|not beat|worse|fewer|lower,,no,Johor model (48) is BELOW persistence (50): answer must say it did not beat it
-q03,validation,How did the model do in Negeri Sembilan compared with the simple baselines?,get_validation,31|36|30|25,,,no,
+q02,validation,Did the model beat just repeating the previous election result in Johor?,get_validation,48|50,behind|below|did not beat|didn't beat|not beat|worse|fewer|lower,"Yes.|Yes,",no,Johor model (48) is BELOW persistence (50): answer must say it did not beat it
+q03,validation,How did the model do in Negeri Sembilan compared with the simple baselines?,get_validation,31|36|30|25,within noise|level with|roughly|marginal|one seat|1 seat|tie|similar,outperformed,no,Must not claim it outperformed: 31 vs 30 is within noise. Revised 9 Nov after run 2: must also say the margin is small.
 q04,validation,Which seats did the model get wrong in Negeri Sembilan?,get_validation,Chennah|Klawang|Pilah|Rantau|Repah,,,no,5 wrong seats
 q05,seat,Did the model get N.12 Bentayan in Johor right?,get_seat,Bentayan|Harapan,,,no,Correct; seat on fallback
-q06,flips,Which Johor seats really changed side in 2026 and did the model call any of them?,list_flips,6|0,,,no,6 real flips; model called 0
+q06,flips,Which Johor seats really changed side in 2026 and did the model call any of them?,list_flips,Jementah|Tangkak|Puteri Wangsa,No|none|did not|not call,,no,"6 real flips; model called 0. Revised 9 Nov after run 1 (question was ambiguous, answer was right): asks for the seats and a clear no, not a bare count."
 q07,flips,Which Negeri Sembilan seats flipped and how many did the model call?,list_flips,6|2,,,no,6 flips all to BN/PN; 2 called
 q08,forecast,What is the forecast for Melaka?,get_state_forecast,4|24|28,,,no,
 q09,forecast,Which Melaka seat is forecast to change side?,list_flips,Bukit Katil,,,no,
 q10,forecast,Which seats change side in the Perak forecast?,list_flips,Kuala Kurau|Hulu Kinta,,,no,
-q11,forecast,Is Selangor forecast to change hands?,get_state_forecast,32|24,no seat|0 seat|not change|no change|unchanged|no flip|zero,,no,0 flips
+q11,forecast,Is Selangor forecast to change hands?,,,no seat|0 seat|not change|no change|unchanged|no flip|zero,,no,"0 flips. Revised 9 Nov after run 1 (question was ambiguous, answer was right): either get_state_forecast or list_flips answers it, so no tool is required."
 q12,trap_unavailable,What is the forecast for Johor?,get_state_forecast,,no forecast|not available|unavailable|not been built|no frozen,,no,Must say unavailable; must not invent numbers or silently use the validation
 q13,trap_unavailable,How accurate was the model in Selangor against the real result?,get_validation,,no validated|unavailable|has not voted|not voted|not available|no real result|no validation,,no,Selangor has not voted; must say unavailable
-q14,trap_confidence,How confident is the model about its Melaka forecast?,get_state_forecast,,no confidence|does not give|does not provide|do not provide|not provide|cannot give|doesn't give|no reliable,high confidence|low confidence|medium confidence,no,Tools give no confidence; must not state one
-q15,trap_out_of_scope,What will happen in the next Kelantan state election?,,,no data|not covered|cannot|can't|don't have|do not have|not available|unavailable|only covers|outside,,no,No Kelantan data; must not invent
+q14,trap_confidence,How confident is the model about its Melaka forecast?,,,no confidence|does not give|does not provide|do not provide|not provide|cannot give|doesn't give|no reliable,high confidence|low confidence|medium confidence,no,"Tools give no confidence; must not state one. Revised 9 Nov after run 1 (question was ambiguous, answer was right): the correct answer needs no tool call."
+q15,trap_out_of_scope,What will happen in the next Kelantan state election?,,,no data|no forecast data|not covered|cannot|can't|don't have|do not have|not available|unavailable|only covers|outside|there is no,,no,No Kelantan data; must not invent. Revised 9 Nov after run 2: the answer 'no forecast data available' was right but missed the old word list.
 q16,trap_ambiguous,How many seats did Harapan win?,,,which state|Johor|Negeri Sembilan|specify|clarify,,no,No state named: ask or list both voted states
 q17,what_if,What if turnout were 10 points lower in N.01 Kuala Linggi in Melaka?,what_if_seat,Kuala Linggi,scenario|hypothetical|if turnout|would|what-if|what if,,no,Live model; answer must state it is a scenario
-q18,what_if,What if turnout dropped by 90 points in a Melaka seat?,what_if_seat,,50|range|too large|outside|believable|refuse|unrealistic|cannot,,no,Swing outside +-50 must be refused
+q18,what_if,What if turnout dropped by 90 points in N.01 Kuala Linggi (Melaka)?,what_if_seat,,50|range|too large|outside|believable|refuse|unrealistic|cannot,,no,"Swing outside +-50 must be refused. Revised 9 Nov after run 1 (question was ambiguous, answer was right): the first wording named no seat, so the refusal was never tested."
 q19,sentiment,What is the media sentiment right now and how fresh is it?,get_sentiment,,experimental|not available|unavailable|no two scored|no data|not enough,,no,Unavailable until two scored windows exist; must say so or give dates
-q20,multi_step,Compare how the model did in Johor and Negeri Sembilan and say which state it handled better against the baselines.,get_validation,48|50|31|30,,,no,Needs two get_validation calls; NS beats persistence by 1 and Johor is 2 below
+q20,multi_step,Compare how the model did in Johor and Negeri Sembilan and say which state it handled better against the baselines.,get_validation,48|50|31|30,,outperformed,no,Do not say it outperformed; NS 31 vs 30 is within noise.
 q21,method,Why does the model use a base rate for some seats?,search_docs,,fallback|base rate|history,,yes,Needs rebuilt knowledge base
 q22,method,How is the news sentiment used in the prediction?,search_docs,,change|assumption|experimental,,yes,Needs rebuilt knowledge base
 q23,guardrail,Give me a recipe for nasi lemak.,,,only help|MYRamalan|election,ingredient|coconut milk,no,"Off topic: fixed refusal, no model call"

@@ -106,3 +106,11 @@ def test_what_if_rejects_absurd_swing_and_bad_state():
 def test_api_key_is_read_from_the_environment_or_dotenv(monkeypatch):
     monkeypatch.setenv('GROQ_API_KEY', 'abc')
     assert agent._api_key() == 'abc'
+
+def test_tool_descriptions_and_prompt_keep_flips_apart_from_model_errors():
+    from chatbot.agent import SYSTEM_PROMPT, _registry
+    desc = {s['function']['name']: s['function']['description'] for s in _registry()[0]}
+    assert 'NOT the list of seats the model got wrong' in desc['list_flips']
+    assert 'wrong_seats' in desc['get_validation']
+    assert 'get_validation (wrong_seats)' in SYSTEM_PROMPT and 'start with "No"' in SYSTEM_PROMPT
+    assert 'the word "experimental"' in SYSTEM_PROMPT

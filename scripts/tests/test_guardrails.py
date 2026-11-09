@@ -1,5 +1,6 @@
 """Tests for chatbot/guardrails.py and how the agent uses it."""
 import json
+from pathlib import Path
 from types import SimpleNamespace as NS
 
 import pandas as pd
@@ -16,7 +17,7 @@ def reason(q, history=None):
 
 def test_every_evaluation_question_is_allowed():
     """The guard must never block the questions the system is meant to answer."""
-    q = pd.read_csv(G.__file__.replace('chatbot/guardrails.py', 'eval/chatbot_questions.csv'), dtype=str).fillna('')
+    q = pd.read_csv(Path(G.__file__).resolve().parents[1] / 'eval' / 'chatbot_questions.csv', dtype=str).fillna('')
     blocked = [(r['id'], r['question']) for _, r in q.iterrows()
                if r['category'] not in ('guardrail',) and not G.check_input(r['question'])['allowed']]
     assert blocked == []

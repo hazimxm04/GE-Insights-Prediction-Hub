@@ -21,9 +21,22 @@ LIST_MARKER_RE = re.compile(r"(?m)^\s*\d+[.)]\s")             # "1. " at the sta
 TOL = 0.051                                                    # one decimal place of rounding
 
 
+_UNICODE_FIXES = {"\u00a0": " ", "\u202f": " ", "\u2009": " ", "\u2007": " ",       # no-break and thin spaces
+                  "\u2010": "-", "\u2011": "-", "\u2012": "-", "\u2013": "-", "\u2014": "-",   # dashes and hyphens
+                  "\u2018": "'", "\u2019": "'", "\u201c": '"', "\u201d": '"'}                 # curly quotes
+
+
+def clean_text(text) -> str:
+    """Make the typographic look-alikes a model writes (no-break spaces, non-breaking hyphens, curly quotes) plain."""
+    out = str(text or "")
+    for bad, good in _UNICODE_FIXES.items():
+        out = out.replace(bad, good)
+    return out
+
+
 def _numbers(text: str) -> list:
     """Numbers in a text as floats; percentages are returned as the percentage number (85.7% -> 85.7)."""
-    text = DATE_RE.sub(" ", SEAT_ID_RE.sub(" ", LIST_MARKER_RE.sub("", text or "")))
+    text = DATE_RE.sub(" ", SEAT_ID_RE.sub(" ", LIST_MARKER_RE.sub("", clean_text(text))))
     out = []
     for tok in NUM_RE.findall(text):
         try:
@@ -54,7 +67,7 @@ def _supported_values(question: str, steps: list) -> set:
         _walk(s.get("result"), base)
         _walk(s.get("arguments") if not isinstance(s.get("arguments"), str) else _safe_json(s["arguments"]), base)
     base += _numbers(question)
-    vals = set(round(v, 4) for v in base)
+    vals = set(round(v, 4) for v in base) | set(round(abs(v), 4) for v in base)    # "+/-50" in a tool text supports "50"
     for v in list(vals):                                       # 0.857 can be written 85.7%
         if -1.0 <= v <= 1.0:
             vals.add(round(v * 100, 4))
@@ -62,6 +75,9 @@ def _supported_values(question: str, steps: list) -> set:
     for a, b in combinations(ints, 2):                         # "2 seats behind", "total of 14"
         vals.add(abs(a - b))
         vals.add(a + b)
+        lo, hi = min(a, b), max(a, b)
+        if lo > 0:                                             # "50 of 56 is 89.3%": a share of two tool numbers
+            vals.add(round(lo / hi * 100, 4))
     return vals
 
 
@@ -78,7 +94,7 @@ def check_answer(answer: str, steps: list, question: str = "") -> dict:
     Johor's previous election, which was 2022), except 2026, the election cycle the project is about."""
     vals = _supported_values(question, steps or [])
     bad, checked = [], 0
-    for tok in NUM_RE.findall(DATE_RE.sub(" ", SEAT_ID_RE.sub(" ", LIST_MARKER_RE.sub("", answer or "")))):
+    for tok in NUM_RE.findall(DATE_RE.sub(" ", SEAT_ID_RE.sub(" ", LIST_MARKER_RE.sub("", clean_text(answer))))):
         try:
             x = float(tok.rstrip("%"))
         except ValueError:

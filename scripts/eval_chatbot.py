@@ -51,7 +51,11 @@ def _split(cell) -> list:
 
 
 def contains(text: str, token: str) -> bool:
-    """Case-insensitive; a purely numeric token must match a whole number (6 does not match 16 or 0.6)."""
+    """Case-insensitive; markdown emphasis, no-break spaces, non-breaking hyphens and curly quotes are ignored
+    ("did **not** beat" matches "did not beat", "don't" with a curly apostrophe matches "don't");
+    a purely numeric token must match a whole number (6 does not match 16 or 0.6)."""
+    from chatbot.verifier import clean_text
+    text, token = re.sub(r"[*`]", "", clean_text(text)), clean_text(token)
     if re.fullmatch(r"\d+(\.\d+)?", token):
         return re.search(rf"(?<![\d.]){re.escape(token)}(?![\d]|\.\d)", text) is not None
     return token.lower() in text.lower()
@@ -213,14 +217,20 @@ def main(argv=None):
     ap.add_argument("--skip-kb", action="store_true", help="skip questions that need the documents (requires_kb = yes)")
     ap.add_argument("--sleep", type=float, default=1.0, help="seconds between questions")
     ap.add_argument("--fresh", action="store_true", help="ignore saved results and start over")
+    ap.add_argument("--ids", nargs="+", default=None, help="only these question ids, e.g. --ids q02 q04")
+    ap.add_argument("--redo", action="store_true", help="with --ids: run them again and replace their saved results")
     args = ap.parse_args(argv)
 
     qs = pd.read_csv(QUESTIONS, dtype=str).fillna("")
     if args.skip_kb:
         qs = qs[qs["requires_kb"].str.lower() != "yes"]
+    if args.ids:
+        qs = qs[qs["id"].isin(args.ids)]
     if args.limit:
         qs = qs.head(args.limit)
     done = pd.DataFrame(columns=COLS) if args.fresh or not RESULTS.exists() else pd.read_csv(RESULTS, dtype=str)
+    if args.redo and args.ids:
+        done = done[~(done["id"].isin(args.ids) & done["mode"].isin(args.modes))]
     seen = set(zip(done["id"], done["mode"]))
     rows = done.to_dict("records")
 

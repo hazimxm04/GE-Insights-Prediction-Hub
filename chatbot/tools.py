@@ -273,6 +273,14 @@ def compare_last_election(state: str, seat: str = None, view: str = None) -> dic
                    'seats_changing_side': int((frame['now_side'] != frame['last_side']).sum()), 'note': TARGET_NOTE})
 
 
+def _window_days(window: dict):
+    """Length of the latest news window in days (30 by design), from its own start and end dates."""
+    try:
+        return int((pd.Timestamp(window['date']) - pd.Timestamp(window['start'])).days)
+    except (KeyError, TypeError, ValueError):
+        return 30
+
+
 def get_sentiment() -> dict:
     """The national news sentiment behind the experimental sentiment layer (latest 30 days vs the 30 before)."""
     from backend.core import sentiment_adjustment as sa
@@ -284,12 +292,13 @@ def get_sentiment() -> dict:
     fresh = sa.freshness(cur, ref)
     out = {'available': True, 'enough_headlines': ok, 'status': message,
            'news_up_to': fresh['updated'], 'days_old': fresh['days_old'], 'stale': fresh['stale'],
+           'window_days': _window_days(cur),
            'headlines': {'latest': fresh['n_current'], 'previous': fresh['n_reference']},
            'coalition_sentiment_latest': {k: cur.get(f'{k}_sentiment') for k in ('harapan', 'bn', 'pn')},
            'coalition_sentiment_previous': {k: ref.get(f'{k}_sentiment') for k in ('harapan', 'bn', 'pn')},
            'themes_latest': {t: cur.get(t) for t in sa.THEMES},
            'themes_previous': {t: ref.get(t) for t in sa.THEMES},
-           'note': ("National news scored by a language model, applied to every state through each seat's voter mix. "
+           'note': ("EXPERIMENTAL. National news scored by a language model, applied to every state through each seat's voter mix. "
                     "Effect sizes on seats are assumptions, not fitted. Scores run -1 to +1; themes 0 to 1.")}
     lean_now, lean_before = sa.coalition_lean(cur), sa.coalition_lean(ref)
     if lean_now is not None and lean_before is not None:
@@ -348,9 +357,10 @@ TOOL_SCHEMAS = [
                        'required': ['state', 'seat']}}},
     {'type': 'function', 'function': {
         'name': 'list_flips',
-        'description': ("The seats that change side in a state, with direction. For forecast states: predicted vs the last "
-                        "election. For Johor and Negeri Sembilan: the real 2026 result vs the previous election, and "
-                        "whether the model called each one."),
+        'description': ("The seats that CHANGE SIDE compared with the previous election, with direction. For forecast states: "
+                        "predicted vs the last election. For Johor and Negeri Sembilan: the real 2026 result vs the "
+                        "previous election, and whether the model called each one. This is NOT the list of seats the "
+                        "model got wrong; for that use get_validation."),
         'parameters': {'type': 'object', 'properties': {'state': _STATE_PARAM, 'view': _VIEW_PARAM},
                        'required': ['state']}}},
     {'type': 'function', 'function': {
@@ -366,9 +376,11 @@ TOOL_SCHEMAS = [
         'parameters': {'type': 'object', 'properties': {}}}},
     {'type': 'function', 'function': {
         'name': 'get_validation',
-        'description': ("How the model did against the REAL 2026 result in Johor or Negeri Sembilan: accuracy, the two "
-                        "baselines (Opposition never wins; Same result as previous election), the wrong seats."),
-        'parameters': {'type': 'object', 'properties': {'state': {'type': 'string', 'enum': ['johor', 'neg_sembilan']}},
+        'description': ("How the model did against the REAL 2026 result: accuracy, the two baselines (Opposition never "
+                        "wins; Same result as previous election), and wrong_seats, the exact seats the model got wrong. "
+                        "Use it for 'how accurate', 'did it beat the baseline' and 'which seats did the model get wrong or "
+                        "mis-call'. A state that has not voted comes back as unavailable."),
+        'parameters': {'type': 'object', 'properties': {'state': _STATE_PARAM},
                        'required': ['state']}}},
 ]
 
