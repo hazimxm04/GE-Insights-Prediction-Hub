@@ -1,8 +1,8 @@
 # MYRamalan - Malaysia's Election Prediction Hub
 
-A multi-phase Malaysian state election intelligence system: classical ML,
-sentiment analysis, RAG, and MLOps automation in one connected pipeline.
-Validated against actual 2026 state election results.
+A Malaysian election system with three main sub-architecture parts: a **prediction system** (classical ML, validated against the
+real 2026 state election results), an experimental **news sentiment scorer**, and a tool-using **analyst agent**
+(chatbot) whose numbers are checked against its tool results. See [Architecture](#architecture).
 
 Release: `v1.0` · Frozen forecasts (pre-registered, checksummed): tag `forecasts-2026-10-30`
 
@@ -10,9 +10,9 @@ Release: `v1.0` · Frozen forecasts (pre-registered, checksummed): tag `forecast
 
 ## Results (verified against real 2026 election outcomes)
 
-Each seat gets one yes/no prediction: **does Pakatan Harapan (the opposition) win the seat, or does it go to BN / PN?**
+Each seat gets one yes/no prediction: **does Pakatan Harapan (PH) (the opposition) win the seat, or does it go to BN / PN?**
 Every test below trains only on earlier elections and is scored on a later one. The features use only the last
-election before the one being predicted, and the one before that.
+election before the one being predicted, and the one before that. (current version)
 
 | State | Test | Seats | Model correct | "Never opposition" | "Same as last time" | Wrong (false alarm / missed) | OOD flagged |
 |---|---|---|---|---|---|---|---|
@@ -69,7 +69,7 @@ With 36 and 56 seats the intervals are wide, and the differences from the simple
 Same time-ordered method, 12 held-out tests across the five states (`scripts/baseline_ablation.py`,
 `docs/baseline_ablation.json`). Each variant is re-trained with one change.
 
-- **Ethnicity and age features carry the signal.** Dropping them lowered the number of correct seats in 9 of 12 tests and
+- **Ethnicity and age features fuel the prediction.** Dropping them lowered the number of correct seats in 9 of 12 tests and
   never raised it (Johor 2022 → 2026: 48 → 45; Negeri Sembilan 2023 → 2026: 31 → 22).
 - **Majority-change features add little.** Dropping them lowered the score in only 3 of 12 tests, and raised it in 4.
 - **A plain logistic regression is level with the ensemble.** On the two real-2026 tests it scored 49 vs 48 (Johor) and
@@ -91,7 +91,10 @@ in Johor they competed as separate, opposing coalitions; in Negeri
 Sembilan they appear to have operated under a seat-allocation pact
 (in most seats, only one of BN or PN fielded a candidate). This is a
 political arrangement specific to this election cycle — it is not a
-permanent rule, and could look different next election.
+permanent rule, and could look different next election. Because this 
+coalition pact may be temporary, we plan to predict each coalition 
+separately (BN, Harapan, PN and others) in the future version,
+so that the forecast still holds if they contest against each other.
 
 The current model does not yet capture this. The proposed fix is a
 **data-derived feature per seat** ("did both BN and PN field
@@ -187,6 +190,9 @@ the checks failing.
   "never opposition" and "same as last time" on the same seats. A dry run of this script on Johor reproduces the
   README numbers above exactly (48/56 vs 48 and 50).
 - A new forecast goes in a new dated folder; a frozen folder is never overwritten.
+- **Every state is a forecast state.** A forecast is always for a state's next election, from the latest data. Johor
+  and Negeri Sembilan are pending: theirs will be built on the 2026 results. The freeze script accepts only states with
+  no 2026 result today, so it has to be extended first.
 - Known weakness, recorded as it was: the confidence label is `LOW` for all 143 seats of the three states, because the
   OOD scores sit on a different scale from the thresholds used for the label (see limitations).
 
@@ -195,7 +201,7 @@ the checks failing.
 ## Experimental sentiment layer (assumption-based, not part of the validated results)
 
 The validated model uses seat history and demographics only. A separate layer asks: *if the news mix changes, how
-might each seat's probability move?* It is shown on the dashboard as an optional view ("With sentiment (experimental)"),
+might each seat's probability move?* It is shown on the dashboard as an optional view ("Validated Model + Sentiment" / "Prediction (Model + Sentiment)"),
 next to the frozen forecast, which it never changes (`backend/core/sentiment_adjustment.py`).
 
 - **Input:** theme scores from news headlines (islam_threat, malay_unity, cost_living, corruption) and the sentiment toward
@@ -213,13 +219,13 @@ next to the frozen forecast, which it never changes (`backend/core/sentiment_adj
 - **Fairness check:** with the same-size change in one input, cost of living and corruption move 82 and 61 of 143 seats
   toward each side; the two identity themes move about 70% of seats (103 and 104 of 143) toward BN/PN, because most seats are Malay-majority; coalition lean moves all seats the
   same way. The label set still has no theme aimed at Harapan-side stories (reform, free speech, urban policy); that is
-  the next labelling step ([docs/label_schema_v2.md](docs/label_schema_v2.md)).
-- **How well the scorer follows the news** (`docs/sentiment_tracking_check.json`, resampled headline sets): the aggregate
-  score follows the true share closely for cost_living (0.96–0.99), corruption (0.93–0.98) and malay_unity (0.90–0.96),
-  but not for govt_performance (0.08–0.47). Scorers over-estimate the level (for example Groq gives corruption 0.20 when
-  the true share is 0.08), which is another reason only changes are used.
-- **To fit the effect sizes from data** (the roadmap): collect historical news for past elections, pair it with their
-  results, and test on a later election. See [docs/phase9_plan.md](docs/phase9_plan.md) for the per-coalition model.
+  the next labelling step.
+- **Next Implementation (in progress):**
+  1. Test the layer against the real Johor and Negeri Sembilan 2026 results, using news from before polling day, with the
+     weights fixed in advance.
+  2. An equal-group-reaction sensitivity test, to see how much the result depends on the assumed group reactions.
+  3. Collect news for more past elections, so that a few parameters (overall strength, Malay versus non-Malay contrast)
+     can be fitted with time-ordered validation. Individual group reactions will stay assumptions.
 
 ---
 
@@ -251,63 +257,164 @@ that never trained on it. Full write-up: [docs/classifier_comparison.md](docs/cl
 
 ## Architecture
 
-```
-Data sources
-  electiondata.my (ballots, stats, voter rolls)
-  5 RSS news sources (FMT, Malaysiakini, Malay Mail, Utusan Malaysia, Bernama*)
-  yfinance (KLCI, USD/MYR)
-       |
-       v
-Training pipeline
-  backend/core/features.py
-    build_transition()       -- the single feature definition: uses only
-                                election A and the one before it, B gives
-                                the target only
-    build_features()         -- same features for forecasting (no B needed)
-  backend/core/states.py   -- registry of states and their elections
-  scripts/state_data.py    -- one shared data loader (local copy first)
-  scripts/train_models.py
-    train_state()            -- RF + XGB ensemble, calibration,
-                                OOD detector (EllipticEnvelope), held-out
-                                score saved to metadata.json
-  scripts/training_config.py -- per-state transitions, model settings
-                                (shared), feature lists
-       v
-backend/models/{state}/*.pkl + metadata.json
-       |
-       +--> scripts/validation.py
-       |      Scores the saved models on the real 2026 results
-       |      (Johor, Neg Sembilan); refuses models built with old
-       |      features or tested on an election inside their training
-       |      window; writes validated_accuracy into metadata.json
-       |
-       +--> backend/core/models/state_predictor.py
-       |      Live prediction: RF+XGB ensemble -> OOD check -> blend
-       |      toward the seat's historical base rate if out-of-distribution.
-       |      Features come from the same code as training; the base rate
-       |      uses only elections up to the last known one.
-       |
-       +--> mlops/model_versioning.py
-       |      Archives the previous model; a newly trained model is
-       |      staged first and only replaces "latest" if its HELD-OUT
-       |      score (same test election) is at least as good as the
-       |      current model's. Models built with old features are
-       |      always replaced.
-       |
-       +--> mlops/alerts.py
-       |      Logs every training/validation event to a JSON audit
-       |      trail; email/Slack alerts supported (best-effort)
-       |
-       +--> mlops/dags/ + mlops/scheduler.py
-              Daily sentiment scrape+score, weekly economic update,
-              manual-trigger drift check, monthly retraining --
-              APScheduler (local) + a GitHub Actions scheduled
-              workflow (cloud) that refreshes the data, runs the
-              tests, retrains, validates, and opens a pull request
+MYRamalan has three parts. Each one only **reads** the output of the part before it, so a later part can never
+change an earlier result.
 
-* Bernama RSS currently disabled -- intermittent Groq scoring hang
-  not yet root-caused; see docs/multiclass_analysis.md
+| Part | Question it answers | Output | Status |
+|---|---|---|---|
+| 1. Prediction system | Which side wins each seat? | Validated results (Johor, Negeri Sembilan) and frozen forecasts (Selangor, Melaka, Perak) | Measured against real 2026 results |
+| 2. Sentiment layer | If the news mix changes, how might a seat's probability move? | An optional adjusted probability shown beside the model's | Experimental; effect sizes are assumptions |
+| 3. Analyst agent (chatbot) | What do the results say, in plain language? | An answer in which every number comes from a tool result | Evaluated on 27 fixed questions |
+
+```mermaid
+flowchart TD
+  subgraph SRC["Data sources"]
+    E["electiondata.my<br/>results, turnout, voter rolls"]
+    N["News headlines<br/>RSS outlets, English and Malay"]
+  end
+
+  subgraph P["1. Prediction system"]
+    F["features.py<br/>one feature definition, leak-tested"]
+    T["train_models.py<br/>Random Forest + XGBoost, calibrated,<br/>out-of-distribution detector"]
+    V["Validated results<br/>scored on real 2026 results"]
+    Z["Frozen forecasts<br/>dated and checksummed"]
+  end
+
+  subgraph S["2. Sentiment layer (experimental)"]
+    G["sentiment_scorer.py<br/>an LLM scores each headline on 9 fields"]
+    W["Two 30-day news windows<br/>at least 300 headlines each"]
+    A["sentiment_adjustment.py<br/>capped shift per seat,<br/>weighted by the seat's voter groups"]
+  end
+
+  subgraph C["3. Analyst agent (chatbot)"]
+    I["Input guardrails"]
+    PL["Planner"]
+    L["Tool loop<br/>8 read-only tools, at most 6 model calls"]
+    VR["Verifier<br/>numbers must appear in a tool result"]
+  end
+
+  D["Streamlit dashboard"]
+
+  E --> F --> T
+  T --> V
+  T --> Z
+  N --> G --> W --> A
+  V -. read only .-> A
+  Z -. read only .-> A
+  V -. read only .-> L
+  Z -. read only .-> L
+  A -. read only .-> L
+  I --> PL --> L --> VR
+  V --> D
+  Z --> D
+  A --> D
+  VR --> D
 ```
+
+### 1. Prediction system
+
+One yes/no call per seat: does Harapan win it, or does it go to BN/PN?
+
+| Step | File | What it does |
+|---|---|---|
+| Data | `scripts/state_data.py`, `backend/core/states.py` | One loader and one registry of states and elections |
+| Features | `backend/core/features.py` | The single feature definition. Features use only the last election and the one before it; the election being predicted supplies the target only. A test rewrites the predicted election and checks that no feature changes |
+| Training | `scripts/train_models.py`, `scripts/training_config.py` | Random Forest + XGBoost ensemble, calibration, an out-of-distribution (OOD) detector, and a held-out score saved to `metadata.json` |
+| Validation | `scripts/validation.py` | Scores the saved models on the real 2026 results (Johor, Negeri Sembilan) next to two simple rules. Refuses models built with old features |
+| Forecasts | `scripts/freeze_forecasts.py`, `scripts/score_forecast.py` | Saves a dated forecast with checksums of the forecast, model and data, for states that have not voted. A frozen folder is never overwritten |
+| Live prediction | `backend/core/models/state_predictor.py` | Same feature code as training. An OOD seat falls back to the seat's own history |
+| Retraining | `mlops/`, `.github/workflows/scheduled-training.yml` | Monthly: refresh data, run tests, retrain, validate, open a pull request. A new model replaces the current one only if its held-out score is at least as good |
+
+Two views come out of this part and they are never mixed:
+
+- **Validated**: a state that has voted, scored against the real result (Johor, Negeri Sembilan).
+- **Forecast**: a prediction for a state's **next** election, made from the latest data available: the most recent
+  election result for that state, with the last 30 days of news as an optional sentiment add-on. Each forecast is saved
+  with its date and never edited; when new data arrives, a new dated forecast is made beside it.
+
+Every state belongs in the Forecast view. Selangor, Melaka and Perak have one today (frozen on 2026-10-30). Johor and
+Negeri Sembilan are **pending**, like any other state waiting for a forecast: theirs will use the 2026 result as the
+most recent election. Until it exists, their forecast view says "unavailable". Validated is the extra view a state
+gets once it has a real result to score against.
+
+If a view does not exist for a state, the dashboard and the agent say it is unavailable. They do not show the other one.
+
+### 2. Sentiment layer (experimental)
+
+This part is **not** in the trained model and changes no validated number or frozen forecast.
+
+| Step | File | What it does |
+|---|---|---|
+| Collect | `sentiment/scrapers/news_scraper.py`, `scripts/scrape_news_window.py` | Political headlines from RSS outlets |
+| Score | `sentiment/scoring/sentiment_scorer.py`, `scripts/refresh_sentiment.py` | An LLM (Groq, `openai/gpt-oss-20b`) scores each headline on 9 fields: sentiment toward Harapan, BN and PN, racial tension, and five themes. A failed score is stored as missing, not zero |
+| Windows | `scripts/add_narrative_window.py` | Averages the scores over two 30-day windows. Only the **change** between the windows is used, because the level depends on which outlets were scraped |
+| Adjust | `backend/core/sentiment_adjustment.py` | `adjusted = sigmoid(logit(model probability) + shift)`. The shift is the sum over voter groups of (group share in the seat × assumed group reaction × change in the theme), plus a coalition-lean term. It is capped at ±0.5 on the logit scale (about 12 points near 50%, much less near 0 or 1) |
+
+- Voter-group shares come from the voter-roll files per seat (ethnicity and age).
+- With fewer than 300 scored headlines in either window, no adjustment is applied.
+- **Every reaction size is an assumption written by a person.** There is too little past news paired with past results to
+  fit them, so no accuracy is claimed for this part.
+- The dashboard shows it as a second option beside the model ("Validated Model + Sentiment", "Prediction (Model + Sentiment)").
+
+### 3. Analyst agent (chatbot)
+
+A single tool-using agent: the model chooses which tools to call, in what order, and when it has enough to answer.
+The checks around it run in code, so they do not depend on the model following a prompt.
+
+| Stage | File | What it does |
+|---|---|---|
+| Input guardrails | `chatbot/guardrails.py` | Blocks off-topic questions and prompt-injection wording before any model call; removes instruction-like text from tool results; checks the answer for leaked configuration. Keyword rules, not injection-proof |
+| Planner (optional) | `chatbot/planner.py` | One model call writes a short plan, shown to the user and ticked off as tools run |
+| Tool loop | `chatbot/agent.py` | At most 6 model calls. Every step is kept in a trace that the page can show |
+| Tools | `chatbot/tools.py`, `chatbot/docs_search.py` | 8 read-only tools (table below). They read the frozen and validated files directly, so the agent's numbers match the dashboard |
+| Verifier (optional) | `chatbot/verifier.py` | Every number and year in the answer must appear in a tool result (sums, differences and shares of two tool numbers are allowed). One retry, then the unsupported numbers are flagged |
+
+| Tool | Returns |
+|---|---|
+| `get_state_forecast` | Seat counts, side changes and fallback seats for a frozen forecast |
+| `get_validation` | Accuracy, the two simple-rule baselines and the exact seats the model got wrong |
+| `get_seat` | One seat: previous winner, the model's call and probability, the real result if the state has voted |
+| `list_flips` | Seats that change side, and whether the model called them |
+| `compare_last_election` | The previous election next to now: the forecast, or the real 2026 result in the validated view |
+| `get_sentiment` | Latest sentiment scores, window dates, headline counts and how old the data is |
+| `what_if_seat` | Re-runs the model for one seat with a changed turnout or winning margin, within a bounded range |
+| `search_docs` | Passages from 7 plain-text method documents. These hold no figures, so a number in a document can never be stale |
+
+**What it is not:** it is not autonomous, it has no memory across sessions, it cannot write or change anything, and it
+is one agent, not several.
+
+#### Agent evaluation
+
+27 fixed questions (`eval/chatbot_questions.csv`): validation, forecasts, seat changes, what-if, sentiment, method,
+five guardrail questions, and five traps (a state with no forecast, a state with no validation, a request for a
+confidence level, a state outside the system, a question that names no state). An answer passes when the required
+words appear, the forbidden words do not, the expected tools were called, and every number is supported by a tool result.
+Run it with `python scripts/eval_chatbot.py --modes agent`.
+
+| Run | Passed | Note |
+|---|---|---|
+| First run | 17 / 27 (63%) | Before any fix |
+| After fixes | 25 / 27 (93%) | Same questions, so this is **not** an independent score |
+
+- **What was fixed between the runs:** tool descriptions and the prompt (wrong tool chosen for "which seats were wrong"),
+  the verifier (shares of two numbers, typographic hyphens and spaces, signs), one tool output (window length), and the checker.
+- **Pass criteria were revised for 8 of the 27 questions** after reading the first answers: 4 questions were ambiguous and
+  were reworded or relaxed (the answers had been right), 1 word list was widened, and 3 were made stricter. Each revised
+  row says so in its `note` column.
+- **The two remaining failures** are wording: both use "outperformed" for a one-seat lead over a baseline, which the
+  checker forbids. In one of them the first sentence also contradicts the correct figures that follow it.
+- **Limits of the check:** word matching is crude; the verifier does not check numbers written as words or dates, and it
+  cannot tell that the wrong tool was chosen.
+- **Fixed-pipeline baseline** (keywords pick one tool, the model only writes the answer): being re-run; not reported yet.
+
+### How the parts connect
+
+- The prediction system writes files (`forecasts/<state>/<date>/`, validation outputs). Parts 2 and 3 only read them.
+- The sentiment layer produces a separate adjusted probability. The model's own probability stays in the file unchanged.
+- The agent has no numbers of its own. It reads the same files as the dashboard, and the verifier rejects a number
+  that no tool returned.
+- Also in the repo but **not** in this path: an LSTM economic-pressure score (`economic/`), the DistilBERT headline
+  classifier (`finetune/`), and the older keyword chatbot (`chatbot/chain/`, kept as a comparison for the evaluation).
 
 ---
 
@@ -345,7 +452,8 @@ when predicting). Re-enabling them needs a retrain with real seat-level values:
 | Hyperparameter search | Time-ordered grid search scored by Brier score (the real 2026 results are never used) |
 | LLM / sentiment | Groq API (`openai/gpt-oss-20b`, configurable with `GROQ_MODEL`) |
 | Text classifier | DistilBERT fine-tuning (Hugging Face transformers), TF-IDF + logistic regression baseline |
-| Vector store / RAG | ChromaDB, sentence-transformers |
+| Agent (chatbot) | Groq tool calling, 8 read-only tools, keyword search over 7 method documents (no vector database) |
+| Older keyword chatbot (comparison only) | ChromaDB, sentence-transformers |
 | Deep learning (economic forecast) | PyTorch (LSTM) |
 | Data | electiondata.my, yfinance |
 | Testing | pytest (leakage, data quality, training, predictor, frozen-forecast and scoring tests) |
@@ -377,6 +485,9 @@ Run locally: `python -m pytest scripts/tests tests -k "not end_to_end"`
 - `test_score_forecast.py`: scoring counts match a hand-made example, seats are matched by number, an edited frozen
   forecast or a missing result is refused.
 - `test_groq_settings.py`: the sentiment scorer is not tied to a retired model and reasoning models get enough tokens.
+- `test_chatbot_tools.py`, `test_agent.py`, `test_planner.py`, `test_guardrails.py`, `test_verifier.py`,
+  `test_eval_chatbot.py`: the agent's tools, loop, plan, guardrails, number check and the evaluation scorer, all tested
+  without a model call.
 
 CI runs `scripts/tests` and `tests` on pushes to `main` and `fix/**` branches and on pull requests into `main`.
 
@@ -438,8 +549,16 @@ economic/
   models/lstm_model.py              -- PyTorch LSTM, economic pressure score
 
 chatbot/
-  knowledge_base/builder.py        -- ChromaDB indexing
-  chain/rag_chain.py                -- RAG pipeline (question -> retrieve -> Groq -> answer)
+  agent.py                          -- tool-choosing loop (max 6 model calls), trace, what_if_seat
+  tools.py                          -- read-only data tools over the frozen and validated files
+  planner.py                        -- optional plan-first step
+  guardrails.py                     -- input, tool-result and output checks (code, not prompt)
+  verifier.py                       -- every number in an answer must appear in a tool result
+  docs_search.py                    -- search_docs tool over knowledge_base/docs/*.md (no figures)
+  chain/, knowledge_base/builder.py -- older keyword chatbot (ChromaDB), kept for comparison
+
+eval/chatbot_questions.csv          -- 27 fixed questions for the agent
+scripts/eval_chatbot.py             -- runs them (old, router, agent, agent_verified, agent_planned)
 
 mlops/
   model_versioning.py    -- held-out promotion gate, archiving
@@ -479,8 +598,9 @@ data/
 | Headline classifier decision | Done (DistilBERT better on three themes; two themes unresolved) |
 | Experimental sentiment layer (assumption-based, optional dashboard view) | Built; needs two scored news windows to show numbers |
 | Confidence intervals, baselines and ablation for the headline results | Done (`docs/evaluation_with_ci.json`, `docs/baseline_ablation.json`) |
-| Chatbot answer check (do answers quote the current numbers?) | Next |
+| Analyst agent: tools, planner, guardrails, verifier, 27-question evaluation | Done (17/27 first run, 25/27 after fixes; fixed-pipeline baseline pending) |
 | Per-coalition target (BN / PH / PN) and 1-vs-1 versus multi-corner contests | Planned; an earlier 3-class attempt failed for data reasons |
+| Forecasts for Johor and Negeri Sembilan (pending; next election, built on their 2026 results) | Planned |
 | More states; API, chatbot and dashboard moved onto the same state list | Planned |
 
 ---
@@ -496,7 +616,7 @@ data/
 - **High OOD rate in 2026** (41% Johor, 81% Negeri Sembilan): the 2026 seats look different from the training elections.
 - **Ethnicity is a single snapshot per state**, not matched to each election year.
 - **Serving layer not finished:** the predictor and the chatbot's "what if" tool now use the same feature code as
-  training, but the API lists only Johor, Negeri Sembilan and Melaka, the chatbot knows two states, and the drift check
+  training, but the API lists only Johor, Negeri Sembilan and Melaka, and the drift check
   still reads older column names.
 - **No public demo at the moment:** run the API locally with `uvicorn backend.app.main:app`.
 - **Binary target only** (Harapan vs BN/PN); 1-vs-1 versus multi-corner contests are not modelled yet.
@@ -557,11 +677,17 @@ python scripts/evaluate_holdout.py
 python scripts/freeze_forecasts.py --verify --check-models
 python scripts/score_forecast.py selangor
 
-# Build the chatbot knowledge base (generated, not committed)
-python chatbot/knowledge_base/builder.py
+# Run the dashboard (includes the analyst agent page; needs GROQ_API_KEY for the chatbot)
+streamlit run streamlit_app/Home.py
+
+# Evaluate the agent on the 27 fixed questions (uses Groq; resumes if the daily limit is hit)
+python scripts/eval_chatbot.py --modes agent
 
 # Run the API locally
 uvicorn backend.app.main:app --port 8000
+
+# Older keyword chatbot only (kept for the comparison): build its ChromaDB knowledge base
+python chatbot/knowledge_base/builder.py
 ```
 
 ---
