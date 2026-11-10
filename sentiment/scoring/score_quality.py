@@ -41,7 +41,7 @@ def parse_scores(reply: str):
     so a half-readable reply counts as failed instead of filling the gap with 0."""
     out = {}
     for field, label, lo, hi in FIELDS:
-        m = re.search(rf'{label}:\s*(-?\d+\.?\d*)', reply or '', re.IGNORECASE)
+        m = re.search(rf'{label}:\s*([-+]?(?:\d+(?:\.\d*)?|\.\d+))', reply or '', re.IGNORECASE)   # the model often writes +0.8
         if not m:
             return None
         out[field] = max(lo, min(hi, float(m.group(1))))

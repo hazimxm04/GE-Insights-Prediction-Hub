@@ -107,3 +107,18 @@ def test_resume_skips_only_successful_titles():
     done = pd.DataFrame({'title': ['a', 'b'], 'scoring_ok': [True, False]})
     assert list(sf.pending(raw, done)['title']) == ['b', 'c']      # failed 'b' is retried
     assert list(sf.pending(raw, None)['title']) == ['a', 'b', 'c']
+
+
+def test_plus_signed_numbers_are_read():
+    """Real replies from the model: 'BN: +0.8' used to be unreadable (or silently read as 0)."""
+    reply = ('BN: +0.8\nHarapan: -0.5\nPN: -0.5\nTension: 0.0\nIslam_threat: 0.0\n'
+             'Malay_unity: 0.0\nCost_living: 0.0\nCorruption: 0.0\nGovt_performance: +0.2')
+    s = q.parse_scores(reply)
+    assert s is not None and s['bn_sentiment'] == 0.8 and s['govt_performance'] == 0.2
+    assert s['harapan_sentiment'] == -0.5
+
+
+def test_number_formats_models_write():
+    base = 'Harapan: 0\nPN: 0\nTension: 0\nIslam_threat: 0\nMalay_unity: 0\nCost_living: 0\nCorruption: 0\nGovt_performance: 0'
+    for text, value in [('+1', 1.0), ('.5', 0.5), ('-.5', -0.5), ('0.', 0.0), ('1.0', 1.0)]:
+        assert q.parse_scores(f'BN: {text}\n{base}')['bn_sentiment'] == value
