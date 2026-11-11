@@ -657,8 +657,7 @@ python chatbot/knowledge_base/builder.py
 Built as an ML/AI engineering portfolio project demonstrating
 end-to-end system design: data ingestion, feature engineering,
 model training and evaluation, MLOps (versioning, CI/CD, scheduled
-automation), and honest documentation of what works, what doesn't,
+automation) and honest documentation of what works, what doesn't,
 and why.
 
-Built with AI assistance (Claude): design decisions, evaluation and testing
-are mine; the AI helped write and review code.
+Built with AI assistance.
