@@ -1,0 +1,58 @@
+flowchart LR
+  classDef src fill:#eef2f7,stroke:#8795a8,color:#1b2430
+  classDef pred fill:#e3f0e8,stroke:#5f9a76,color:#14301f
+  classDef sent fill:#fdf0e0,stroke:#c89150,color:#4a2f0c
+  classDef agent fill:#e8ecfb,stroke:#7384c4,color:#1a2252
+  classDef out fill:#f2eef7,stroke:#9a85b5,color:#2b1f3a
+  classDef box fill:#fbfbfd,stroke:#b9c0cc,color:#44506b
+
+  E["electiondata.my<br/><small>results, turnout, voter rolls</small>"]
+  N["News headlines<br/><small>RSS, English and Malay</small>"]
+
+  subgraph P[" 1. Prediction system "]
+    direction TB
+    F["features.py<br/><small>one leak-tested definition</small>"]
+    T["train_models.py<br/><small>RF + XGBoost, calibrated, OOD detector</small>"]
+    V["<b>Validated</b><br/><small>scored vs real 2026 result</small>"]
+    Z["<b>Forecast</b><br/><small>dated and checksummed</small>"]
+    F --> T
+    T --> V
+    T --> Z
+  end
+
+  subgraph S[" 2. Sentiment layer (experimental) "]
+    direction TB
+    G["sentiment_scorer.py<br/><small>LLM scores each headline, 9 fields</small>"]
+    W["Two 30-day windows<br/><small>300+ headlines each</small>"]
+    A["sentiment_adjustment.py<br/><small>capped shift per seat,<br/>weighted by voter groups</small>"]
+    G --> W --> A
+  end
+
+  subgraph C[" 3. Analyst agent (chatbot) "]
+    direction TB
+    I["Guardrails<br/><small>in, tool results, out</small>"]
+    PL["Planner"]
+    L["Tool loop<br/><small>8 read-only tools, max 6 calls</small>"]
+    VR["Verifier<br/><small>every number from a tool result</small>"]
+    I --> PL --> L --> VR
+  end
+
+  D["<b>Streamlit dashboard</b>"]
+
+  E --> F
+  N --> G
+  V -. "read only" .-> A
+  Z -. "read only" .-> A
+  V -. "read only" .-> L
+  Z -. "read only" .-> L
+  A -. "read only" .-> L
+  P ==> D
+  S ==> D
+  C ==> D
+
+  class E,N src
+  class F,T,V,Z pred
+  class G,W,A sent
+  class I,PL,L,VR agent
+  class D out
+  class P,S,C box

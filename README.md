@@ -266,50 +266,10 @@ change an earlier result.
 | 2. Sentiment layer | If the news mix changes, how might a seat's probability move? | An optional adjusted probability shown beside the model's | Experimental; effect sizes are assumptions |
 | 3. Analyst agent (chatbot) | What do the results say, in plain language? | An answer in which every number comes from a tool result | Evaluated on 27 fixed questions |
 
-```mermaid
-flowchart TD
-  subgraph SRC["Data sources"]
-    E["electiondata.my<br/>results, turnout, voter rolls"]
-    N["News headlines<br/>RSS outlets, English and Malay"]
-  end
+![MYRamalan architecture: data sources, prediction system, sentiment layer, analyst agent, dashboard](docs/architecture.png)
 
-  subgraph P["1. Prediction system"]
-    F["features.py<br/>one feature definition, leak-tested"]
-    T["train_models.py<br/>Random Forest + XGBoost, calibrated,<br/>out-of-distribution detector"]
-    V["Validated results<br/>scored on real 2026 results"]
-    Z["Frozen forecasts<br/>dated and checksummed"]
-  end
-
-  subgraph S["2. Sentiment layer (experimental)"]
-    G["sentiment_scorer.py<br/>an LLM scores each headline on 9 fields"]
-    W["Two 30-day news windows<br/>at least 300 headlines each"]
-    A["sentiment_adjustment.py<br/>capped shift per seat,<br/>weighted by the seat's voter groups"]
-  end
-
-  subgraph C["3. Analyst agent (chatbot)"]
-    I["Input guardrails"]
-    PL["Planner"]
-    L["Tool loop<br/>8 read-only tools, at most 6 model calls"]
-    VR["Verifier<br/>numbers must appear in a tool result"]
-  end
-
-  D["Streamlit dashboard"]
-
-  E --> F --> T
-  T --> V
-  T --> Z
-  N --> G --> W --> A
-  V -. read only .-> A
-  Z -. read only .-> A
-  V -. read only .-> L
-  Z -. read only .-> L
-  A -. read only .-> L
-  I --> PL --> L --> VR
-  V --> D
-  Z --> D
-  A --> D
-  VR --> D
-```
+<sub>Source: [`docs/architecture.mmd`](docs/architecture.mmd) (Mermaid). Regenerate with
+`mmdc -i docs/architecture.mmd -o docs/architecture.png -w 2400 -b white`.</sub>
 
 ### 1. Prediction system
 
