@@ -699,4 +699,5 @@ model training and evaluation, MLOps (versioning, CI/CD, scheduled
 automation) and honest documentation of what works, what doesn't,
 and why.
 
-Built with AI assistance.
+Built with AI assistance (Claude): design decisions, evaluation and testing
+are mine; the AI helped write and review code.
