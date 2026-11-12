@@ -80,7 +80,7 @@ if not GROQ_API_KEY:
     )
 
 client = Groq(api_key=GROQ_API_KEY)
-MODEL  = groq_model()          # llama-3.1-8b-instant was retired by Groq; see groq_settings.py
+MODEL  = groq_model()          
 
 print(f"Groq ready - model: {MODEL}")
 print(f"Free tier: 30 req/min, 14,400 req/day\n")
@@ -109,7 +109,7 @@ def score_article_all(text: str, _retry: bool = True) -> dict:
     Score one article for:
       - Coalition sentiment (BN/Harapan/PN)
       - Racial tension
-      - National narrative themes (NEW):
+      - National narrative themes:
           Islam_threat:    "Islam/Melayu terancam" discourse
           Malay_unity:     "Perpaduan Melayu" / BN-PN unity narrative
           Cost_living:     Economic hardship / kos sara hidup
@@ -206,7 +206,7 @@ def score_dataframe(df: pd.DataFrame) -> pd.DataFrame:
               f"PN={scores['pn_sentiment']:+.2f} | "
               f"Tension={scores['racial_tension']:.2f} | "
               f"Islam={scores['islam_threat']:.2f} | "
-              f"Cost={scores['cost_living']:.2f}")
+              f"Living Cost={scores['cost_living']:.2f}")
 
         results.append({
             'title':               row.get('title', ''),
