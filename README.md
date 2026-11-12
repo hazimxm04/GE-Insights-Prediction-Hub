@@ -1,4 +1,4 @@
-![MYRamalan: Malaysian state election forecasting](docs/MYRamalan%20banner.png)
+![MYRamalan: Malaysian state election forecasting](docs/MYRamalan%20banner.svg)
 
 # MYRamalan - Malaysia's Election Prediction Hub
 
