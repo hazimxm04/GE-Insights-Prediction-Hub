@@ -185,7 +185,9 @@ def evaluate_one(q: dict, mode: str, runner=run_mode) -> dict:
 
 def summarise(res: pd.DataFrame) -> str:
     res = res.copy()
-    res["pass"] = res["pass"].astype(bool)
+    # Rows read back from the CSV hold the text "True"/"False"; rows just scored hold real booleans.
+    # astype(bool) would turn every non-empty text, including "False", into True and inflate the table.
+    res["pass"] = res["pass"].astype(str).str.strip().str.lower().eq("true")
     lines = ["# Chatbot evaluation", "", "| set-up | questions | passed | pass rate |", "|---|---|---|---|"]
     for mode in [m for m in ALL_MODES if m in set(res["mode"])]:
         g = res[res["mode"] == mode]

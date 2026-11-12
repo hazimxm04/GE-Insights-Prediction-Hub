@@ -355,6 +355,7 @@ Run it with `python scripts/eval_chatbot.py --modes agent`.
 |---|---|---|
 | First run | 17 / 27 (63%) | Before any fix |
 | After fixes | 25 / 27 (93%) | Same questions, so this is **not** an independent score |
+| Fixed-pipeline baseline (keywords pick one tool; the model only writes the answer) | 10 / 27 (37%) | Same questions and the same 8 tools; no planner, guardrails or verifier |
 
 - **What was fixed between the runs:** tool descriptions and the prompt (wrong tool chosen for "which seats were wrong"),
   the verifier (shares of two numbers, typographic hyphens and spaces, signs), one tool output (window length), and the checker.
@@ -365,7 +366,13 @@ Run it with `python scripts/eval_chatbot.py --modes agent`.
   checker forbids. In one of them the first sentence also contradicts the correct figures that follow it.
 - **Limits of the check:** word matching is crude; the verifier does not check numbers written as words or dates, and it
   cannot tell that the wrong tool was chosen.
-- **Fixed-pipeline baseline** (keywords pick one tool, the model only writes the answer): being re-run; not reported yet.
+- **Agent against the fixed pipeline** (passed / asked): validation 3/4 vs 1/4, what-if 2/2 vs 0/2, guardrails 5/5 vs 0/5,
+  flips 2/2 vs 1/2, forecast 4/4 vs 3/4, method 2/2 vs 1/2; both pass the trap questions about equally. The comparison is
+  not clean: 8 of the pipeline's 17 failures are built in (it has no what-if routing, it can call only one tool per
+  question so the two-state question fails, and it has no guardrails), 4 are strict wording checks on answers that were
+  essentially right, and 2 are harness errors where the model tried to call a tool that was not offered. Without
+  guardrails the pipeline also printed its hidden system prompt when asked for it (q25). A set written by someone else
+  would be a fairer test.
 
 ### How the parts connect
 
@@ -559,7 +566,7 @@ data/
 | Headline classifier decision | Done (DistilBERT better on three themes; two themes unresolved) |
 | Experimental sentiment layer (assumption-based, optional dashboard view) | Built; needs two scored news windows to show numbers |
 | Confidence intervals, baselines and ablation for the headline results | Done (`docs/evaluation_with_ci.json`, `docs/baseline_ablation.json`) |
-| Analyst agent: tools, planner, guardrails, verifier, 27-question evaluation | Done (17/27 first run, 25/27 after fixes; fixed-pipeline baseline pending) |
+| Analyst agent: tools, planner, guardrails, verifier, 27-question evaluation | Done (17/27 first run, 25/27 after fixes; fixed-pipeline baseline 10/27) |
 | Per-coalition target (BN / PH / PN) and 1-vs-1 versus multi-corner contests | Planned; an earlier 3-class attempt failed for data reasons |
 | Forecasts for Johor and Negeri Sembilan (pending; next election, built on their 2026 results) | Planned |
 | Dockerfile for the dashboard, built and run locally | Done |
