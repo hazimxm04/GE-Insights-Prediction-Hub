@@ -1,0 +1,21 @@
+.git
+.github
+venv*/
+.venv/
+**/__pycache__/
+*.pyc
+.pytest_cache/
+.env
+**/.env
+backend/.env
+
+# Not needed to run the dashboard
+data/raw/news/
+finetune/
+eval/cv_*.csv
+eval/cv_*.json
+docs/*.png
+node_modules/
+frontend/
+chatbot/chroma_db/
+streamlit_app/chatbot/chroma_db/
