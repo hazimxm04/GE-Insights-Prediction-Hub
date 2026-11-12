@@ -1,3 +1,5 @@
+![MYRamalan: Malaysian state election forecasting](docs/MYRamalan%20banner.png)
+
 # MYRamalan - Malaysia's Election Prediction Hub
 
 A Malaysian election system with three main sub-architecture parts: a **prediction system** (classical ML, validated against the
