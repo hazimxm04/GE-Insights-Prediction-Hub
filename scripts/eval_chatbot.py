@@ -113,16 +113,23 @@ def run_router(question: str, client=None, model=None) -> dict:
         steps.append({"tool": tool, "arguments": "{}", "result": T.get_sentiment()})
     elif tool and state:
         steps.append({"tool": tool, "arguments": "{}", "result": T.call_tool(tool, {"state": state})})
-    try:
-        evidence = agent._to_message_text(steps[0]["result"]) if steps else "No tool was run."
-        resp = client.chat.completions.create(
-            model=model, temperature=0.1, **completion_options(model, 600),
-            messages=[{"role": "system", "content": agent.SYSTEM_PROMPT},
-                      {"role": "user", "content": f"Tool result:\n{evidence}\n\nQuestion: {question}"}])
-        answer = (resp.choices[0].message.content or "").strip() or "The model returned an empty answer."
-        return {"answer": answer, "steps": steps, "tools_used": [s["tool"] for s in steps], "stopped": "answered"}
-    except Exception as e:
-        return {"answer": f"The model call failed: {e}", "steps": steps, "tools_used": [], "stopped": "error"}
+    evidence = agent._to_message_text(steps[0]["result"]) if steps else "No tool was run."
+    system = agent.SYSTEM_PROMPT
+    for attempt in range(2):
+        try:
+            resp = client.chat.completions.create(
+                model=model, temperature=0.1, **completion_options(model, 600),
+                messages=[{"role": "system", "content": system},
+                          {"role": "user", "content": f"Tool result:\n{evidence}\n\nQuestion: {question}"}])
+            answer = (resp.choices[0].message.content or "").strip() or "The model returned an empty answer."
+            return {"answer": answer, "steps": steps, "tools_used": [s["tool"] for s in steps], "stopped": "answered"}
+        except Exception as e:
+            # When no tool matched, the model is still tempted to call one and Groq rejects that with a 400.
+            # Tell it plainly that there are no tools and ask once more, so the question is scored, not errored.
+            if attempt == 0 and "tool_use_failed" in str(e):
+                system += "\nNo tools are available in this turn. Answer in plain text only."
+                continue
+            return {"answer": f"The model call failed: {e}", "steps": steps, "tools_used": [], "stopped": "error"}
 
 
 def run_old(question: str, _state={}) -> dict:
