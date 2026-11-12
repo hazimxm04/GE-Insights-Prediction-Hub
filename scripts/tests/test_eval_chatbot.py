@@ -158,3 +158,12 @@ def test_kelantan_answer_wording_is_accepted():
     q = pd.read_csv(ev.QUESTIONS, dtype=str).fillna('').set_index('id').loc['q15']
     ans = "I\u2019m sorry, but there is no forecast data available for Kelantan in the current dataset."
     assert ev.score_content(ans, q['must_contain'], q['must_contain_any'], q['must_not_contain'])[0]
+
+
+def test_summary_counts_false_text_as_failed():
+    """Saved rows come back as the text "False"; the pass rate must not count them as passes."""
+    import pandas as pd
+    res = pd.DataFrame({"id": ["q01", "q02", "q03"], "mode": ["router"] * 3, "category": ["validation"] * 3,
+                        "pass": ["True", "False", False], "cause": ["", "missing_content", "error"]})
+    text = ev.summarise(res)
+    assert "| router | 3 | 1 | 33% |" in text
