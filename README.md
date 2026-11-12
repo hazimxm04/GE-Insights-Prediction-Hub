@@ -324,10 +324,10 @@ The checks around it run in code, so they do not depend on the model following a
 | Stage | File | What it does |
 |---|---|---|
 | Input guardrails | `chatbot/guardrails.py` | Blocks off-topic questions and prompt-injection wording before any model call; removes instruction-like text from tool results; checks the answer for leaked configuration. Keyword rules, not injection-proof |
-| Planner (optional) | `chatbot/planner.py` | One model call writes a short plan, shown to the user and ticked off as tools run |
+| Planner | `chatbot/planner.py` | One model call writes a short plan, shown to the user and ticked off as tools run |
 | Tool loop | `chatbot/agent.py` | At most 6 model calls. Every step is kept in a trace that the page can show |
 | Tools | `chatbot/tools.py`, `chatbot/docs_search.py` | 8 read-only tools (table below). They read the frozen and validated files directly, so the agent's numbers match the dashboard |
-| Verifier (optional) | `chatbot/verifier.py` | Every number and year in the answer must appear in a tool result (sums, differences and shares of two tool numbers are allowed). One retry, then the unsupported numbers are flagged |
+| Verifier | `chatbot/verifier.py` | Every number and year in the answer must appear in a tool result (sums, differences and shares of two tool numbers are allowed). One retry, then the unsupported numbers are flagged |
 
 | Tool | Returns |
 |---|---|
