@@ -419,6 +419,7 @@ when predicting). Re-enabling them needs a retrain with real seat-level values:
 | Testing | pytest (leakage, data quality, training, predictor, frozen-forecast and scoring tests) |
 | CI/CD | GitHub Actions (test suite on every push; scheduled monthly retraining workflow) |
 | Scheduling (local) | APScheduler |
+| Packaging | Dockerfile for the dashboard (Python 3.11 slim, runs as a non-root user); built and run locally |
 
 ---
 
@@ -561,6 +562,7 @@ data/
 | Analyst agent: tools, planner, guardrails, verifier, 27-question evaluation | Done (17/27 first run, 25/27 after fixes; fixed-pipeline baseline pending) |
 | Per-coalition target (BN / PH / PN) and 1-vs-1 versus multi-corner contests | Planned; an earlier 3-class attempt failed for data reasons |
 | Forecasts for Johor and Negeri Sembilan (pending; next election, built on their 2026 results) | Planned |
+| Dockerfile for the dashboard, built and run locally | Done |
 | More states; API, chatbot and dashboard moved onto the same state list | Planned |
 
 ---
@@ -578,7 +580,7 @@ data/
 - **Serving layer not finished:** the predictor and the chatbot's "what if" tool now use the same feature code as
   training, but the API lists only Johor, Negeri Sembilan and Melaka, and the drift check
   still reads older column names.
-- **No public demo at the moment:** run the API locally with `uvicorn backend.app.main:app`.
+- **No public demo at the moment:** run the dashboard locally (`streamlit run streamlit_app/Home.py`) or with Docker (see Quick start). The container runs the dashboard only; the hosted API is not deployed.
 - **Binary target only** (Harapan vs BN/PN); 1-vs-1 versus multi-corner contests are not modelled yet.
 - Only Johor and Neg Sembilan have held their 2026 elections, so those are the only two states with a real-election
   score. Selangor, Melaka and Perak have frozen forecasts that will be scored when they vote.
@@ -646,9 +648,46 @@ python scripts/eval_chatbot.py --modes agent
 # Run the API locally
 uvicorn backend.app.main:app --port 8000
 
+# Or run the dashboard in a container (no Python setup needed)
+docker build -t myramalan .
+docker run --rm -p 8501:8501 -e GROQ_API_KEY=your_key_here myramalan   # then open http://localhost:8501 (details: Run with Docker below)
+
 # Older keyword chatbot only (kept for the comparison): build its ChromaDB knowledge base
 python chatbot/knowledge_base/builder.py
 ```
+
+---
+
+## Run with Docker
+
+The dashboard (including the analyst agent page) can run in a container, so nothing needs installing except Docker.
+
+```bash
+docker build -t myramalan .
+docker run --rm -p 8501:8501 -e GROQ_API_KEY=your_key_here myramalan
+```
+
+Then open http://localhost:8501. The first build takes a few minutes (it downloads the Python packages); later builds
+reuse the cached layers and only repeat the steps whose files changed. Stop the container with Ctrl+C.
+
+| What | How it is set up |
+|---|---|
+| Base image | `python:3.11-slim` |
+| Packages | `requirements.txt` only. The heavy optional packages (torch, chromadb, sentence-transformers, yfinance, apscheduler) are not installed |
+| XGBoost | Installed as `xgboost-cpu` (same 2.1.1 release, without the large GPU library); the app only predicts on CPU |
+| User | Runs as a normal user (`appuser`), not root |
+| Port and health | Serves on 8501; a health check calls Streamlit's `/_stcore/health` |
+| Secrets | The Groq key is passed when the container starts (`-e GROQ_API_KEY=...`). It is never copied into the image: `.env` files are excluded by `.dockerignore` |
+| Contents | The code, the trained models, the frozen forecasts and the processed data, as they are in the repo at build time. Rebuild the image after retraining or refreshing data |
+
+What the container does **not** do:
+
+- It runs the dashboard only. The FastAPI service (`uvicorn backend.app.main:app`) is not started in it.
+- The chatbot page needs `GROQ_API_KEY`. Without it, the pages that do not call the model still work.
+- The older ChromaDB chatbot and the LSTM economic score need the optional packages, so they are unavailable in the container.
+- It is not a hosted demo. It runs on your machine.
+
+Built and run locally; all pages load. In PowerShell, run the two commands exactly as written above (one line each).
 
 ---
 
