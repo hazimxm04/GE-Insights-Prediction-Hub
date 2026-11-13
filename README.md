@@ -8,6 +8,8 @@ real 2026 state election results), an experimental **news sentiment scorer**, an
 
 Release: `v1.0` · Frozen forecasts (pre-registered, checksummed): tag `forecasts-2026-10-30`
 
+Live Website: https://myramalan.streamlit.app
+
 ---
 
 ## Results (verified against real 2026 election outcomes)
